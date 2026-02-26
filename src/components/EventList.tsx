@@ -6,29 +6,32 @@ import { EventCardCompact } from "./EventCardCompact";
 
 const EVENTS_PER_PAGE = 15;
 
+type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+
 interface EventListProps {
   events: Event[];
   layout: "compact" | "full";
   filter?: {
-    venue?: string;
+    enabledVenues?: Set<string>;
     showPast?: boolean;  // true = show only past, false = show only upcoming, undefined = show all
   };
+  venueColors?: VenueColors;
 }
 
-export function EventList({ events, layout, filter }: EventListProps) {
+export function EventList({ events, layout, filter, venueColors }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
   const today = new Date().toISOString().split('T')[0];  // YYYY-MM-DD
 
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(EVENTS_PER_PAGE);
-  }, [filter?.venue, filter?.showPast]);
+  }, [filter?.enabledVenues?.size, filter?.showPast]);
 
   let filtered = events;
 
-  // Filter by venue
-  if (filter?.venue && filter.venue !== "all") {
-    filtered = filtered.filter((e) => e.source === filter.venue);
+  // Filter by enabled venues
+  if (filter?.enabledVenues && filter.enabledVenues.size > 0) {
+    filtered = filtered.filter((e) => filter.enabledVenues!.has(e.source));
   }
 
   // Filter by past/upcoming
@@ -85,7 +88,7 @@ export function EventList({ events, layout, filter }: EventListProps) {
       <div>
         <div className="divide-y divide-gray-700">
           {visibleEvents.map((event) => (
-            <EventCardCompact key={event.id} event={event} />
+            <EventCardCompact key={event.id} event={event} venueColors={venueColors} />
           ))}
         </div>
         {hasMore && <LoadMoreButton />}
@@ -97,7 +100,7 @@ export function EventList({ events, layout, filter }: EventListProps) {
     <div>
       <div className="divide-y divide-gray-700">
         {visibleEvents.map((event) => (
-          <EventCard key={event.id} event={event} />
+          <EventCard key={event.id} event={event} venueColors={venueColors} />
         ))}
       </div>
       {hasMore && <LoadMoreButton />}

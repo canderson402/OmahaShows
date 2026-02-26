@@ -1,21 +1,6 @@
 {
   "events": [
     {
-      "id": "bourbontheatre-2026-02-01-pecos-the-rooftops-mac-hankins-the-moonlighters",
-      "title": "Pecos & the Rooftops, Mac Hankins & The Moonlighters",
-      "date": "2026-02-01",
-      "time": "19:30",
-      "venue": "Bourbon Theatre",
-      "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
-      "ticketUrl": null,
-      "imageUrl": null,
-      "price": null,
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "bourbontheatre"
-    },
-    {
       "id": "reverblounge-2026-02-26-psyclon-nine",
       "title": "Psyclon Nine",
       "date": "2026-02-26",
@@ -40,13 +25,32 @@
       "time": "19:00",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/pecos-the-rooftops-mac-hankins-the-moonlighters/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/34/45/73_Original.jpg?v=9",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-02-26-dropkick-murphys",
+      "title": "Dropkick Murphys",
+      "date": "2026-02-26",
+      "time": "19:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/dropkick-murphys-for-the-peoplein-the-pit-st-patricks-day-2026-tour/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/64974965/dropkick-murphysfor-the-peoplein-the-pit-stpatricks-day-2026-tour-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/10/etix-Dropkick_554451760346440.jfif",
+      "price": "$45 ADV / $50 DOS / $75 PREMIUM BALCONY",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": [
+        "The Aggrolites",
+        "Haywire",
+        "Slugger"
+      ],
+      "source": "admiral"
     },
     {
       "id": "theslowdown-2026-02-27-gannon-fremin-ccrev",
@@ -105,13 +109,28 @@
       "time": "19:00",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/bingo-loco/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/74/93/34_Original.jpg?v=7",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-02-27-melodrama-olio-night-three",
+      "title": "Melodrama / Olio – Night Three",
+      "date": "2026-02-27",
+      "time": "19:30",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/melodrama-olio-night-three-2/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/68840419/melodrama-olio-night-three-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/10/etix-Melodrama_559501761472838.jfif",
+      "price": "$20",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "admiral"
     },
     {
       "id": "theslowdown-2026-02-28-can-t-feel-my-face-2010s-dance-party",
@@ -168,13 +187,28 @@
       "time": "17:00",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/sky-cirque-and-parkour-early-and-late-show/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/78/62/14_Original.jpg?v=14",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-02-28-melodrama-olio-night-four",
+      "title": "Melodrama / Olio – Night Four",
+      "date": "2026-02-28",
+      "time": "19:30",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/melodrama-olio-night-four-2/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/69158010/melodrama-olio-night-four-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/10/etix-Melodrama_559501761472838.jfif",
+      "price": "$20",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": null,
+      "source": "admiral"
     },
     {
       "id": "reverblounge-2026-03-01-scattered-hamlet",
@@ -305,18 +339,50 @@
     },
     {
       "id": "bourbontheatre-2026-03-06-zoso-the-ultimate-led-zeppelin-experience",
-      "title": "Zoso – The Ultimate Led Zeppelin Experience",
+      "title": "Zoso - The Ultimate Led Zeppelin Experience",
       "date": "2026-03-06",
       "time": "20:00",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/zoso-the-ultimate-led-zeppelin-experience/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/74/32/84_Original.jpg?v=3",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-03-06-heated-rivalry-night",
+      "title": "Heated Rivalry Night",
+      "date": "2026-03-06",
+      "time": "21:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/heated-rivalry-night/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/94613504/heated-rivalry-night-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2026/02/heated-rivalry-night.jfif",
+      "price": "$32.39 to $62.90",
+      "ageRestriction": "Ages 18 and up",
+      "supportingArtists": null,
+      "source": "admiral"
+    },
+    {
+      "id": "astrotheater-2026-03-06-blackhawk",
+      "title": "BlackHawk",
+      "date": "2026-03-06",
+      "time": "20:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/blackhawk/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000636392B1382E",
+      "imageUrl": "/images/astro/13055cad97b7.png",
+      "price": "$41.10",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Ryan Manuel"
+      ],
+      "source": "astrotheater"
     },
     {
       "id": "waitingroom-2026-03-07-psychostick-galactic-empire",
@@ -362,13 +428,28 @@
       "time": "20:00",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/dad-rock-night-presented-by-council-hill/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/16/65/73_Original.jpg?v=5",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-03-07-felipe-esparza",
+      "title": "Felipe Esparza - At My Leisure World Tour",
+      "date": "2026-03-07",
+      "time": "19:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/felipe-esparza/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000634ED57333A3",
+      "imageUrl": "/images/astro/10b7bf139ad6.png",
+      "price": "$26",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
     },
     {
       "id": "theslowdown-2026-03-08-victor-jones",
@@ -413,9 +494,9 @@
       "time": "19:00",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/sleazyworld-go/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/83/27/04_Original.jpg?v=12",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
@@ -566,13 +647,30 @@
       "time": "20:00",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/disco-always-a-harry-styles-dance-night/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/87/86/44_Original.jpg?v=4",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-03-12-jim-breuer",
+      "title": "Jim Breuer - Find The Funny",
+      "date": "2026-03-12",
+      "time": "20:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/jim-breuer/",
+      "ticketUrl": "https://www.ticketmaster.com/event/200063719F7237DD",
+      "imageUrl": "/images/astro/0b0b8c46ffe3.png",
+      "price": "$61.60",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Bryan McKenna"
+      ],
+      "source": "astrotheater"
     },
     {
       "id": "theslowdown-2026-03-13-floyd",
@@ -631,13 +729,30 @@
       "time": "20:00",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/am-fm-pre-st-patricks-day-celebration/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/78/73/24_Original.jpg?v=4",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-03-13-rory-scovel",
+      "title": "Rory Scovel",
+      "date": "2026-03-13",
+      "time": "20:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/rory-scovel-know-your-enemy-tour/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/80956474/rory-scovelknow-your-enemy-tour-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/08/etix-Rory_545831755596153.jfif",
+      "price": "Starting at $34",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": [
+        "Solon Holt"
+      ],
+      "source": "admiral"
     },
     {
       "id": "theslowdown-2026-03-14-saturdays-at-your-place",
@@ -700,13 +815,30 @@
       "time": "19:30",
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/petrock/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/78/91/04_Original.jpg?v=6",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-03-16-houndmouth",
+      "title": "Houndmouth",
+      "date": "2026-03-16",
+      "time": "20:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/houndmouth/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/31294415/houndmouth-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/12/houndmouth.jfif",
+      "price": "$30 ADV / $35 DOS / $55 PREMIUM BALCONY",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": [
+        "The Bends"
+      ],
+      "source": "admiral"
     },
     {
       "id": "waitingroom-2026-03-17-paddy-s-rave",
@@ -810,6 +942,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-03-19-overkill-ezra-molten",
+      "title": "Overkill, Ezra, Molten",
+      "date": "2026-03-19",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/overkill-ezra-molten/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/85/86/84_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "theslowdown-2026-03-20-graham-barham",
       "title": "Graham Barham",
       "date": "2026-03-20",
@@ -843,6 +990,21 @@
         "Mindflight"
       ],
       "source": "waitingroom"
+    },
+    {
+      "id": "bourbontheatre-2026-03-20-jxhnny-bliss-cope-acetic-album-release",
+      "title": "Jxhnny Bliss (COPE)acetic Album Release",
+      "date": "2026-03-20",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/jxhnny-bliss-copeacetic-album-release/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/80/40/84_Original.jpg?v=4",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "theslowdown-2026-03-21-tophouse",
@@ -897,6 +1059,36 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-03-21-the-steel-wheels-corson-branch-buzzard-club-rascal-mar",
+      "title": "The Steel Wheels, Corson Branch Buzzard Club, Rascal Martinez",
+      "date": "2026-03-21",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/the-steel-wheels/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/31/97/83_Original.jpg?v=6",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-03-21-let-s-sing-taylor",
+      "title": "Let’s Sing Taylor - An Unofficial Live Tribute Show",
+      "date": "2026-03-21",
+      "time": "19:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/lets-sing-taylor/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006349D1C03493",
+      "imageUrl": "/images/astro/c04464941ad2.png",
+      "price": "$33.55",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
+    },
+    {
       "id": "reverblounge-2026-03-22-ventana",
       "title": "VentanA",
       "date": "2026-03-22",
@@ -912,6 +1104,40 @@
         "Aeternum"
       ],
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-03-22-mellow-rackz",
+      "title": "Mellow Rackz",
+      "date": "2026-03-22",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/mellow-rackz/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/83/27/64_Original.jpg?v=9",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-03-22-inzo-mirrorverse-tour",
+      "title": "INZO – MIRRORVERSE TOUR",
+      "date": "2026-03-22",
+      "time": "20:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/inzo-mirrorverse-tour/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/71368474/inzo-mirrorverse-tour-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/09/etix-INZO_546631758535113.jfif",
+      "price": "Starting at $25",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": [
+        "Zen Selekta",
+        "Blookah",
+        "SPENNY"
+      ],
+      "source": "admiral"
     },
     {
       "id": "theslowdown-2026-03-23-hot-flash-heat-wave",
@@ -982,6 +1208,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-03-25-platinum-moon-the-zooeys-the-groove-lagoon",
+      "title": "Platinum Moon, The Zooeys, The Groove Lagoon",
+      "date": "2026-03-25",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/platinum-moon-the-zooeys/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/85/56/24_Original.jpg?v=8",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "theslowdown-2026-03-26-the-happy-fits",
       "title": "The Happy Fits",
       "date": "2026-03-26",
@@ -1029,6 +1270,21 @@
         "Nathan Roberts"
       ],
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-03-26-josh-abbott-band-dylan-bloom-band",
+      "title": "Josh Abbott Band, Dylan Bloom Band",
+      "date": "2026-03-26",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/josh-abbott-band/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/32/49/93_Original.jpg?v=6",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "theslowdown-2026-03-27-clarence-tilton",
@@ -1082,6 +1338,36 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-03-27-the-warped-band-the-official-tribute-to-warped-tour",
+      "title": "The Warped Band - The Official Tribute to Warped Tour",
+      "date": "2026-03-27",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/the-warped-band-the-official-tribute-to-warped-tour/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/32/12/43_Original.jpg?v=4",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-03-27-whitney-cummings",
+      "title": "Whitney Cummings - The Big Baby Tour",
+      "date": "2026-03-27",
+      "time": "19:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/whitney-cummings/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000637299233228",
+      "imageUrl": "/images/astro/fb01a3fb3bb2.png",
+      "price": "$38.80",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
+    },
+    {
       "id": "theslowdown-2026-03-28-satchel-grande",
       "title": "Satchel Grande",
       "date": "2026-03-28",
@@ -1133,6 +1419,36 @@
         "Erin Kinsey"
       ],
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-03-28-micro-wrestling-federation",
+      "title": "Micro Wrestling Federation",
+      "date": "2026-03-28",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/micro-wrestling-federation/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/30/95/03_Original.jpg?v=6",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-03-28-bingo-loco",
+      "title": "Bingo Loco",
+      "date": "2026-03-28",
+      "time": "20:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/bingo-loco-6/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/36745605/bingo-loco-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/11/etix-Bingo_562311762165268.jfif",
+      "price": "$36",
+      "ageRestriction": "21+",
+      "supportingArtists": null,
+      "source": "admiral"
     },
     {
       "id": "reverblounge-2026-03-29-nequient",
@@ -1242,6 +1558,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-04-02-rittz-dropout-kings-loud-pack-ent-jay-influential",
+      "title": "Rittz, Dropout Kings, LOUD Pack Ent., Jay Influential",
+      "date": "2026-04-02",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/rittz-dropout-kings/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/83/81/44_Original.jpg?v=4",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "theslowdown-2026-04-03-cottage-chemistry-a-heated-rivalry-dance-party",
       "title": "Cottage Chemistry: A Heated Rivalry Dance Party",
       "date": "2026-04-03",
@@ -1272,6 +1603,21 @@
         "Up The Irons – Iron Maiden Tribute"
       ],
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-04-03-club-90s-la-presents-heated-rivalry-night",
+      "title": "Club 90s LA presents: Heated Rivalry Night",
+      "date": "2026-04-03",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/club-90s-la-presents-heated-rivalry-night-2/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/85/36/54_Original.jpg?v=3",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "theslowdown-2026-04-04-devil-in-the-details",
@@ -1325,6 +1671,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-04-04-onslaught-warlord-fascinus-rex",
+      "title": "Onslaught, Warlord, Fascinus Rex",
+      "date": "2026-04-04",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/onslaught-warlord-fascinus-rex/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/82/69/34_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "waitingroom-2026-04-05-mei-semones",
       "title": "Mei Semones",
       "date": "2026-04-05",
@@ -1376,6 +1737,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-04-07-freddie-dredd-back-to-hell-tour",
+      "title": "Freddie Dredd: Back to Hell Tour",
+      "date": "2026-04-07",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/freddie-dredd-back-to-hell-tour/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/87/06/64_Original.jpg?v=4",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "reverblounge-2026-04-08-the-koffin-kats",
       "title": "The Koffin Kats",
       "date": "2026-04-08",
@@ -1424,6 +1800,21 @@
         "Capture This"
       ],
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-04-09-curren-y-the-winners-circle-tour-w-the-747-band-specia",
+      "title": "CURREN$Y “THE WINNERS CIRCLE TOUR” W/ THE 747 BAND + SPECIAL GUEST FENDI P.",
+      "date": "2026-04-09",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/currensy-the-winners-circle-tour-w-the-747-band-special-guest-fendi-p/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/88/03/54_Original.jpg?v=11",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "theslowdown-2026-04-10-lumasi",
@@ -1513,6 +1904,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-04-11-zwarte-judd-hoos",
+      "title": "Zwarte', Judd Hoos",
+      "date": "2026-04-11",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/zwarte-judd-hoos/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/88/84/74_Original.jpg?v=4",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "waitingroom-2026-04-12-ryan-caraveo",
       "title": "Ryan Caraveo",
       "date": "2026-04-12",
@@ -1547,6 +1953,36 @@
         "Wakelee"
       ],
       "source": "waitingroom"
+    },
+    {
+      "id": "bourbontheatre-2026-04-13-little-miss-nasty-deaddollz-tour-2026",
+      "title": "Little Miss Nasty: Deaddollz Tour 2026",
+      "date": "2026-04-13",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/little-miss-nasty-deaddollz-tour-2026/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/80/35/84_Original.jpg?v=6",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-04-13-insane-clown-posse",
+      "title": "Insane Clown Posse",
+      "date": "2026-04-13",
+      "time": "19:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/insane-clown-posse/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/39297047/insane-clown-posse-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2026/02/insane-clown-posse.jfif",
+      "price": "$49.50 ADV / $54 DOS / $75 PREMIUM BALCONY",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": null,
+      "source": "admiral"
     },
     {
       "id": "theslowdown-2026-04-14-dance-with-the-dead-magic-sword",
@@ -1628,6 +2064,21 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-04-15-bleed-from-within-the-zenith-tour-north-america",
+      "title": "Bleed From Within - The Zenith Tour - North America",
+      "date": "2026-04-15",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/bleed-from-within-the-zenith-tour-north-america/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/31/75/23_Original.jpg?v=8",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "waitingroom-2026-04-16-selwyn-birchwood-album-release-party",
@@ -1715,6 +2166,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-04-17-ashes-remain-what-i-ve-become-15-year-anniversary-tour",
+      "title": "ASHES REMAIN “WHAT I’VE BECOME 15 YEAR ANNIVERSARY TOUR” FT. STEPHEN STANLEY",
+      "date": "2026-04-17",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/ashes-remain-what-ive-become-15-year-anniversary-tour-ft-stephen-stanley/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/86/66/74_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "waitingroom-2026-04-18-cold",
       "title": "COLD",
       "date": "2026-04-18",
@@ -1731,6 +2197,21 @@
         "Rival Within"
       ],
       "source": "waitingroom"
+    },
+    {
+      "id": "bourbontheatre-2026-04-18-the-killigans-this-is-only-a-drill-album-release",
+      "title": "The Killigans \"This is Only a Drill\" Album Release",
+      "date": "2026-04-18",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/the-killigans-this-is-only-a-drill-album-release/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/90/06/94_Original.jpg?v=3",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "waitingroom-2026-04-19-sunn-o",
@@ -1783,6 +2264,36 @@
       "source": "reverblounge"
     },
     {
+      "id": "astrotheater-2026-04-21-the-psychology-of-serial-killers",
+      "title": "The Psychology of Serial Killers - featuring Dr. Rachel Toles",
+      "date": "2026-04-21",
+      "time": "20:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/the-psychology-of-serial-killers/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000642ECC633EC1",
+      "imageUrl": "/images/astro/3e7079d5274a.png",
+      "price": "$30.60",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "astrotheater"
+    },
+    {
+      "id": "bourbontheatre-2026-04-22-buckethead",
+      "title": "Buckethead",
+      "date": "2026-04-22",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/buckethead/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/83/83/44_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "waitingroom-2026-04-23-zero-9-36",
       "title": "Zero 9:36",
       "date": "2026-04-23",
@@ -1799,6 +2310,23 @@
         "The Tale Untold"
       ],
       "source": "waitingroom"
+    },
+    {
+      "id": "astrotheater-2026-04-23-ethel-cain",
+      "title": "Ethel Cain - The Willoughby Tucker Forever Tour",
+      "date": "2026-04-23",
+      "time": "19:00",
+      "venue": "The Astro Amphitheater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/ethel-cain/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000633ACA3D2D0E",
+      "imageUrl": "/images/astro/6151f59be95a.png",
+      "price": "$60.35",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "9million"
+      ],
+      "source": "astrotheater"
     },
     {
       "id": "theslowdown-2026-04-24-fleshwater-julie",
@@ -1831,6 +2359,21 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-04-24-zach-rushing",
+      "title": "Zach Rushing",
+      "date": "2026-04-24",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/zach-rushing/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/78/58/44_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "theslowdown-2026-04-25-the-pork-tornadoes",
@@ -1884,6 +2427,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-04-25-he-is-legend-a-lot-like-birds-lost-in-separation-from-",
+      "title": "He Is Legend, A Lot Like Birds, Lost In Separation, From This Day Forward",
+      "date": "2026-04-25",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/he-is-legend-a-lot-like-birds-lost-in-separation-from-this-day-forward/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/85/56/94_Original.jpg?v=8",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "reverblounge-2026-04-26-june-star",
       "title": "June Star",
       "date": "2026-04-26",
@@ -1897,6 +2455,21 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-04-26-demon-hunter-there-was-a-light-here-tour",
+      "title": "Demon Hunter - There Was A Light Here Tour",
+      "date": "2026-04-26",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/demon-hunter-there-was-a-light-here-tour/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/82/00/54_Original.jpg?v=8",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "theslowdown-2026-04-28-bumpin-uglies-ballyhoo",
@@ -1967,6 +2540,36 @@
       "source": "waitingroom"
     },
     {
+      "id": "admiral-2026-04-29-the-growlers",
+      "title": "The Growlers",
+      "date": "2026-04-29",
+      "time": "20:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/the-growlers/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/87090546/the-growlers-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/11/the-growlers.jfif",
+      "price": "$40 ADV / $45 DOS / $60 PREMIUM BALCONY",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": null,
+      "source": "admiral"
+    },
+    {
+      "id": "astrotheater-2026-04-29-iron-wine",
+      "title": "Iron & Wine",
+      "date": "2026-04-29",
+      "time": "20:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/iron-wine/",
+      "ticketUrl": "https://www.ticketmaster.com/event/200063888C2D28CF",
+      "imageUrl": "/images/astro/dd65775f741b.png",
+      "price": "$50.40",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
+    },
+    {
       "id": "theslowdown-2026-04-30-pert-near-sandstone-arkansauce",
       "title": "Pert Near Sandstone & Arkansauce",
       "date": "2026-04-30",
@@ -2012,6 +2615,23 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge"
+    },
+    {
+      "id": "admiral-2026-04-30-afi",
+      "title": "AFI",
+      "date": "2026-04-30",
+      "time": "20:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/afi/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/44417216/afi-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/12/afi.jfif",
+      "price": "$35 ADV / $40 DOS / $75 PREMIUM BALCONY",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": [
+        "Choir Boy"
+      ],
+      "source": "admiral"
     },
     {
       "id": "theslowdown-2026-05-01-phoneboy-heart-attack-man",
@@ -2065,6 +2685,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-05-01-walker-montgomery-hank-weaver",
+      "title": "Walker Montgomery, Hank Weaver",
+      "date": "2026-05-01",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/walker-montgomery-hank-weaver/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/79/59/04_Original.jpg?v=3",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
       "id": "theslowdown-2026-05-02-ashley-kutcher",
       "title": "Ashley Kutcher",
       "date": "2026-05-02",
@@ -2083,16 +2718,35 @@
       "id": "bourbontheatre-2026-05-02-nu-metal-sucks-tour-spineshank-hed-pe-primer-55",
       "title": "Nu Metal Sucks Tour: Spineshank + Hed PE + Primer 55",
       "date": "2026-05-02",
-      "time": "18:30",
+      "time": null,
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/nu-metal-sucks-tour-spineshank-hed-pe-primer-55/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/88/95/64_Original.jpg?v=7",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-05-02-black-veil-brides",
+      "title": "Black Veil Brides - North American Tour 2026",
+      "date": "2026-05-02",
+      "time": "18:35",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/black-veil-brides/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006434A986325F",
+      "imageUrl": "/images/astro/56d792f299bd.png",
+      "price": "$57.60",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "From Ashes To New",
+        "TX2",
+        "As December Falls"
+      ],
+      "source": "astrotheater"
     },
     {
       "id": "theslowdown-2026-05-03-master-boot-record",
@@ -2128,6 +2782,24 @@
       "source": "reverblounge"
     },
     {
+      "id": "astrotheater-2026-05-03-the-amity-affliction-august-burns-red",
+      "title": "The Amity Affliction & August Burns Red - The Springs Horizon Tour",
+      "date": "2026-05-03",
+      "time": "18:30",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/the-amity-affliction-august-burns-red/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006372BFD83CD2",
+      "imageUrl": "/images/astro/e3fd5ee71d84.png",
+      "price": "$50.90",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Boundaries",
+        "Heavensgate"
+      ],
+      "source": "astrotheater"
+    },
+    {
       "id": "theslowdown-2026-05-04-vnv-nation",
       "title": "VNV Nation",
       "date": "2026-05-04",
@@ -2156,6 +2828,38 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "reverblounge"
+    },
+    {
+      "id": "bourbontheatre-2026-05-05-geoff-tate-s-operation-mindcrime-the-final-chapter",
+      "title": "Geoff Tate’s Operation: Mindcrime - The Final Chapter",
+      "date": "2026-05-05",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/geoff-tates-operation-mindcrime-the-final-chapter/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/74/97/94_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-05-05-mac-demarco",
+      "title": "Mac DeMarco",
+      "date": "2026-05-05",
+      "time": "19:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/mac-demarco/",
+      "ticketUrl": null,
+      "imageUrl": "/images/astro/2f9ada6c5ef6.png",
+      "price": "$55",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Mock Media"
+      ],
+      "source": "astrotheater"
     },
     {
       "id": "theslowdown-2026-05-06-la-dispute",
@@ -2196,18 +2900,36 @@
     },
     {
       "id": "bourbontheatre-2026-05-07-the-garcia-project-performing-full-classic-jerry-garci",
-      "title": "The Garcia Project – Performing full classic Jerry Garcia Band shows from 1976-1995, Shakedown Strings",
+      "title": "The Garcia Project - Performing full classic Jerry Garcia Band shows from 1976-1995, Shakedown Strings",
       "date": "2026-05-07",
-      "time": "19:30",
+      "time": null,
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/the-garcia-project-performing-full-classic-jerry-garcia-band-shows-from-1976-1995/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/89/91/04_Original.jpg?v=4",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-05-07-sam-barber",
+      "title": "Sam Barber - The American Route Tour",
+      "date": "2026-05-07",
+      "time": "18:30",
+      "venue": "The Astro Amphitheater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/sam-barber/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006355B1262C10",
+      "imageUrl": "/images/astro/d51adb838468.jpg",
+      "price": "$59.25",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Michael Marcagi",
+        "Bebe Stockwell"
+      ],
+      "source": "astrotheater"
     },
     {
       "id": "theslowdown-2026-05-08-brenn",
@@ -2225,6 +2947,24 @@
         "Hudson Ingram"
       ],
       "source": "theslowdown"
+    },
+    {
+      "id": "admiral-2026-05-08-wage-war",
+      "title": "Wage War",
+      "date": "2026-05-08",
+      "time": "19:30",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/wage-war-it-calls-me-by-name-tour/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/65763330/wagewarit-calls-me-by-name-tour-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2026/02/wage-war-it-calls-me-by-name-tour.jfif",
+      "price": "$35 ADV / $37 DOS / $69.50 PREMIUM BALCONY",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Nevertel",
+        "Orthodox"
+      ],
+      "source": "admiral"
     },
     {
       "id": "theslowdown-2026-05-09-ambar-lucid-maye",
@@ -2262,16 +3002,31 @@
       "id": "bourbontheatre-2026-05-09-george-michael-reborn-tribute-to-wham-george-michael",
       "title": "George Michael Reborn: Tribute to WHAM! & George Michael",
       "date": "2026-05-09",
-      "time": "20:00",
+      "time": null,
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/george-michael-reborn-tribute-to-wham-george-michael/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/89/67/34_Original.jpg?v=6",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-05-09-jimmy-failla",
+      "title": "Jimmy Failla - Everybody Calm Down Tour",
+      "date": "2026-05-09",
+      "time": "19:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/jimmy-failla/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006385A29C3CAC",
+      "imageUrl": "/images/astro/f60f2f29d7f2.png",
+      "price": "$61.75",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
     },
     {
       "id": "theslowdown-2026-05-11-the-moss",
@@ -2306,6 +3061,21 @@
         "Hotline TNT"
       ],
       "source": "theslowdown"
+    },
+    {
+      "id": "bourbontheatre-2026-05-12-fit-for-a-king-lonely-god-north-american-tour",
+      "title": "Fit For A King - Lonely God North American Tour",
+      "date": "2026-05-12",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/fit-for-a-king-lonely-god-north-american-tour/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/81/55/44_Original.jpg?v=8",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "reverblounge-2026-05-14-snake-lucci-s-my-darkest-tour",
@@ -2346,6 +3116,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "astrotheater-2026-05-15-jim-jefferies",
+      "title": "Jim Jefferies - Son of A Carpenter Tour",
+      "date": "2026-05-15",
+      "time": "19:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/jim-jefferies/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000634F96B32EA7",
+      "imageUrl": "/images/astro/e9225e37f160.png",
+      "price": "$89.65",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
+    },
+    {
       "id": "theslowdown-2026-05-16-petrock",
       "title": "PetRock",
       "date": "2026-05-16",
@@ -2374,6 +3159,23 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown"
+    },
+    {
+      "id": "astrotheater-2026-05-17-george-thorogood-and-the-destroyers",
+      "title": "George Thorogood and The Destroyers - The Baddest Show On Earth",
+      "date": "2026-05-17",
+      "time": "19:00",
+      "venue": "The Astro Amphitheater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/george-thorogood-and-the-destroyers/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000642C997F2C28",
+      "imageUrl": "/images/astro/a287668825f1.png",
+      "price": "$47.30",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "The Marshall Tucker Band"
+      ],
+      "source": "astrotheater"
     },
     {
       "id": "reverblounge-2026-05-18-the-callous-daoboys",
@@ -2444,6 +3246,38 @@
       "source": "reverblounge"
     },
     {
+      "id": "bourbontheatre-2026-05-20-poet-the-almas-embers-rise-after-arizona",
+      "title": "POET, The Almas, Embers Rise, After Arizona",
+      "date": "2026-05-20",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/poet-the-almas-embers-rise-after-arizona/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/86/57/54_Original.jpg?v=6",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "admiral-2026-05-21-qveen-herby-isle-of-qveen-tour",
+      "title": "Qveen Herby – Isle of Qveen Tour",
+      "date": "2026-05-21",
+      "time": "20:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/qveen-herby-isle-of-qveen-tour/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/35102902/qveenherbyisle-of-qveentour-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2026/01/qveen-herby-isle-of-qveen-tour.jfif",
+      "price": "$41.66 to $85.87",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Thot Squad"
+      ],
+      "source": "admiral"
+    },
+    {
       "id": "waitingroom-2026-05-22-blade-rave",
       "title": "Blade Rave",
       "date": "2026-05-22",
@@ -2457,6 +3291,21 @@
       "ageRestriction": "18+",
       "supportingArtists": null,
       "source": "waitingroom"
+    },
+    {
+      "id": "bourbontheatre-2026-05-22-cradle-of-filth-suffocation-ghost-bath-cultus-black",
+      "title": "Cradle of Filth, Suffocation, Ghost Bath, Cultus Black",
+      "date": "2026-05-22",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/cradle-of-filth-suffocation-ghost-bath-cultus-black/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/73/36/74_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "waitingroom-2026-05-23-archspire",
@@ -2550,12 +3399,12 @@
       "id": "bourbontheatre-2026-05-30-savannah-dexter-damage-control-tour",
       "title": "Savannah Dexter – DAMAGE CONTROL TOUR",
       "date": "2026-05-30",
-      "time": "19:00",
+      "time": null,
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/savannah-dexter-damage-control-tour/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/90/08/14_Original.jpg?v=7",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
@@ -2580,14 +3429,14 @@
     },
     {
       "id": "bourbontheatre-2026-05-31-between-the-buried-and-me-the-blue-nowhere-u-s-tour-sp",
-      "title": "Between the Buried and Me: The Blue Nowhere U.S. Tour – Spring 2026",
+      "title": "Between the Buried and Me: The Blue Nowhere U.S. Tour - Spring 2026",
       "date": "2026-05-31",
-      "time": "19:00",
+      "time": null,
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": null,
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/between-the-buried-and-me-the-blue-nowhere-u-s-tour-spring-2026/",
       "ticketUrl": null,
-      "imageUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/88/74/44_Original.jpg?v=4",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
@@ -2609,6 +3458,88 @@
       "source": "theslowdown"
     },
     {
+      "id": "astrotheater-2026-06-03-toadies",
+      "title": "Toadies - The Charmer Tour",
+      "date": "2026-06-03",
+      "time": "19:30",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/toadies/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000644AD0063C96",
+      "imageUrl": "/images/astro/e279df62cdd7.png",
+      "price": "$50.90",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Local H",
+        "Vandoliers"
+      ],
+      "source": "astrotheater"
+    },
+    {
+      "id": "bourbontheatre-2026-06-06-citizen-soldier-secret-songs-tour-ii",
+      "title": "Citizen Soldier: Secret Songs Tour II",
+      "date": "2026-06-06",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/citizen-soldier-secret-songs-tour-ii/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/82/10/84_Original.jpg?v=3",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-06-06-nitty-gritty-dirt-band",
+      "title": "Nitty Gritty Dirt Band - All The Good Times - The Farewell Tour",
+      "date": "2026-06-06",
+      "time": "19:30",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/nitty-gritty-dirt-band/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006430861A22E7",
+      "imageUrl": "/images/astro/457d200f2eb8.png",
+      "price": "$50.90",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Brit Taylor"
+      ],
+      "source": "astrotheater"
+    },
+    {
+      "id": "admiral-2026-06-09-josiah-and-the-bonnevilles-the-redline-north-american-tour-20",
+      "title": "Josiah and the Bonnevilles – The Redline North American Tour 2026",
+      "date": "2026-06-09",
+      "time": "20:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/josiah-and-the-bonnevilles-the-redline-north-american-tour-2026/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/79870517/josiah-and-the-bonnevilles-the-redline-north-american-tour-2026-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2026/02/josiah-and-the-bonnevilles-the-redline-north-american-tour-2026.jfif",
+      "price": "$25 ADV / $30 DOS / $50 PREMIUM BALCONY",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": null,
+      "source": "admiral"
+    },
+    {
+      "id": "astrotheater-2026-06-09-iration",
+      "title": "Iration - Where It All Began Tour",
+      "date": "2026-06-09",
+      "time": "18:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/iration/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000638CB02744F2",
+      "imageUrl": "/images/astro/def133f69989.jpg",
+      "price": "$50.90",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Tribal Seeds"
+      ],
+      "source": "astrotheater"
+    },
+    {
       "id": "reverblounge-2026-06-11-belles",
       "title": "Belles",
       "date": "2026-06-11",
@@ -2624,6 +3555,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "admiral-2026-06-12-joe-jackson",
+      "title": "Joe Jackson",
+      "date": "2026-06-12",
+      "time": "20:05",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/joe-jackson/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/61630719/joe-jackson-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/11/etix-Joe_570711762857533.jfif",
+      "price": "Starting at $45  -  SEATED SHOW",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": null,
+      "source": "admiral"
+    },
+    {
       "id": "reverblounge-2026-06-15-mikaela-davis",
       "title": "Mikaela Davis",
       "date": "2026-06-15",
@@ -2637,6 +3583,116 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge"
+    },
+    {
+      "id": "astrotheater-2026-06-16-amyl-and-the-sniffers",
+      "title": "Amyl and the Sniffers",
+      "date": "2026-06-16",
+      "time": "20:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/amyl-and-the-sniffers/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006378909D2E0F",
+      "imageUrl": "/images/astro/54f262dae6ed.png",
+      "price": "$52.45",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
+    },
+    {
+      "id": "bourbontheatre-2026-06-22-bug-hunter-the-narcissist-cookbook",
+      "title": "Bug Hunter & The Narcissist Cookbook",
+      "date": "2026-06-22",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/bug-hunter-the-narcissist-cookbook/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/87/90/64_Original.jpg?v=3",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "bourbontheatre-2026-07-15-juvenile-s-boiling-point-album-release-tour-w-the-400-",
+      "title": "Juvenile’s Boiling Point Album Release Tour w/ The 400 Degreez Band",
+      "date": "2026-07-15",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/juveniles-boiling-point-album-release-tour-w-the-400-degreez-band/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/80/99/84_Original.jpg?v=9",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "bourbontheatre-2026-07-17-a-foreigner-s-journey-to-boston",
+      "title": "A Foreigner's Journey To Boston",
+      "date": "2026-07-17",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/a-foreigners-journey-to-boston/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/79/27/24_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
+    },
+    {
+      "id": "astrotheater-2026-07-18-mammoth",
+      "title": "Mammoth - The End Tour",
+      "date": "2026-07-18",
+      "time": "19:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/mammoth/",
+      "ticketUrl": "https://www.ticketmaster.com/event/200062F8CFC730EA",
+      "imageUrl": "/images/astro/b69fca26e934.png",
+      "price": "$46.25",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
+    },
+    {
+      "id": "astrotheater-2026-07-20-the-black-keys",
+      "title": "The Black Keys - Peaches 'N Kream Tour",
+      "date": "2026-07-20",
+      "time": "19:00",
+      "venue": "The Astro Amphitheater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/the-black-keys/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006442CCBB37C9",
+      "imageUrl": "/images/astro/b2c2bc18df9f.png",
+      "price": "$74.85",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Eddie 9V"
+      ],
+      "source": "astrotheater"
+    },
+    {
+      "id": "admiral-2026-07-27-poppy",
+      "title": "Poppy",
+      "date": "2026-07-27",
+      "time": "19:00",
+      "venue": "Admiral",
+      "venueUrl": "https://admiralomaha.com",
+      "eventUrl": "https://admiralomaha.com/event/poppy-constantly-nowhere-tour/the-admiral/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/81827152/poppyconstantly-nowhere-tour-omaha-the-admiral-theater?partner_id=100",
+      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2026/02/poppy-constantly-nowhere-tour.jfif",
+      "price": "$39.50 ADV / $45 DOS / $79.50 PREMIUM BALCONY",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": [
+        "Landmvks",
+        "Thousand Below"
+      ],
+      "source": "admiral"
     },
     {
       "id": "theslowdown-2026-07-30-benjamin-tod",
@@ -2656,6 +3712,24 @@
       "source": "theslowdown"
     },
     {
+      "id": "astrotheater-2026-08-03-young-the-giant",
+      "title": "Young The Giant - Victory Garden Tour",
+      "date": "2026-08-03",
+      "time": "19:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/young-the-giant/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006446B29649B7",
+      "imageUrl": "/images/astro/aedcab18d7d5.png",
+      "price": "$58.65",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Cold War Kids",
+        "KennyHoopla"
+      ],
+      "source": "astrotheater"
+    },
+    {
       "id": "reverblounge-2026-08-09-overtime-the-blue-collar-soldiers-band",
       "title": "Overtime & The Blue Collar Soldiers Band",
       "date": "2026-08-09",
@@ -2669,6 +3743,23 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge"
+    },
+    {
+      "id": "astrotheater-2026-08-11-lindsey-stirling",
+      "title": "Lindsey Stirling - Duality Untamed Tour",
+      "date": "2026-08-11",
+      "time": "19:00",
+      "venue": "The Astro Amphitheater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/lindsey-stirling/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006435973231BF",
+      "imageUrl": "/images/astro/1392ccad1c04.png",
+      "price": "$57.60",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "PVRIS"
+      ],
+      "source": "astrotheater"
     },
     {
       "id": "waitingroom-2026-08-19-diggy-graves",
@@ -2687,6 +3778,40 @@
         "Ryan Oakes"
       ],
       "source": "waitingroom"
+    },
+    {
+      "id": "astrotheater-2026-09-24-jefferson-starship",
+      "title": "Jefferson Starship - Runaway Again Tour",
+      "date": "2026-09-24",
+      "time": "19:00",
+      "venue": "The Astro Amphitheater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/jefferson-starship/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006443C9803FF0",
+      "imageUrl": "/images/astro/fee1f4b16c32.png",
+      "price": "$46.15",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Atlanta Rhythm Section",
+        "Pure Prairie League",
+        "Firefall"
+      ],
+      "source": "astrotheater"
+    },
+    {
+      "id": "bourbontheatre-2026-10-07-gnash",
+      "title": "gnash",
+      "date": "2026-10-07",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/gnash/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/12/89/65/04_Original.jpg?v=5",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre"
     },
     {
       "id": "theslowdown-2026-10-08-big-head-todd-and-the-monsters",
@@ -2719,6 +3844,21 @@
       "source": "waitingroom"
     },
     {
+      "id": "astrotheater-2026-10-09-labyrinth-in-concert",
+      "title": "Labyrinth: In Concert - Jim Henson's",
+      "date": "2026-10-09",
+      "time": "20:00",
+      "venue": "The Astro Theater",
+      "venueUrl": "https://theastrotheater.com",
+      "eventUrl": "https://theastrotheater.com/event/labyrinth-in-concert/",
+      "ticketUrl": "https://www.ticketmaster.com/event/200064259DA724A6",
+      "imageUrl": "/images/astro/a50e94e4881c.png",
+      "price": "$50.90",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater"
+    },
+    {
       "id": "waitingroom-2026-12-03-dad-rock-night-2000s-rock-tribute",
       "title": "Dad Rock Night (2000s Rock Tribute)",
       "date": "2026-12-03",
@@ -2734,14 +3874,14 @@
       "source": "waitingroom"
     }
   ],
-  "lastUpdated": "2026-02-26T20:15:33.191719+00:00",
+  "lastUpdated": "2026-02-26T20:37:59.434735+00:00",
   "sources": [
     {
       "name": "The Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T20:15:22.304163+00:00",
+      "lastScraped": "2026-02-26T20:37:37.126491+00:00",
       "eventCount": 48,
       "error": null
     },
@@ -2750,7 +3890,7 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T20:15:24.284298+00:00",
+      "lastScraped": "2026-02-26T20:37:39.364362+00:00",
       "eventCount": 44,
       "error": null
     },
@@ -2759,7 +3899,7 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T20:15:26.317544+00:00",
+      "lastScraped": "2026-02-26T20:37:42.049984+00:00",
       "eventCount": 56,
       "error": null
     },
@@ -2768,8 +3908,26 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-02-26T20:15:33.191630+00:00",
-      "eventCount": 15,
+      "lastScraped": "2026-02-26T20:37:49.106267+00:00",
+      "eventCount": 46,
+      "error": null
+    },
+    {
+      "name": "Admiral",
+      "id": "admiral",
+      "url": "https://admiralomaha.com/events/",
+      "status": "ok",
+      "lastScraped": "2026-02-26T20:37:51.150852+00:00",
+      "eventCount": 16,
+      "error": null
+    },
+    {
+      "name": "The Astro",
+      "id": "astrotheater",
+      "url": "https://theastrotheater.com/#shows",
+      "status": "ok",
+      "lastScraped": "2026-02-26T20:37:59.434653+00:00",
+      "eventCount": 25,
       "error": null
     }
   ]

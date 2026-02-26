@@ -1,11 +1,14 @@
 // web/src/components/EventCard.tsx
 import type { Event } from "../types";
 
+type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+
 interface EventCardProps {
   event: Event;
+  venueColors?: VenueColors;
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, venueColors }: EventCardProps) {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     return date.toLocaleDateString("en-US", {
@@ -85,7 +88,7 @@ export function EventCard({ event }: EventCardProps) {
         <div className="flex items-center gap-2 text-gray-400 flex-wrap">
           <span>{formatTime(event.time) || "TBA"}</span>
           <span className="text-gray-600">·</span>
-          <span>{event.venue}</span>
+          <span className={venueColors?.[event.source]?.text || "text-gray-400"}>{event.venue}</span>
           {event.price && (
             <>
               <span className="text-gray-600">·</span>
