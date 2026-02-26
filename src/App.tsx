@@ -21,8 +21,8 @@ export const VENUE_COLORS: Record<string, { bg: string; text: string; border: st
 
 function App() {
   const [data, setData] = useState<EventsData | null>(null);
-  const [view, setView] = useState<View>("events");
-  const [layout, setLayout] = useState<Layout>("compact");
+  const [view] = useState<View>("events");
+  const [layout] = useState<Layout>("compact");
   const [enabledVenues, setEnabledVenues] = useState<Set<string>>(new Set());
   const [isScrapingAll, setIsScrapingAll] = useState(false);
   const [scrapingVenue, setScrapingVenue] = useState<string | null>(null);

@@ -9,15 +9,6 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, venueColors }: EventCardProps) {
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr + "T00:00:00");
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   const formatDateOverlay = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
