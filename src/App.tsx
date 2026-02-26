@@ -30,7 +30,8 @@ function App() {
         setError(null);
       } else {
         setApiConnected(false);
-        response = await fetch("/events.json");
+        // Use import.meta.env.BASE_URL for GitHub Pages compatibility
+        response = await fetch(`${import.meta.env.BASE_URL}events.json`);
         const json = await response.json();
         setData(json);
         setError(null);
