@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Ensure no white flash */
+html, body {
+  background-color: #0d0d0f;
+}
+
 /* Outer background - abstract gradient */
 .bg-texture {
   background-color: #0d0d0f;
@@ -7,6 +12,15 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+}
+
+/* Mobile: disable fixed attachment (causes issues on iOS/Android) */
+@media (max-width: 768px) {
+  .bg-texture {
+    background-attachment: scroll;
+    background-size: cover;
+    min-height: 100vh;
+  }
 }
 
 /* Content container - very subtle dark grain for readability */
