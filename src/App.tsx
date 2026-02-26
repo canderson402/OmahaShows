@@ -132,11 +132,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-texture">
-      <main className="py-8">
-        <div className={`mx-auto px-4 ${layout === "compact" ? "max-w-4xl" : "max-w-xl"}`}>
-          <div className="content-container rounded-2xl p-6">
+      <main className="md:py-8">
+        <div className={`mx-auto md:px-4 ${layout === "compact" ? "max-w-4xl" : "max-w-xl"}`}>
+          <div className="content-container md:rounded-2xl p-6">
             {/* Logo */}
-            <div className="text-center mb-6 -mx-6 -mt-6 px-6 pt-6 pb-4 bg-black/20 rounded-t-2xl">
+            <div className="text-center mb-6 -mx-6 -mt-6 px-6 pt-6 pb-4 bg-black/20 md:rounded-t-2xl">
               <h1 className="text-5xl md:text-6xl font-black tracking-tight">
                 <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-purple-500 bg-clip-text text-transparent">
                   OMAHA
