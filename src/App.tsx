@@ -17,6 +17,8 @@ export const VENUE_COLORS: Record<string, { bg: string; text: string; border: st
   bourbontheatre: { bg: "bg-pink-500/20", text: "text-pink-400", border: "border-pink-500" },
   admiral: { bg: "bg-fuchsia-500/20", text: "text-fuchsia-400", border: "border-fuchsia-500" },
   astrotheater: { bg: "bg-purple-500/20", text: "text-purple-400", border: "border-purple-500" },
+  steelhouse: { bg: "bg-cyan-500/20", text: "text-cyan-400", border: "border-cyan-500" },
+  other: { bg: "bg-emerald-500/20", text: "text-emerald-400", border: "border-emerald-500" },
 };
 
 function App() {

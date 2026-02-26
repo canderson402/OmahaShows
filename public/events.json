@@ -53,6 +53,21 @@
       "source": "admiral"
     },
     {
+      "id": "steelhouse-2026-02-26-vitamin-string-quartet",
+      "title": "Vitamin String Quartet",
+      "date": "2026-02-26",
+      "time": "19:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/vitamin-string-quartet/",
+      "ticketUrl": "http://www.ticketmaster.com/event/2000631DCB672B12?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/09/VSQ_Web_558x558-1.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
       "id": "theslowdown-2026-02-27-gannon-fremin-ccrev",
       "title": "Gannon Fremin & CCREV",
       "date": "2026-02-27",
@@ -133,6 +148,21 @@
       "source": "admiral"
     },
     {
+      "id": "other-2026-02-27-mixed-bill-at-the-breakroom",
+      "title": "Mixed Bill at The Breakroom",
+      "date": "2026-02-27",
+      "time": "18:00",
+      "venue": "The Breakroom",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-02-27",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/87814d05-afcd-484d-bd2f-6731f06297ce.jpg",
+      "price": "$10 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "theslowdown-2026-02-28-can-t-feel-my-face-2010s-dance-party",
       "title": "Can't Feel My Face: 2010s Dance Party",
       "date": "2026-02-28",
@@ -209,6 +239,36 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "admiral"
+    },
+    {
+      "id": "other-2026-02-28-glitterer-graham-hunt-prize-horse",
+      "title": "Glitterer, Graham Hunt, Prize Horse",
+      "date": "2026-02-28",
+      "time": null,
+      "venue": "American Legion Post #1",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-02-28",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_1804066.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
+      "id": "other-2026-02-28-clunt-wood-haven-more-cheese",
+      "title": "CLUNT, Wood Haven, More Cheese",
+      "date": "2026-02-28",
+      "time": "19:00",
+      "venue": "O'Leaver's",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-02-28-2",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_4706969.jpg",
+      "price": "PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
     },
     {
       "id": "reverblounge-2026-03-01-scattered-hamlet",
@@ -452,6 +512,36 @@
       "source": "astrotheater"
     },
     {
+      "id": "other-2026-03-07-eyes-of-sorrow-with-local-support",
+      "title": "Eyes of sorrow with local support",
+      "date": "2026-03-07",
+      "time": "19:00",
+      "venue": "The Breakroom",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-07",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/img_1209.jpg",
+      "price": "$10 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
+      "id": "other-2026-03-07-cope-acidic-ep-release-show",
+      "title": "Cope Acidic EP Release Show!",
+      "date": "2026-03-07",
+      "time": null,
+      "venue": "The Laundry Room",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-07-2",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_3263428.jpg",
+      "price": "$10 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "theslowdown-2026-03-08-victor-jones",
       "title": "Victor Jones",
       "date": "2026-03-08",
@@ -624,6 +714,21 @@
       "source": "reverblounge"
     },
     {
+      "id": "steelhouse-2026-03-11-in-the-air-tonight-the-phil-collins-story",
+      "title": "In The Air Tonight: The Phil Collins Story",
+      "date": "2026-03-11",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/phil-collins/",
+      "ticketUrl": "http://www.ticketmaster.com/event/200063519B553165?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/10/Phil-Collins_Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
       "id": "reverblounge-2026-03-12-jordana",
       "title": "Jordana",
       "date": "2026-03-12",
@@ -755,6 +860,36 @@
       "source": "admiral"
     },
     {
+      "id": "steelhouse-2026-03-13-descendents-and-frank-turner-the-sleeping-souls",
+      "title": "Descendents And Frank Turner & The Sleeping Souls",
+      "date": "2026-03-13",
+      "time": "19:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/descendents-and-frank-turner-the-sleeping-souls/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000635DED323FE2?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/11/Chromeo-Static-588x588-1.png",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
+      "id": "other-2026-03-13-so-it-goes-rat-fight-mn-not-ben-shin-free",
+      "title": "So It Goes, Rat Fight (MN), Not Ben Shin FREE",
+      "date": "2026-03-13",
+      "time": "19:00",
+      "venue": "O'Leaver's",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-13",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/march_13_2.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "theslowdown-2026-03-14-saturdays-at-your-place",
       "title": "saturdays at your place",
       "date": "2026-03-14",
@@ -822,6 +957,51 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "other-2026-03-14-brando-s-birthday-bash",
+      "title": "Brando’s Birthday Bash",
+      "date": "2026-03-14",
+      "time": "19:00",
+      "venue": "Petshop Gallery",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-14",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/c67a0676-5fca-42dd-b5b1-6e7d46fb4bf3.jpg",
+      "price": "$10",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
+      "id": "other-2026-03-14-21-big-gay-dance-party",
+      "title": "21+ Big Gay Dance Party",
+      "date": "2026-03-14",
+      "time": "21:00",
+      "venue": "FLOORS FLOORS FLOORS",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-14-2",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_9560136.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
+      "id": "other-2026-03-15-haunt-w-phantom-crypt-and-cycles-of-entro",
+      "title": "Haunt w/ Phantom Crypt and Cycles of Entro",
+      "date": "2026-03-15",
+      "time": "20:00",
+      "venue": "The Sydney",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-15-2",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/screenshot_20260209_145406_instagram.jpg",
+      "price": "$20",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
     },
     {
       "id": "admiral-2026-03-16-houndmouth",
@@ -1007,6 +1187,21 @@
       "source": "bourbontheatre"
     },
     {
+      "id": "other-2026-03-20-losing-dice-and-mass-hysteria-with-support",
+      "title": "Losing dice and MASS HYSTERIA with support",
+      "date": "2026-03-20",
+      "time": "19:00",
+      "venue": "The Breakroom",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-20",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/img_1590.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "theslowdown-2026-03-21-tophouse",
       "title": "TopHouse",
       "date": "2026-03-21",
@@ -1089,6 +1284,21 @@
       "source": "astrotheater"
     },
     {
+      "id": "other-2026-03-21-spurney-s-hawk-record-release",
+      "title": "Spurney's Hawk Record Release!",
+      "date": "2026-03-21",
+      "time": "21:00",
+      "venue": "O'Leaver's",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-21",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_3380744.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "reverblounge-2026-03-22-ventana",
       "title": "VentanA",
       "date": "2026-03-22",
@@ -1138,6 +1348,36 @@
         "SPENNY"
       ],
       "source": "admiral"
+    },
+    {
+      "id": "steelhouse-2026-03-22-boys-like-girls",
+      "title": "Boys Like Girls",
+      "date": "2026-03-22",
+      "time": "19:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/boys-like-girls/",
+      "ticketUrl": "http://www.ticketmaster.com/event/20006358E83C376E?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/11/BLG_Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
+      "id": "other-2026-03-22-mile-end-and-gasket-with-locals",
+      "title": "Mile end and gasket with locals",
+      "date": "2026-03-22",
+      "time": "19:00",
+      "venue": "The Breakroom",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-22",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/img_1251.jpg",
+      "price": "$10",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
     },
     {
       "id": "theslowdown-2026-03-23-hot-flash-heat-wave",
@@ -1451,6 +1691,36 @@
       "source": "admiral"
     },
     {
+      "id": "other-2026-03-28-rawr-xd",
+      "title": "RAWR XD",
+      "date": "2026-03-28",
+      "time": "21:00",
+      "venue": "Red Light Lounge",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-28",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/final.jpg",
+      "price": "$5",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
+      "id": "other-2026-03-28-hollow-bastion-quilt-lula-leanne",
+      "title": "Hollow Bastion, Quilt, Lula Leanne",
+      "date": "2026-03-28",
+      "time": null,
+      "venue": "Pageturners Lounge",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-28-2",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_4446492.jpg",
+      "price": "$10 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "reverblounge-2026-03-29-nequient",
       "title": "NEQUIENT",
       "date": "2026-03-29",
@@ -1523,6 +1793,21 @@
         "and amphibaphobia"
       ],
       "source": "reverblounge"
+    },
+    {
+      "id": "steelhouse-2026-03-31-bbno",
+      "title": "Bbno$",
+      "date": "2026-03-31",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/bbno/",
+      "ticketUrl": "http://www.ticketmaster.com/event/20006315AD182798?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/08/bbno_Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
     },
     {
       "id": "theslowdown-2026-04-01-clarion",
@@ -1671,15 +1956,15 @@
       "source": "reverblounge"
     },
     {
-      "id": "bourbontheatre-2026-04-04-onslaught-warlord-fascinus-rex",
-      "title": "Onslaught, Warlord, Fascinus Rex",
+      "id": "bourbontheatre-2026-04-04-onslaught-warlord-haunter-fascinus-rex",
+      "title": "Onslaught, Warlord, HAUNTER, Fascinus Rex",
       "date": "2026-04-04",
       "time": null,
       "venue": "Bourbon Theatre",
       "venueUrl": "https://www.bourbontheatre.com",
       "eventUrl": "https://www.bourbontheatre.com/tm-event/onslaught-warlord-fascinus-rex/",
       "ticketUrl": null,
-      "imageUrl": "https://i.ticketweb.com/i/00/12/82/69/34_Original.jpg?v=5",
+      "imageUrl": "https://i.ticketweb.com/i/00/12/82/69/34_Original.jpg?v=6",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
@@ -1815,6 +2100,21 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "other-2026-04-09-myles-bullen-happy-john-not-ben-shin-ts",
+      "title": "Myles Bullen, Happy John, Not Ben Shin, TS",
+      "date": "2026-04-09",
+      "time": null,
+      "venue": "Lavender House",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-04-09",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_3027456.jpg",
+      "price": "$10 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
     },
     {
       "id": "theslowdown-2026-04-10-lumasi",
@@ -2181,6 +2481,21 @@
       "source": "bourbontheatre"
     },
     {
+      "id": "other-2026-04-17-sin-miedo-with-teraway-extravasate-defaced",
+      "title": "Sin miedo with teraway, extravasate, defaced",
+      "date": "2026-04-17",
+      "time": "18:30",
+      "venue": "The Breakroom",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-04-17",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/img_1484.jpg",
+      "price": "$10 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "waitingroom-2026-04-18-cold",
       "title": "COLD",
       "date": "2026-04-18",
@@ -2214,6 +2529,21 @@
       "source": "bourbontheatre"
     },
     {
+      "id": "steelhouse-2026-04-18-max-mcnown",
+      "title": "Max Mcnown",
+      "date": "2026-04-18",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/max-mcnown-2/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006358C6023395?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/10/Max-McNown_Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
       "id": "waitingroom-2026-04-19-sunn-o",
       "title": "sunn O)))",
       "date": "2026-04-19",
@@ -2244,6 +2574,21 @@
         "Chris Conley"
       ],
       "source": "theslowdown"
+    },
+    {
+      "id": "steelhouse-2026-04-20-lorna-shore",
+      "title": "Lorna Shore",
+      "date": "2026-04-20",
+      "time": "19:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/lorna-shore/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000642DAAFF2A67?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/01/Lorna-Shore_SH-Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
     },
     {
       "id": "reverblounge-2026-04-21-ashes-to-amber",
@@ -2292,6 +2637,21 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "steelhouse-2026-04-22-stephen-wilson-jr",
+      "title": "Stephen Wilson Jr.",
+      "date": "2026-04-22",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/stephen-wilson-jr/",
+      "ticketUrl": "http://www.ticketmaster.com/event/20006365DAB95713?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/11/Stephen_Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
     },
     {
       "id": "waitingroom-2026-04-23-zero-9-36",
@@ -2376,6 +2736,21 @@
       "source": "bourbontheatre"
     },
     {
+      "id": "other-2026-04-24-ingrown-with-mask-and-local-support",
+      "title": "Ingrown with mask and local support",
+      "date": "2026-04-24",
+      "time": "18:00",
+      "venue": "The Breakroom",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-04-24",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/img_1581.jpg",
+      "price": "$20",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "theslowdown-2026-04-25-the-pork-tornadoes",
       "title": "The Pork Tornadoes",
       "date": "2026-04-25",
@@ -2440,6 +2815,36 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "steelhouse-2026-04-25-avatar",
+      "title": "Avatar",
+      "date": "2026-04-25",
+      "time": "19:30",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/avatar/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006426D6363610?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/01/Avatar_SH-Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
+      "id": "other-2026-04-25-no-guard-w-basic-needs-sacred-ronda-civic",
+      "title": "No Guard w/  Basic Needs, Sacred, ronda civic",
+      "date": "2026-04-25",
+      "time": "18:00",
+      "venue": "The Breakroom",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-04-25-2",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/img_2222.jpg",
+      "price": "$10 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
     },
     {
       "id": "reverblounge-2026-04-26-june-star",
@@ -2749,6 +3154,21 @@
       "source": "astrotheater"
     },
     {
+      "id": "steelhouse-2026-05-02-alter-bridge",
+      "title": "Alter Bridge",
+      "date": "2026-05-02",
+      "time": "19:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/alter-bridge/",
+      "ticketUrl": "http://www.ticketmaster.com/event/2000631CCD052C99?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/09/Alter-Bridge_Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
       "id": "theslowdown-2026-05-03-master-boot-record",
       "title": "MASTER BOOT RECORD",
       "date": "2026-05-03",
@@ -2798,6 +3218,21 @@
         "Heavensgate"
       ],
       "source": "astrotheater"
+    },
+    {
+      "id": "other-2026-05-03-battle-of-the-bands-free-at-millwork-common",
+      "title": "Battle of the Bands - free at Millwork Common",
+      "date": "2026-05-03",
+      "time": "18:00",
+      "venue": "One Time Spot (CHECK)",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-05-03",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/battle-5-vert.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
     },
     {
       "id": "theslowdown-2026-05-04-vnv-nation",
@@ -2880,6 +3315,21 @@
       "source": "theslowdown"
     },
     {
+      "id": "other-2026-05-06-hang-your-hate",
+      "title": "Hang your Hate",
+      "date": "2026-05-06",
+      "time": "18:30",
+      "venue": "Petshop Gallery",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-05-06-2",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/22e7bed4-15c6-4223-b350-0ec361d06252.jpg",
+      "price": "$10 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
+    },
+    {
       "id": "theslowdown-2026-05-07-the-slackers",
       "title": "The Slackers",
       "date": "2026-05-07",
@@ -2930,6 +3380,21 @@
         "Bebe Stockwell"
       ],
       "source": "astrotheater"
+    },
+    {
+      "id": "steelhouse-2026-05-07-nate-smith",
+      "title": "Nate Smith",
+      "date": "2026-05-07",
+      "time": "19:30",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/nate-smith/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006384A2043B5B?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/12/SH-Web_558x558_Nate-Smith.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
     },
     {
       "id": "theslowdown-2026-05-08-brenn",
@@ -3027,6 +3492,21 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater"
+    },
+    {
+      "id": "other-2026-05-09-everybody-s-here-fest",
+      "title": "Everybody's Here Fest",
+      "date": "2026-05-09",
+      "time": "14:30",
+      "venue": "Petshop Gallery",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-05-09",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/untitled332_20260201213038.jpg",
+      "price": "$25",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other"
     },
     {
       "id": "theslowdown-2026-05-11-the-moss",
@@ -3144,6 +3624,21 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown"
+    },
+    {
+      "id": "steelhouse-2026-05-16-chelcie-lynn",
+      "title": "Chelcie Lynn",
+      "date": "2026-05-16",
+      "time": "19:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/chelcie-lynn/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006444A806335A?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/02/Chelcie-Lynn_SH-Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
     },
     {
       "id": "theslowdown-2026-05-17-inner-wave-los-mesoneros",
@@ -3411,6 +3906,21 @@
       "source": "bourbontheatre"
     },
     {
+      "id": "steelhouse-2026-05-30-gasolina-party",
+      "title": "Gasolina Party",
+      "date": "2026-05-30",
+      "time": "21:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/gasolina-party/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000644AA5202D9D?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/02/Gasolina_Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
       "id": "theslowdown-2026-05-31-the-black-angels",
       "title": "The Black Angels",
       "date": "2026-05-31",
@@ -3600,6 +4110,51 @@
       "source": "astrotheater"
     },
     {
+      "id": "steelhouse-2026-06-19-jonathan-van-ness",
+      "title": "Jonathan Van Ness",
+      "date": "2026-06-19",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/jonathan-van-ness/",
+      "ticketUrl": "http://www.ticketmaster.com/event/2000635DC7EB3A2A?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/11/Jonathan-Van-Ness_Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
+      "id": "steelhouse-2026-06-20-the-wallflowers",
+      "title": "The Wallflowers",
+      "date": "2026-06-20",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/the-wallflowers/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006435A40934EB?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/01/Wallflowers_SH-Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
+      "id": "steelhouse-2026-06-21-five-for-fighting-edwin-mccain",
+      "title": "Five For Fighting + Edwin Mccain",
+      "date": "2026-06-21",
+      "time": "19:30",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/five-for-fighting-edwin-mccain/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006444D7C8462B?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/02/Five-Fighting-McCain_SH-Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
       "id": "bourbontheatre-2026-06-22-bug-hunter-the-narcissist-cookbook",
       "title": "Bug Hunter & The Narcissist Cookbook",
       "date": "2026-06-22",
@@ -3613,6 +4168,36 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre"
+    },
+    {
+      "id": "steelhouse-2026-06-23-yachtley-crew",
+      "title": "Yachtley Crew",
+      "date": "2026-06-23",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/yachtley-crew/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006436A21238BA?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/01/SH-Web_558x558_Yachtley.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
+      "id": "steelhouse-2026-06-24-connor-price-and-nic-d",
+      "title": "Connor Price And Nic D",
+      "date": "2026-06-24",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/connor-price-and-nic-d/",
+      "ticketUrl": "https://www.ticketmaster.com/connor-price-nic-d-iconic-tour-omaha-nebraska-06-24-2026/event/200064517CAA19E5?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/02/Connor-Price_SH-Web_558x558-1.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
     },
     {
       "id": "bourbontheatre-2026-07-15-juvenile-s-boiling-point-album-release-tour-w-the-400-",
@@ -3780,6 +4365,36 @@
       "source": "waitingroom"
     },
     {
+      "id": "steelhouse-2026-09-22-bilmuri",
+      "title": "Bilmuri",
+      "date": "2026-09-22",
+      "time": "19:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/bilmuri/",
+      "ticketUrl": "https://www.ticketmaster.com/event/20006445D2C7516B?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/02/Bilmuri_SH-Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
+      "id": "steelhouse-2026-09-23-yacht-rock-revue",
+      "title": "Yacht Rock Revue",
+      "date": "2026-09-23",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/yacht-rock-revue/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000643E8E4A2FA4?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/02/Yacht-Rock_SH-Web_558x558-3.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
+    },
+    {
       "id": "astrotheater-2026-09-24-jefferson-starship",
       "title": "Jefferson Starship - Runaway Again Tour",
       "date": "2026-09-24",
@@ -3797,6 +4412,21 @@
         "Firefall"
       ],
       "source": "astrotheater"
+    },
+    {
+      "id": "steelhouse-2026-09-27-juanes",
+      "title": "Juanes",
+      "date": "2026-09-27",
+      "time": "20:00",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/juanes/",
+      "ticketUrl": "https://www.ticketmaster.com/event/2000644BBDFF3B96?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2026/02/Juanes_SH-Web_558x558.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse"
     },
     {
       "id": "bourbontheatre-2026-10-07-gnash",
@@ -3874,14 +4504,14 @@
       "source": "waitingroom"
     }
   ],
-  "lastUpdated": "2026-02-26T21:25:19.090991+00:00",
+  "lastUpdated": "2026-02-26T22:14:53.775210+00:00",
   "sources": [
     {
       "name": "The Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T21:24:58.130387+00:00",
+      "lastScraped": "2026-02-26T22:14:30.771294+00:00",
       "eventCount": 48,
       "error": null
     },
@@ -3890,7 +4520,7 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T21:25:00.014239+00:00",
+      "lastScraped": "2026-02-26T22:14:33.183205+00:00",
       "eventCount": 44,
       "error": null
     },
@@ -3899,7 +4529,7 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T21:25:00.355850+00:00",
+      "lastScraped": "2026-02-26T22:14:33.503177+00:00",
       "eventCount": 56,
       "error": null
     },
@@ -3908,7 +4538,7 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-02-26T21:25:09.420518+00:00",
+      "lastScraped": "2026-02-26T22:14:41.743616+00:00",
       "eventCount": 46,
       "error": null
     },
@@ -3917,7 +4547,7 @@
       "id": "admiral",
       "url": "https://admiralomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T21:25:11.505787+00:00",
+      "lastScraped": "2026-02-26T22:14:42.215213+00:00",
       "eventCount": 16,
       "error": null
     },
@@ -3926,8 +4556,26 @@
       "id": "astrotheater",
       "url": "https://theastrotheater.com/#shows",
       "status": "ok",
-      "lastScraped": "2026-02-26T21:25:19.090922+00:00",
+      "lastScraped": "2026-02-26T22:14:50.741450+00:00",
       "eventCount": 25,
+      "error": null
+    },
+    {
+      "name": "Steel House",
+      "id": "steelhouse",
+      "url": "https://steelhouseomaha.com/events/",
+      "status": "ok",
+      "lastScraped": "2026-02-26T22:14:50.895034+00:00",
+      "eventCount": 21,
+      "error": null
+    },
+    {
+      "name": "Other",
+      "id": "other",
+      "url": "https://omahaunderground.net/shows/",
+      "status": "ok",
+      "lastScraped": "2026-02-26T22:14:53.774963+00:00",
+      "eventCount": 21,
       "error": null
     }
   ]
