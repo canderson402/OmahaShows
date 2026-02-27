@@ -368,7 +368,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/blackhawk/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000636392B1382E",
-      "imageUrl": "/images/astro/13055cad97b7.webp",
+      "imageUrl": "/images/astro/13055cad97b7.png",
       "price": "$41.10",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -437,7 +437,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/felipe-esparza/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000634ED57333A3",
-      "imageUrl": "/images/astro/10b7bf139ad6.webp",
+      "imageUrl": "/images/astro/10b7bf139ad6.png",
       "price": "$26",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -701,7 +701,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/jim-breuer/",
       "ticketUrl": "https://www.ticketmaster.com/event/200063719F7237DD",
-      "imageUrl": "/images/astro/0b0b8c46ffe3.webp",
+      "imageUrl": "/images/astro/0b0b8c46ffe3.png",
       "price": "$61.60",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -892,21 +892,6 @@
       "addedAt": null
     },
     {
-      "id": "other-2026-03-14-slab-mourning-dolls-march-murder-masquerade",
-      "title": "SLAB & Mourning Dolls March Murder Masquerade",
-      "date": "2026-03-14",
-      "time": "20:00",
-      "venue": "Red Light Lounge",
-      "eventUrl": "https://omahaunderground.net/shows/2026-03-14-3",
-      "ticketUrl": null,
-      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/slab-2026march14-horizontal.jpg",
-      "price": "$5 PWYC",
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "other",
-      "addedAt": null
-    },
-    {
       "id": "other-2026-03-14-brando-s-birthday-bash",
       "title": "Brando’s Birthday Bash",
       "date": "2026-03-14",
@@ -931,6 +916,36 @@
       "ticketUrl": null,
       "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_9560136.jpg",
       "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other",
+      "addedAt": null
+    },
+    {
+      "id": "other-2026-03-14-slab-mourning-dolls-march-murder-masquerade",
+      "title": "SLAB & Mourning Dolls March Murder Masquerade",
+      "date": "2026-03-14",
+      "time": "20:00",
+      "venue": "Red Light Lounge",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-14-3",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/slab-2026march14-horizontal.jpg",
+      "price": "$5 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other",
+      "addedAt": "2026-02-27T16:10:03.153622+00:00"
+    },
+    {
+      "id": "other-2026-03-15-haunt-w-phantom-crypt-and-cycles-of-entro",
+      "title": "Haunt w/ Phantom Crypt and Cycles of Entro",
+      "date": "2026-03-15",
+      "time": "20:00",
+      "venue": "The Sydney",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-15-2",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/screenshot_20260209_145406_instagram.jpg",
+      "price": "$20",
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
@@ -1105,24 +1120,6 @@
       "addedAt": null
     },
     {
-      "id": "reverblounge-2026-03-20-indian-caves",
-      "title": "Indian Caves",
-      "date": "2026-03-20",
-      "time": "20:00",
-      "venue": "Reverb Lounge",
-      "eventUrl": "https://reverblounge.com/event/indian-caves/reverb-lounge/",
-      "ticketUrl": "https://www.etix.com/ticket/p/78276856/indian-caves-omaha-reverb-lounge?partner_id=100",
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2024/02/1percentEventDefault.png",
-      "price": "$16.14 / Day Of : $20.04",
-      "ageRestriction": "All Ages",
-      "supportingArtists": [
-        "Wedding",
-        "Radical Sabbatical"
-      ],
-      "source": "reverblounge",
-      "addedAt": null
-    },
-    {
       "id": "bourbontheatre-2026-03-20-jxhnny-bliss-cope-acetic-album-release",
       "title": "Jxhnny Bliss (COPE)acetic Album Release",
       "date": "2026-03-20",
@@ -1151,6 +1148,24 @@
       "supportingArtists": null,
       "source": "other",
       "addedAt": null
+    },
+    {
+      "id": "reverblounge-2026-03-20-indian-caves",
+      "title": "Indian Caves",
+      "date": "2026-03-20",
+      "time": "20:00",
+      "venue": "Reverb Lounge",
+      "eventUrl": "https://reverblounge.com/event/indian-caves/reverb-lounge/",
+      "ticketUrl": "https://www.etix.com/ticket/p/78276856/indian-caves-omaha-reverb-lounge?partner_id=100",
+      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/02/indianCAVESWEB.png",
+      "price": "$12 ADV / $15 DOS",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": [
+        "Wedding",
+        "Radical Sabbatical"
+      ],
+      "source": "reverblounge",
+      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "theslowdown-2026-03-21-tophouse",
@@ -1227,7 +1242,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/lets-sing-taylor/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006349D1C03493",
-      "imageUrl": "/images/astro/c04464941ad2.webp",
+      "imageUrl": "/images/astro/c04464941ad2.png",
       "price": "$33.55",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -1478,6 +1493,21 @@
       "addedAt": null
     },
     {
+      "id": "waitingroom-2026-03-26-battle-of-the-phoenix-2026",
+      "title": "Battle of the Phoenix 2026",
+      "date": "2026-03-26",
+      "time": "20:00",
+      "venue": "Waiting Room Lounge",
+      "eventUrl": "https://waitingroomlounge.com/event/pwp-wrestling-battle-of-the-phoenix-2026/waiting-room-lounge/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/50475950/pwp-wrestling-battle-of-the-phoenix-2026-omaha-the-waiting-room?partner_id=100",
+      "imageUrl": "https://waitingroomlounge.com/wp-content/uploads/2026/02/pwp-wrestling-battle-of-the-phoenix-2026.jfif",
+      "price": "Starting at $10",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": null,
+      "source": "waitingroom",
+      "addedAt": "2026-02-27T22:59:19.194058+00:00"
+    },
+    {
       "id": "theslowdown-2026-03-27-clarence-tilton",
       "title": "Clarence Tilton",
       "date": "2026-03-27",
@@ -1551,7 +1581,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/whitney-cummings/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000637299233228",
-      "imageUrl": "/images/astro/fb01a3fb3bb2.webp",
+      "imageUrl": "/images/astro/fb01a3fb3bb2.png",
       "price": "$38.80",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -2567,7 +2597,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/the-psychology-of-serial-killers/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000642ECC633EC1",
-      "imageUrl": "/images/astro/3e7079d5274a.webp",
+      "imageUrl": "/images/astro/3e7079d5274a.png",
       "price": "$30.60",
       "ageRestriction": null,
       "supportingArtists": null,
@@ -2630,7 +2660,7 @@
       "venue": "The Astro Amphitheater",
       "eventUrl": "https://theastrotheater.com/event/ethel-cain/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000633ACA3D2D0E",
-      "imageUrl": "/images/astro/6151f59be95a.webp",
+      "imageUrl": "/images/astro/6151f59be95a.png",
       "price": "$60.35",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -2918,7 +2948,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/iron-wine/",
       "ticketUrl": "https://www.ticketmaster.com/event/200063888C2D28CF",
-      "imageUrl": "/images/astro/dd65775f741b.webp",
+      "imageUrl": "/images/astro/dd65775f741b.png",
       "price": "$50.40",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -3093,7 +3123,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/black-veil-brides/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006434A986325F",
-      "imageUrl": "/images/astro/56d792f299bd.webp",
+      "imageUrl": "/images/astro/56d792f299bd.png",
       "price": "$57.60",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -3160,7 +3190,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/the-amity-affliction-august-burns-red/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006372BFD83CD2",
-      "imageUrl": "/images/astro/e3fd5ee71d84.webp",
+      "imageUrl": "/images/astro/e3fd5ee71d84.png",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -3238,7 +3268,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/mac-demarco/",
       "ticketUrl": null,
-      "imageUrl": "/images/astro/2f9ada6c5ef6.webp",
+      "imageUrl": "/images/astro/2f9ada6c5ef6.png",
       "price": "$55",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -3437,7 +3467,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/jimmy-failla/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006385A29C3CAC",
-      "imageUrl": "/images/astro/f60f2f29d7f2.webp",
+      "imageUrl": "/images/astro/f60f2f29d7f2.png",
       "price": "$61.75",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -3554,7 +3584,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/jim-jefferies/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000634F96B32EA7",
-      "imageUrl": "/images/astro/e9225e37f160.webp",
+      "imageUrl": "/images/astro/e9225e37f160.png",
       "price": "$89.65",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -3614,7 +3644,7 @@
       "venue": "The Astro Amphitheater",
       "eventUrl": "https://theastrotheater.com/event/george-thorogood-and-the-destroyers/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000642C997F2C28",
-      "imageUrl": "/images/astro/a287668825f1.webp",
+      "imageUrl": "/images/astro/a287668825f1.png",
       "price": "$47.30",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -3926,7 +3956,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/toadies/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000644AD0063C96",
-      "imageUrl": "/images/astro/e279df62cdd7.webp",
+      "imageUrl": "/images/astro/e279df62cdd7.png",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -3959,7 +3989,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/nitty-gritty-dirt-band/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006430861A22E7",
-      "imageUrl": "/images/astro/457d200f2eb8.webp",
+      "imageUrl": "/images/astro/457d200f2eb8.png",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -4016,21 +4046,6 @@
       "addedAt": null
     },
     {
-      "id": "bourbontheatre-2026-06-12-bingo-loco",
-      "title": "BINGO LOCO",
-      "date": "2026-06-12",
-      "time": null,
-      "venue": "Bourbon Theatre",
-      "eventUrl": "https://www.bourbontheatre.com/tm-event/bingo-loco-2/",
-      "ticketUrl": null,
-      "imageUrl": "https://i.ticketweb.com/i/00/13/35/52/03_Original.jpg?v=4",
-      "price": null,
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "bourbontheatre",
-      "addedAt": null
-    },
-    {
       "id": "admiral-2026-06-12-joe-jackson",
       "title": "Joe Jackson",
       "date": "2026-06-12",
@@ -4044,6 +4059,21 @@
       "supportingArtists": null,
       "source": "admiral",
       "addedAt": null
+    },
+    {
+      "id": "bourbontheatre-2026-06-12-bingo-loco",
+      "title": "BINGO LOCO",
+      "date": "2026-06-12",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/bingo-loco-2/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/35/52/03_Original.jpg?v=4",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre",
+      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "reverblounge-2026-06-15-mikaela-davis",
@@ -4068,7 +4098,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/amyl-and-the-sniffers/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006378909D2E0F",
-      "imageUrl": "/images/astro/54f262dae6ed.webp",
+      "imageUrl": "/images/astro/54f262dae6ed.png",
       "price": "$52.45",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -4203,7 +4233,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/mammoth/",
       "ticketUrl": "https://www.ticketmaster.com/event/200062F8CFC730EA",
-      "imageUrl": "/images/astro/b69fca26e934.webp",
+      "imageUrl": "/images/astro/b69fca26e934.png",
       "price": "$46.25",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -4218,7 +4248,7 @@
       "venue": "The Astro Amphitheater",
       "eventUrl": "https://theastrotheater.com/event/the-black-keys/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006442CCBB37C9",
-      "imageUrl": "/images/astro/b2c2bc18df9f.webp",
+      "imageUrl": "/images/astro/b2c2bc18df9f.png",
       "price": "$74.85",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -4270,7 +4300,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/young-the-giant/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006446B29649B7",
-      "imageUrl": "/images/astro/aedcab18d7d5.webp",
+      "imageUrl": "/images/astro/aedcab18d7d5.png",
       "price": "$58.65",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -4303,7 +4333,7 @@
       "venue": "The Astro Amphitheater",
       "eventUrl": "https://theastrotheater.com/event/lindsey-stirling/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006435973231BF",
-      "imageUrl": "/images/astro/1392ccad1c04.webp",
+      "imageUrl": "/images/astro/1392ccad1c04.png",
       "price": "$57.60",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -4368,7 +4398,7 @@
       "venue": "The Astro Amphitheater",
       "eventUrl": "https://theastrotheater.com/event/jefferson-starship/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006443C9803FF0",
-      "imageUrl": "/images/astro/fee1f4b16c32.webp",
+      "imageUrl": "/images/astro/fee1f4b16c32.png",
       "price": "$46.15",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -4447,7 +4477,7 @@
       "venue": "The Astro Theater",
       "eventUrl": "https://theastrotheater.com/event/labyrinth-in-concert/",
       "ticketUrl": "https://www.ticketmaster.com/event/200064259DA724A6",
-      "imageUrl": "/images/astro/a50e94e4881c.webp",
+      "imageUrl": "/images/astro/a50e94e4881c.png",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
@@ -4467,7 +4497,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "waitingroom-2026-12-03-dad-rock-night-2000s-rock-tribute",
@@ -4485,14 +4515,14 @@
       "addedAt": null
     }
   ],
-  "lastUpdated": "2026-02-27T19:25:30.019980+00:00",
+  "lastUpdated": "2026-02-27T22:59:55.496722+00:00",
   "sources": [
     {
       "name": "The Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T19:24:49.323042+00:00",
+      "lastScraped": "2026-02-27T22:59:19.526907+00:00",
       "eventCount": 48,
       "error": null
     },
@@ -4501,7 +4531,7 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T19:24:51.671447+00:00",
+      "lastScraped": "2026-02-27T22:59:22.013979+00:00",
       "eventCount": 44,
       "error": null
     },
@@ -4510,7 +4540,7 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T19:24:51.988694+00:00",
+      "lastScraped": "2026-02-27T22:59:25.418494+00:00",
       "eventCount": 56,
       "error": null
     },
@@ -4519,7 +4549,7 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-02-27T19:25:00.816132+00:00",
+      "lastScraped": "2026-02-27T22:59:34.952414+00:00",
       "eventCount": 46,
       "error": null
     },
@@ -4528,7 +4558,7 @@
       "id": "admiral",
       "url": "https://admiralomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T19:25:03.079390+00:00",
+      "lastScraped": "2026-02-27T22:59:36.621242+00:00",
       "eventCount": 15,
       "error": null
     },
@@ -4537,7 +4567,7 @@
       "id": "astrotheater",
       "url": "https://theastrotheater.com/#shows",
       "status": "ok",
-      "lastScraped": "2026-02-27T19:25:11.006004+00:00",
+      "lastScraped": "2026-02-27T22:59:47.129290+00:00",
       "eventCount": 25,
       "error": null
     },
@@ -4546,7 +4576,7 @@
       "id": "steelhouse",
       "url": "https://steelhouseomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T19:25:11.147987+00:00",
+      "lastScraped": "2026-02-27T22:59:47.349760+00:00",
       "eventCount": 21,
       "error": null
     },
@@ -4555,8 +4585,8 @@
       "id": "other",
       "url": "https://omahaunderground.net/shows/",
       "status": "ok",
-      "lastScraped": "2026-02-27T19:25:30.019701+00:00",
-      "eventCount": 21,
+      "lastScraped": "2026-02-27T22:59:55.496298+00:00",
+      "eventCount": 22,
       "error": null
     }
   ]
