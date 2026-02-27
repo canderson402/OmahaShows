@@ -6,8 +6,9 @@ import { Dashboard } from "./components/Dashboard";
 import { HistoryList } from "./components/HistoryList";
 import { FiltersDropdown } from "./components/FiltersDropdown";
 import { ContactModal } from "./components/ContactModal";
+import { CalendarView } from "./components/CalendarView";
 
-type View = "events" | "dashboard" | "history";
+type View = "events" | "dashboard" | "history" | "calendar";
 type Layout = "compact" | "full";
 type TimeFilter = "all" | "today" | "week" | "just-added";
 
@@ -116,6 +117,7 @@ function App() {
 
   const venues = data.sources.map((s) => ({ id: s.id, name: s.name }));
   const justAddedCount = data.events.filter(isJustAdded).length;
+  const filteredEvents = data.events.filter((e) => enabledVenues.has(e.source));
 
   const toggleVenue = (venueId: string) => {
     setEnabledVenues((prev) => {
@@ -151,7 +153,7 @@ function App() {
                 <div className="h-px w-16 bg-gradient-to-l from-transparent to-gray-600"></div>
               </div>
 
-              {/* View tabs - only show events/history (dashboard is secret) */}
+              {/* View tabs - only show events/calendar/history (dashboard is secret) */}
               {view !== "dashboard" && (
                 <div className="flex justify-center gap-2 mt-4">
                   <button
@@ -162,7 +164,17 @@ function App() {
                         : "text-gray-500 hover:text-gray-300"
                     }`}
                   >
-                    Upcoming
+                    Shows
+                  </button>
+                  <button
+                    onClick={() => setView("calendar")}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      view === "calendar"
+                        ? "bg-white/10 text-white"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    Calendar
                   </button>
                   <button
                     onClick={() => setView("history")}
@@ -184,7 +196,7 @@ function App() {
               </div>
             )}
 
-            {(view === "events" || view === "history") && (
+            {(view === "events" || view === "history" || view === "calendar") && (
               <>
                 {/* Header row with filters */}
                 <div className="h-10 flex items-center justify-between mb-4">
@@ -217,7 +229,7 @@ function App() {
                         />
                       </div>
                     </>
-                  ) : (
+                  ) : view === "history" ? (
                     <>
                       <span className="text-sm text-gray-400">
                         {(history?.shows?.length || 0).toLocaleString()} past shows
@@ -228,6 +240,21 @@ function App() {
                         className="px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 w-40"
                         onChange={(e) => setHistorySearch(e.target.value)}
                         value={historySearch}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xs text-gray-500 hidden sm:inline">
+                        {filteredEvents.length} upcoming shows
+                      </span>
+                      <FiltersDropdown
+                        venues={venues}
+                        enabledVenues={enabledVenues}
+                        toggleVenue={toggleVenue}
+                        venueColors={VENUE_COLORS}
+                        timeFilter={timeFilter}
+                        setTimeFilter={setTimeFilter}
+                        justAddedCount={justAddedCount}
                       />
                     </>
                   )}
@@ -258,12 +285,18 @@ function App() {
                     venueColors={VENUE_COLORS}
                     isJustAdded={isJustAdded}
                   />
-                ) : (
+                ) : view === "history" ? (
                   <HistoryList
                     shows={history?.shows || []}
                     enabledVenues={enabledVenues}
                     searchQuery={historySearch}
                     venueColors={VENUE_COLORS}
+                  />
+                ) : (
+                  <CalendarView
+                    events={data.events}
+                    venueColors={VENUE_COLORS}
+                    enabledVenues={enabledVenues}
                   />
                 )}
               </>
