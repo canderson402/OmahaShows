@@ -1,5 +1,5 @@
 // web/src/components/EventList.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { Event } from "../types";
 import { EventCard } from "./EventCard";
 import { EventCardCompact } from "./EventCardCompact";
@@ -23,69 +23,70 @@ interface EventListProps {
 
 export function EventList({ events, layout, filter, venueColors, isJustAdded }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
-  const today = new Date().toISOString().split('T')[0];  // YYYY-MM-DD
+  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
 
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(EVENTS_PER_PAGE);
   }, [filter?.enabledVenues?.size, filter?.showPast, filter?.timeFilter, filter?.searchQuery]);
 
-  let filtered = events;
+  // Memoize filtered and sorted events
+  const filtered = useMemo(() => {
+    let result = events;
 
-  // Filter by enabled venues
-  if (filter?.enabledVenues && filter.enabledVenues.size > 0) {
-    filtered = filtered.filter((e) => filter.enabledVenues!.has(e.source));
-  }
-
-  // Filter by past/upcoming
-  if (filter?.showPast === true) {
-    // History view: only past events
-    filtered = filtered.filter((e) => e.date < today);
-  } else if (filter?.showPast === false) {
-    // Events view: only upcoming events (today and future)
-    filtered = filtered.filter((e) => e.date >= today);
-  }
-
-  // Apply time filter
-  if (filter?.timeFilter && filter.timeFilter !== "all") {
-    const weekFromNow = new Date();
-    weekFromNow.setDate(weekFromNow.getDate() + 7);
-    const weekDateStr = weekFromNow.toISOString().split('T')[0];
-
-    if (filter.timeFilter === "today") {
-      filtered = filtered.filter((e) => e.date === today);
-    } else if (filter.timeFilter === "week") {
-      filtered = filtered.filter((e) => e.date >= today && e.date <= weekDateStr);
-    } else if (filter.timeFilter === "just-added" && isJustAdded) {
-      filtered = filtered.filter(isJustAdded);
+    // Filter by enabled venues
+    if (filter?.enabledVenues && filter.enabledVenues.size > 0) {
+      result = result.filter((e) => filter.enabledVenues!.has(e.source));
     }
-  }
 
-  // Apply search filter
-  if (filter?.searchQuery?.trim()) {
-    const query = filter.searchQuery.toLowerCase();
-    filtered = filtered.filter((e) =>
-      e.title.toLowerCase().includes(query) ||
-      e.venue.toLowerCase().includes(query) ||
-      e.supportingArtists?.some(a => a.toLowerCase().includes(query))
-    );
-  }
+    // Filter by past/upcoming
+    if (filter?.showPast === true) {
+      result = result.filter((e) => e.date < today);
+    } else if (filter?.showPast === false) {
+      result = result.filter((e) => e.date >= today);
+    }
 
-  // Sort by date
-  if (filter?.showPast) {
-    // History: most recent past events first
-    filtered = [...filtered].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-  } else {
-    // Upcoming: soonest first
-    filtered = [...filtered].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-  }
+    // Apply time filter
+    if (filter?.timeFilter && filter.timeFilter !== "all") {
+      const weekFromNow = new Date();
+      weekFromNow.setDate(weekFromNow.getDate() + 7);
+      const weekDateStr = weekFromNow.toISOString().split('T')[0];
+
+      if (filter.timeFilter === "today") {
+        result = result.filter((e) => e.date === today);
+      } else if (filter.timeFilter === "week") {
+        result = result.filter((e) => e.date >= today && e.date <= weekDateStr);
+      } else if (filter.timeFilter === "just-added" && isJustAdded) {
+        result = result.filter(isJustAdded);
+      }
+    }
+
+    // Apply search filter
+    if (filter?.searchQuery?.trim()) {
+      const query = filter.searchQuery.toLowerCase();
+      result = result.filter((e) =>
+        e.title.toLowerCase().includes(query) ||
+        e.venue.toLowerCase().includes(query) ||
+        e.supportingArtists?.some(a => a.toLowerCase().includes(query))
+      );
+    }
+
+    // Sort by date
+    if (filter?.showPast) {
+      result = [...result].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+    } else {
+      result = [...result].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+    }
+
+    return result;
+  }, [events, filter?.enabledVenues, filter?.showPast, filter?.timeFilter, filter?.searchQuery, today, isJustAdded]);
 
   // Only show events up to visibleCount - only these images load
-  const visibleEvents = filtered.slice(0, visibleCount);
+  const visibleEvents = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
   const hasMore = visibleCount < filtered.length;
   const remainingCount = filtered.length - visibleCount;
 

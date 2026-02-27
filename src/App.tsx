@@ -1,5 +1,5 @@
 // web/src/App.tsx
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { EventsData, ShowHistory, Event } from "./types";
 import { EventList } from "./components/EventList";
 import { Dashboard } from "./components/Dashboard";
@@ -7,6 +7,7 @@ import { HistoryList } from "./components/HistoryList";
 import { FiltersDropdown } from "./components/FiltersDropdown";
 import { ContactModal } from "./components/ContactModal";
 import { CalendarView } from "./components/CalendarView";
+import { useDebounce } from "./hooks/useDebounce";
 
 type View = "events" | "dashboard" | "history" | "calendar";
 type Layout = "compact" | "full";
@@ -56,6 +57,10 @@ function App() {
   const [historySearch, setHistorySearch] = useState("");
   const [eventSearch, setEventSearch] = useState("");
   const [showContact, setShowContact] = useState(false);
+
+  // Debounce search inputs for better performance
+  const debouncedEventSearch = useDebounce(eventSearch, 300);
+  const debouncedHistorySearch = useDebounce(historySearch, 300);
 
   // Secret menu state
   const [logoClicks, setLogoClicks] = useState(0);
@@ -115,9 +120,10 @@ function App() {
     );
   }
 
-  const venues = data.sources.map((s) => ({ id: s.id, name: s.name }));
-  const justAddedCount = data.events.filter(isJustAdded).length;
-  const filteredEvents = data.events.filter((e) => enabledVenues.has(e.source));
+  // Memoize derived data
+  const venues = useMemo(() => data.sources.map((s) => ({ id: s.id, name: s.name })), [data.sources]);
+  const justAddedCount = useMemo(() => data.events.filter(isJustAdded).length, [data.events]);
+  const filteredEvents = useMemo(() => data.events.filter((e) => enabledVenues.has(e.source)), [data.events, enabledVenues]);
 
   const toggleVenue = (venueId: string) => {
     setEnabledVenues((prev) => {
@@ -281,7 +287,7 @@ function App() {
                   <EventList
                     events={data.events}
                     layout={layout}
-                    filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: eventSearch }}
+                    filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }}
                     venueColors={VENUE_COLORS}
                     isJustAdded={isJustAdded}
                   />
@@ -289,7 +295,7 @@ function App() {
                   <HistoryList
                     shows={history?.shows || []}
                     enabledVenues={enabledVenues}
-                    searchQuery={historySearch}
+                    searchQuery={debouncedHistorySearch}
                     venueColors={VENUE_COLORS}
                   />
                 ) : (

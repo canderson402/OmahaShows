@@ -1,4 +1,5 @@
 // web/src/components/EventCardCompact.tsx
+import { memo } from "react";
 import type { Event } from "../types";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
@@ -9,7 +10,12 @@ interface EventCardCompactProps {
   isJustAdded?: boolean;
 }
 
-export function EventCardCompact({ event, venueColors, isJustAdded }: EventCardCompactProps) {
+// Memoized to prevent unnecessary re-renders
+export const EventCardCompact = memo(function EventCardCompact({
+  event,
+  venueColors,
+  isJustAdded,
+}: EventCardCompactProps) {
   const formatDateOverlay = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
@@ -45,23 +51,27 @@ export function EventCardCompact({ event, venueColors, isJustAdded }: EventCardC
               {formatDateOverlay(event.date)}
             </p>
           </div>
-          <div className="relative bg-gray-900 rounded-b-xl overflow-hidden">
+          <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square">
             {event.imageUrl ? (
               <>
                 <img
                   src={event.imageUrl}
                   alt=""
                   aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60"
                 />
                 <img
                   src={event.imageUrl}
                   alt={event.title}
-                  className="relative w-full aspect-square object-contain"
+                  loading="lazy"
+                  decoding="async"
+                  className="relative w-full h-full object-contain"
                 />
               </>
             ) : (
-              <div className="w-full aspect-square bg-gray-800 flex items-center justify-center">
+              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                 <span className="text-gray-500 text-5xl">&#9834;</span>
               </div>
             )}
@@ -167,23 +177,27 @@ export function EventCardCompact({ event, venueColors, isJustAdded }: EventCardC
               {formatDateOverlay(event.date)}
             </p>
           </div>
-          <div className="relative bg-gray-900 rounded-b-xl overflow-hidden">
+          <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square">
             {event.imageUrl ? (
               <>
                 <img
                   src={event.imageUrl}
                   alt=""
                   aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60"
                 />
                 <img
                   src={event.imageUrl}
                   alt={event.title}
-                  className="relative w-full aspect-square object-contain"
+                  loading="lazy"
+                  decoding="async"
+                  className="relative w-full h-full object-contain"
                 />
               </>
             ) : (
-              <div className="w-full aspect-square bg-gray-800 flex items-center justify-center">
+              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                 <span className="text-gray-500 text-5xl">&#9834;</span>
               </div>
             )}
@@ -222,4 +236,4 @@ export function EventCardCompact({ event, venueColors, isJustAdded }: EventCardC
       </div>
     </div>
   );
-}
+});
