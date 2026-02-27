@@ -116,6 +116,27 @@ export function CalendarView({
 
   const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : [];
 
+  // Get sorted list of dates with events for navigation
+  const datesWithEvents = useMemo(() => {
+    return Array.from(eventsByDate.keys()).sort();
+  }, [eventsByDate]);
+
+  const currentDateIndex = selectedDate ? datesWithEvents.indexOf(selectedDate) : -1;
+  const hasPrevDay = currentDateIndex > 0;
+  const hasNextDay = currentDateIndex >= 0 && currentDateIndex < datesWithEvents.length - 1;
+
+  const goToPrevDay = () => {
+    if (hasPrevDay) {
+      setSelectedDate(datesWithEvents[currentDateIndex - 1]);
+    }
+  };
+
+  const goToNextDay = () => {
+    if (hasNextDay) {
+      setSelectedDate(datesWithEvents[currentDateIndex + 1]);
+    }
+  };
+
   return (
     <div className="md:max-w-xl md:mx-auto">
       {/* Month navigation */}
@@ -242,9 +263,37 @@ export function CalendarView({
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-800">
-              <h3 className="text-lg font-semibold text-white">
-                {selectedDate && formatSelectedDate(selectedDate)}
-              </h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={goToPrevDay}
+                  disabled={!hasPrevDay}
+                  className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
+                    hasPrevDay
+                      ? "text-gray-400 hover:text-white hover:bg-gray-800"
+                      : "text-gray-700 cursor-not-allowed"
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <h3 className="text-lg font-semibold text-white text-center w-56">
+                  {selectedDate && formatSelectedDate(selectedDate)}
+                </h3>
+                <button
+                  onClick={goToNextDay}
+                  disabled={!hasNextDay}
+                  className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
+                    hasNextDay
+                      ? "text-gray-400 hover:text-white hover:bg-gray-800"
+                      : "text-gray-700 cursor-not-allowed"
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
               <button
                 onClick={() => setSelectedDate(null)}
                 className="p-2 text-gray-400 hover:text-white transition-colors"
@@ -354,6 +403,10 @@ export function CalendarView({
           date={selectedDate || ""}
           events={selectedEvents}
           venueColors={venueColors}
+          onPrevDay={goToPrevDay}
+          onNextDay={goToNextDay}
+          hasPrevDay={hasPrevDay}
+          hasNextDay={hasNextDay}
         />
       </div>
     </div>

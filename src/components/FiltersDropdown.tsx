@@ -329,9 +329,8 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
               isAnimating ? "translate-y-0" : "translate-y-full"
             }`}
           >
-            {/* Handle */}
-            <div className="sticky top-0 bg-gray-900 pt-3 pb-2 px-4 border-b border-gray-800 z-10">
-              <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-3" />
+            {/* Header */}
+            <div className="sticky top-0 bg-gray-900 py-3 px-4 border-b border-gray-800 z-10">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white">Filters</h3>
                 <button

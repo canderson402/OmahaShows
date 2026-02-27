@@ -10,6 +10,10 @@ interface DayEventsSheetProps {
   date: string; // YYYY-MM-DD
   events: Event[];
   venueColors: VenueColors;
+  onPrevDay?: () => void;
+  onNextDay?: () => void;
+  hasPrevDay?: boolean;
+  hasNextDay?: boolean;
 }
 
 export function DayEventsSheet({
@@ -18,6 +22,10 @@ export function DayEventsSheet({
   date,
   events,
   venueColors,
+  onPrevDay,
+  onNextDay,
+  hasPrevDay,
+  hasNextDay,
 }: DayEventsSheetProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -87,35 +95,25 @@ export function DayEventsSheet({
           isAnimating ? "translate-y-0" : "translate-y-full"
         }`}
       >
-        {/* Handle */}
-        <div className="sticky top-0 bg-gray-900 pt-3 pb-2 px-6 border-b border-gray-800 z-10">
-          <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-3" />
+        {/* Header */}
+        <div className="sticky top-0 bg-gray-900 py-3 px-4 border-b border-gray-800 z-10">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">
+            <div className="w-10" />
+            <h3 className="text-lg font-semibold text-white text-center">
               {formatDate(date)}
             </h3>
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-white active:scale-90 transition-transform"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         </div>
 
-        {/* Events list - history style */}
+        {/* Events list */}
         <div>
           {events.length === 0 ? (
             <p className="text-gray-500 text-center py-8">
@@ -196,14 +194,39 @@ export function DayEventsSheet({
           )}
         </div>
 
-        {/* Close button at bottom */}
+        {/* Footer with navigation */}
         <div className="sticky bottom-0 p-4 bg-gray-900 border-t border-gray-800">
-          <button
-            onClick={onClose}
-            className="w-full py-3 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 active:scale-[0.98] transition-all"
-          >
-            Close
-          </button>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={onPrevDay}
+              disabled={!hasPrevDay}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
+                hasPrevDay
+                  ? "text-gray-300 hover:text-white hover:bg-gray-800 active:scale-95"
+                  : "text-gray-700 cursor-not-allowed"
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="text-sm">Prev</span>
+            </button>
+
+            <button
+              onClick={onNextDay}
+              disabled={!hasNextDay}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
+                hasNextDay
+                  ? "text-gray-300 hover:text-white hover:bg-gray-800 active:scale-95"
+                  : "text-gray-700 cursor-not-allowed"
+              }`}
+            >
+              <span className="text-sm">Next</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
