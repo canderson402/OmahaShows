@@ -1,11 +1,15 @@
 // web/src/App.tsx
-import { useState, useEffect, useCallback } from "react";
-import type { EventsData } from "./types";
+import { useState, useEffect, useCallback, useRef } from "react";
+import type { EventsData, ShowHistory, Event } from "./types";
 import { EventList } from "./components/EventList";
 import { Dashboard } from "./components/Dashboard";
+import { HistoryList } from "./components/HistoryList";
+import { FiltersDropdown } from "./components/FiltersDropdown";
+import { ContactModal } from "./components/ContactModal";
 
 type View = "events" | "dashboard" | "history";
 type Layout = "compact" | "full";
+type TimeFilter = "all" | "today" | "week" | "just-added";
 
 const API_BASE = "http://localhost:8000";
 
@@ -21,36 +25,62 @@ export const VENUE_COLORS: Record<string, { bg: string; text: string; border: st
   other: { bg: "bg-emerald-500/20", text: "text-emerald-400", border: "border-emerald-500" },
 };
 
+// Helper to check if event was added within last 7 days
+const isJustAdded = (event: Event) => {
+  if (!event.addedAt) return false;
+  const addedTime = new Date(event.addedAt).getTime();
+  const daysSince = (Date.now() - addedTime) / (1000 * 60 * 60 * 24);
+  return daysSince < 7;
+};
+
+// Format as date and time
+const formatTimestamp = (isoString: string) => {
+  const date = new Date(isoString);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
 function App() {
   const [data, setData] = useState<EventsData | null>(null);
-  const [view] = useState<View>("events");
+  const [history, setHistory] = useState<ShowHistory | null>(null);
+  const [view, setView] = useState<View>("events");
   const [layout] = useState<Layout>("compact");
   const [enabledVenues, setEnabledVenues] = useState<Set<string>>(new Set());
-  const [isScrapingAll, setIsScrapingAll] = useState(false);
-  const [scrapingVenue, setScrapingVenue] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [apiConnected, setApiConnected] = useState<boolean | null>(null);
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
+  const [historySearch, setHistorySearch] = useState("");
+  const [eventSearch, setEventSearch] = useState("");
+  const [showContact, setShowContact] = useState(false);
+
+  // Secret menu state
+  const [logoClicks, setLogoClicks] = useState(0);
+  const logoClickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchEvents = useCallback(async () => {
     try {
       // Try API first (local dev), fall back to static file (production)
       let response = await fetch(`${API_BASE}/api/events`).catch(() => null);
       if (response?.ok) {
-        setApiConnected(true);
         const json = await response.json();
         setData(json);
-        // Initialize all venues as enabled
         setEnabledVenues(new Set(json.sources.map((s: { id: string }) => s.id)));
         setError(null);
       } else {
-        setApiConnected(false);
-        // Use import.meta.env.BASE_URL for GitHub Pages compatibility
         response = await fetch(`${import.meta.env.BASE_URL}events.json`);
         const json = await response.json();
         setData(json);
-        // Initialize all venues as enabled
         setEnabledVenues(new Set(json.sources.map((s: { id: string }) => s.id)));
         setError(null);
+      }
+
+      const historyResponse = await fetch(`${import.meta.env.BASE_URL}history.json`).catch(() => null);
+      if (historyResponse?.ok) {
+        const historyJson = await historyResponse.json();
+        setHistory(historyJson);
       }
     } catch (err) {
       console.error("Failed to fetch events:", err);
@@ -62,52 +92,18 @@ function App() {
     fetchEvents();
   }, [fetchEvents]);
 
-  const handleScrapeAll = async () => {
-    if (!apiConnected) {
-      setError("API not running. Start with: ./scripts/dev.sh");
+  // Secret menu: click logo 5 times within 2 seconds
+  const handleLogoClick = () => {
+    const newCount = logoClicks + 1;
+    if (newCount >= 5) {
+      setView(v => v === "dashboard" ? "events" : "dashboard");
+      setLogoClicks(0);
+      if (logoClickTimer.current) clearTimeout(logoClickTimer.current);
       return;
     }
-    setIsScrapingAll(true);
-    setError(null);
-    try {
-      const response = await fetch(`${API_BASE}/api/scrape/all`, { method: "POST" });
-      const result = await response.json();
-      if (result.success && result.data) {
-        setData(result.data);
-        setApiConnected(true);
-      } else {
-        setError(result.message || "Scrape failed");
-      }
-    } catch (err) {
-      setApiConnected(false);
-      setError("API not running. Start with: ./scripts/dev.sh");
-    } finally {
-      setIsScrapingAll(false);
-    }
-  };
-
-  const handleScrapeVenue = async (venueId: string) => {
-    if (!apiConnected) {
-      setError("API not running. Start with: ./scripts/dev.sh");
-      return;
-    }
-    setScrapingVenue(venueId);
-    setError(null);
-    try {
-      const response = await fetch(`${API_BASE}/api/scrape/${venueId}`, { method: "POST" });
-      const result = await response.json();
-      if (result.success && result.data) {
-        setData(result.data);
-        setApiConnected(true);
-      } else {
-        setError(result.message || "Scrape failed");
-      }
-    } catch (err) {
-      setApiConnected(false);
-      setError("API not running. Start with: ./scripts/dev.sh");
-    } finally {
-      setScrapingVenue(null);
-    }
+    setLogoClicks(newCount);
+    if (logoClickTimer.current) clearTimeout(logoClickTimer.current);
+    logoClickTimer.current = setTimeout(() => setLogoClicks(0), 2000);
   };
 
   if (!data) {
@@ -119,6 +115,7 @@ function App() {
   }
 
   const venues = data.sources.map((s) => ({ id: s.id, name: s.name }));
+  const justAddedCount = data.events.filter(isJustAdded).length;
 
   const toggleVenue = (venueId: string) => {
     setEnabledVenues((prev) => {
@@ -138,8 +135,11 @@ function App() {
         <div className={`mx-auto md:px-4 ${layout === "compact" ? "max-w-4xl" : "max-w-xl"}`}>
           <div className="content-container md:rounded-2xl p-6">
             {/* Logo */}
-            <div className="text-center mb-6 -mx-6 -mt-6 px-6 pt-6 pb-4 bg-black/20 md:rounded-t-2xl">
-              <h1 className="text-5xl md:text-6xl font-black tracking-tight">
+            <div className="text-center mb-6 -mx-6 -mt-6 px-6 pt-6 pb-4 bg-[#050506] md:rounded-t-2xl">
+              <h1
+                onClick={handleLogoClick}
+                className="text-5xl md:text-6xl font-black tracking-tight select-none"
+              >
                 <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-purple-500 bg-clip-text text-transparent">
                   OMAHA
                 </span>
@@ -150,6 +150,32 @@ function App() {
                 <span className="text-gray-500 text-sm tracking-widest uppercase">Live Music</span>
                 <div className="h-px w-16 bg-gradient-to-l from-transparent to-gray-600"></div>
               </div>
+
+              {/* View tabs - only show events/history (dashboard is secret) */}
+              {view !== "dashboard" && (
+                <div className="flex justify-center gap-2 mt-4">
+                  <button
+                    onClick={() => setView("events")}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      view === "events"
+                        ? "bg-white/10 text-white"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    Upcoming
+                  </button>
+                  <button
+                    onClick={() => setView("history")}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      view === "history"
+                        ? "bg-white/10 text-white"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    History
+                  </button>
+                </div>
+              )}
             </div>
 
             {error && (
@@ -160,51 +186,86 @@ function App() {
 
             {(view === "events" || view === "history") && (
               <>
-                {/* Venue Toggles */}
-                <div className="flex flex-wrap justify-center gap-2 mb-6">
-                  {venues.map((v) => {
-                    const colors = VENUE_COLORS[v.id] || { bg: "bg-gray-500/20", text: "text-gray-400", border: "border-gray-500" };
-                    const isEnabled = enabledVenues.has(v.id);
-                    return (
-                      <button
-                        key={v.id}
-                        onClick={() => toggleVenue(v.id)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border cursor-pointer ${
-                          isEnabled
-                            ? `${colors.bg} ${colors.text} ${colors.border} hover:brightness-125`
-                            : "bg-gray-800/50 text-gray-500 border-gray-700 opacity-50 hover:opacity-75"
-                        }`}
-                      >
-                        {v.name}
-                      </button>
-                    );
-                  })}
+                {/* Header row with filters */}
+                <div className="h-10 flex items-center justify-between mb-4">
+                  {view === "events" ? (
+                    <>
+                      <span className="text-xs text-gray-500 hidden sm:inline">
+                        Updated {formatTimestamp(data.lastUpdated)}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <div className="relative">
+                          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <input
+                            type="text"
+                            placeholder="Search..."
+                            value={eventSearch}
+                            onChange={(e) => setEventSearch(e.target.value)}
+                            className="w-32 sm:w-40 pl-8 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                          />
+                        </div>
+                        <FiltersDropdown
+                          venues={venues}
+                          enabledVenues={enabledVenues}
+                          toggleVenue={toggleVenue}
+                          venueColors={VENUE_COLORS}
+                          timeFilter={timeFilter}
+                          setTimeFilter={setTimeFilter}
+                          justAddedCount={justAddedCount}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-sm text-gray-400">
+                        {(history?.shows?.length || 0).toLocaleString()} past shows
+                      </span>
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        className="px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 w-40"
+                        onChange={(e) => setHistorySearch(e.target.value)}
+                        value={historySearch}
+                      />
+                    </>
+                  )}
                 </div>
+
                 {/* Victorian Decorative Divider */}
                 <div className="mb-6 -mx-6 flex items-center">
                   <svg viewBox="0 0 800 24" className="w-full h-4 text-gray-500" preserveAspectRatio="none">
-                    {/* Left scrollwork - smooth curves back to line */}
                     <path d="M0,12 C40,12 60,12 80,12 C100,12 110,4 130,4 C145,4 150,8 155,12 C160,16 170,20 185,20 C200,20 210,16 220,12 C235,6 250,4 270,4 C290,4 310,8 330,12 L360,12" fill="none" stroke="currentColor" strokeWidth="1"/>
                     <path d="M0,12 C40,12 60,12 80,12 C100,12 110,20 130,20 C145,20 150,16 155,12 C160,8 170,4 185,4 C200,4 210,8 220,12 C235,18 250,20 270,20 C290,20 310,16 330,12 L360,12" fill="none" stroke="currentColor" strokeWidth="1"/>
-                    {/* Center ornament */}
                     <ellipse cx="400" cy="12" rx="8" ry="5" fill="none" stroke="currentColor" strokeWidth="1"/>
                     <circle cx="400" cy="12" r="2" fill="currentColor"/>
                     <path d="M360,12 Q380,5 392,12" fill="none" stroke="currentColor" strokeWidth="1"/>
                     <path d="M360,12 Q380,19 392,12" fill="none" stroke="currentColor" strokeWidth="1"/>
                     <path d="M440,12 Q420,5 408,12" fill="none" stroke="currentColor" strokeWidth="1"/>
                     <path d="M440,12 Q420,19 408,12" fill="none" stroke="currentColor" strokeWidth="1"/>
-                    {/* Right scrollwork - smooth curves back to line (mirrored) */}
                     <path d="M800,12 C760,12 740,12 720,12 C700,12 690,4 670,4 C655,4 650,8 645,12 C640,16 630,20 615,20 C600,20 590,16 580,12 C565,6 550,4 530,4 C510,4 490,8 470,12 L440,12" fill="none" stroke="currentColor" strokeWidth="1"/>
                     <path d="M800,12 C760,12 740,12 720,12 C700,12 690,20 670,20 C655,20 650,16 645,12 C640,8 630,4 615,4 C600,4 590,8 580,12 C565,18 550,20 530,20 C510,20 490,16 470,12 L440,12" fill="none" stroke="currentColor" strokeWidth="1"/>
                   </svg>
                 </div>
 
-                <EventList
-                  events={data.events}
-                  layout={layout}
-                  filter={{ enabledVenues, showPast: view === "history" }}
-                  venueColors={VENUE_COLORS}
-                />
+                {/* Content */}
+                {view === "events" ? (
+                  <EventList
+                    events={data.events}
+                    layout={layout}
+                    filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: eventSearch }}
+                    venueColors={VENUE_COLORS}
+                    isJustAdded={isJustAdded}
+                  />
+                ) : (
+                  <HistoryList
+                    shows={history?.shows || []}
+                    enabledVenues={enabledVenues}
+                    searchQuery={historySearch}
+                    venueColors={VENUE_COLORS}
+                  />
+                )}
               </>
             )}
 
@@ -212,13 +273,27 @@ function App() {
               <Dashboard
                 sources={data.sources}
                 lastUpdated={data.lastUpdated}
-                onScrapeAll={handleScrapeAll}
-                onScrapeVenue={handleScrapeVenue}
-                isScrapingAll={isScrapingAll}
-                scrapingVenue={scrapingVenue}
-                apiConnected={apiConnected}
+                events={data.events}
+                historyShows={history?.shows}
               />
             )}
+
+            {/* Footer */}
+            <footer className="mt-8 pt-6 border-t border-gray-800 text-center text-xs text-gray-500">
+              <p>
+                Made with love for the Omaha music scene. Not affiliated with any venues.
+              </p>
+              <p className="mt-1">
+                <button
+                  onClick={() => setShowContact(true)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Contact
+                </button>
+              </p>
+            </footer>
+
+            <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
           </div>
         </div>
       </main>

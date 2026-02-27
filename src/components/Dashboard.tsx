@@ -1,54 +1,23 @@
 // web/src/components/Dashboard.tsx
 import { useState } from "react";
-import type { SourceStatus } from "../types";
+import type { SourceStatus, Event, HistoricalShow } from "../types";
 
 interface DashboardProps {
   sources: SourceStatus[];
   lastUpdated: string;
-  onScrapeAll: () => Promise<void>;
-  onScrapeVenue: (venueId: string) => Promise<void>;
-  isScrapingAll: boolean;
-  scrapingVenue: string | null;
-  apiConnected: boolean | null;
+  events?: Event[];
+  historyShows?: HistoricalShow[];
 }
-
-const API_BASE = "http://localhost:8000";
 
 export function Dashboard({
   sources,
   lastUpdated,
-  onScrapeAll,
-  onScrapeVenue,
-  isScrapingAll,
-  scrapingVenue,
-  apiConnected
+  events = [],
+  historyShows = []
 }: DashboardProps) {
-  const [expandedSource, setExpandedSource] = useState<string | null>(null);
-  const [rawJson, setRawJson] = useState<Record<string, unknown> | null>(null);
-  const [loadingJson, setLoadingJson] = useState(false);
+  const [showEventsJson, setShowEventsJson] = useState(false);
+  const [showHistoryJson, setShowHistoryJson] = useState(false);
 
-  const fetchRawJson = async (venueId: string) => {
-    if (expandedSource === venueId) {
-      setExpandedSource(null);
-      setRawJson(null);
-      return;
-    }
-
-    setLoadingJson(true);
-    setExpandedSource(venueId);
-    try {
-      const response = await fetch(`${API_BASE}/api/raw/${venueId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setRawJson(data);
-      } else {
-        setRawJson({ error: "Failed to fetch raw data" });
-      }
-    } catch {
-      setRawJson({ error: "API not available" });
-    }
-    setLoadingJson(false);
-  };
   const getTimeSince = (iso: string) => {
     const diff = Date.now() - new Date(iso).getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -59,43 +28,43 @@ export function Dashboard({
     return days === 1 ? "1 day ago" : `${days} days ago`;
   };
 
+  const totalEvents = sources.reduce((sum, s) => sum + s.eventCount, 0);
+  const successCount = sources.filter(s => s.status === "ok").length;
+
   return (
     <div>
-      {/* API Status */}
-      <div className={`mb-4 p-3 rounded-lg flex items-center gap-3 ${
-        apiConnected
-          ? "bg-green-900/30 border border-green-700"
-          : "bg-yellow-900/30 border border-yellow-700"
-      }`}>
-        <span className={`w-3 h-3 rounded-full ${apiConnected ? "bg-green-500" : "bg-yellow-500"}`} />
-        <span className={apiConnected ? "text-green-300" : "text-yellow-300"}>
-          {apiConnected
-            ? "API Connected - Scraping enabled"
-            : "API Offline - Run ./scripts/dev.sh to enable scraping"}
-        </span>
+      {/* Header */}
+      <div className="mb-6 text-center">
+        <h2 className="text-xl font-bold text-white mb-2">Scraper Dashboard</h2>
+        <p className="text-sm text-gray-400">
+          Read-only view. Scrapers run daily via GitHub Actions.
+        </p>
       </div>
 
-      <div className="flex items-center justify-between mb-6">
-        <div className="text-sm text-gray-400">
-          Last updated: {getTimeSince(lastUpdated)}
+      {/* Summary Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-gray-800 rounded-lg p-4 text-center">
+          <div className="text-2xl font-bold text-white">{totalEvents}</div>
+          <div className="text-xs text-gray-400">Total Events</div>
         </div>
-        <button
-          onClick={onScrapeAll}
-          disabled={!apiConnected || isScrapingAll || scrapingVenue !== null}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          {isScrapingAll ? (
-            <>
-              <span className="animate-spin">↻</span>
-              Scraping All...
-            </>
-          ) : (
-            "Scrape All"
-          )}
-        </button>
+        <div className="bg-gray-800 rounded-lg p-4 text-center">
+          <div className="text-2xl font-bold text-white">{sources.length}</div>
+          <div className="text-xs text-gray-400">Venues</div>
+        </div>
+        <div className="bg-gray-800 rounded-lg p-4 text-center">
+          <div className={`text-2xl font-bold ${successCount === sources.length ? "text-green-400" : "text-yellow-400"}`}>
+            {successCount}/{sources.length}
+          </div>
+          <div className="text-xs text-gray-400">Healthy</div>
+        </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="text-sm text-gray-400 mb-4">
+        Last updated: {getTimeSince(lastUpdated)}
+      </div>
+
+      {/* Source Status List */}
+      <div className="space-y-3">
         {sources.map((source) => (
           <div
             key={source.id}
@@ -110,25 +79,12 @@ export function Dashboard({
                 />
                 <span className="font-medium text-white">{source.name}</span>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-400">
-                  {source.eventCount} events
-                </span>
-                <button
-                  onClick={() => onScrapeVenue(source.id)}
-                  disabled={!apiConnected || isScrapingAll || scrapingVenue !== null}
-                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {scrapingVenue === source.id ? (
-                    <span className="animate-spin inline-block">↻</span>
-                  ) : (
-                    "Scrape"
-                  )}
-                </button>
-              </div>
+              <span className="text-sm text-gray-400">
+                {source.eventCount} events
+              </span>
             </div>
 
-            <div className="mt-2 text-sm text-gray-400">
+            <div className="mt-2 text-sm text-gray-500">
               Last scraped: {getTimeSince(source.lastScraped)}
             </div>
 
@@ -137,32 +93,45 @@ export function Dashboard({
                 {source.error}
               </div>
             )}
-
-            {/* View Raw JSON Button */}
-            <div className="mt-3 pt-3 border-t border-gray-700">
-              <button
-                onClick={() => fetchRawJson(source.id)}
-                disabled={!apiConnected}
-                className="text-sm text-blue-400 hover:text-blue-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-              >
-                {expandedSource === source.id ? "Hide Raw JSON" : "View Raw JSON"}
-              </button>
-
-              {expandedSource === source.id && (
-                <div className="mt-3">
-                  {loadingJson ? (
-                    <div className="text-gray-400 text-sm">Loading...</div>
-                  ) : (
-                    <pre className="bg-gray-900 p-3 rounded-lg text-xs text-gray-300 overflow-auto max-h-96">
-                      {JSON.stringify(rawJson, null, 2)}
-                    </pre>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         ))}
       </div>
+
+      {/* JSON Viewers */}
+      <div className="mt-6 pt-4 border-t border-gray-700 space-y-4">
+        <h3 className="text-sm font-medium text-gray-300">Raw Data</h3>
+
+        {/* Events JSON */}
+        <div>
+          <button
+            onClick={() => setShowEventsJson(!showEventsJson)}
+            className="text-sm text-blue-400 hover:text-blue-300"
+          >
+            {showEventsJson ? "Hide" : "Show"} events.json ({events.length} events)
+          </button>
+          {showEventsJson && (
+            <pre className="mt-2 bg-gray-900 p-3 rounded-lg text-xs text-gray-300 overflow-auto max-h-96">
+              {JSON.stringify(events, null, 2)}
+            </pre>
+          )}
+        </div>
+
+        {/* History JSON */}
+        <div>
+          <button
+            onClick={() => setShowHistoryJson(!showHistoryJson)}
+            className="text-sm text-blue-400 hover:text-blue-300"
+          >
+            {showHistoryJson ? "Hide" : "Show"} history.json ({historyShows.length} shows)
+          </button>
+          {showHistoryJson && (
+            <pre className="mt-2 bg-gray-900 p-3 rounded-lg text-xs text-gray-300 overflow-auto max-h-96">
+              {JSON.stringify(historyShows, null, 2)}
+            </pre>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }

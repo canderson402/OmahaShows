@@ -26,8 +26,8 @@ export function EventCard({ event, venueColors }: EventCardProps) {
     return `${hour12}:${minutes} ${ampm}`;
   };
 
-  // Use eventUrl for listing, fall back to ticketUrl or venueUrl
-  const listingUrl = event.eventUrl || event.ticketUrl || event.venueUrl;
+  // Use eventUrl for listing, fall back to ticketUrl
+  const listingUrl = event.eventUrl || event.ticketUrl;
 
   return (
     <div className="group py-8">
@@ -95,9 +95,9 @@ export function EventCard({ event, venueColors }: EventCardProps) {
         </div>
 
         <div className="flex gap-2 flex-shrink-0">
-          {(event.eventUrl || (!event.ticketUrl && event.venueUrl)) && (
+          {event.eventUrl && (
             <a
-              href={event.eventUrl || event.venueUrl}
+              href={event.eventUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1.5 bg-gray-800 text-gray-200 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"

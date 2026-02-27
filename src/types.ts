@@ -5,7 +5,6 @@ export interface Event {
   date: string;
   time?: string;
   venue: string;
-  venueUrl?: string;
   eventUrl?: string;  // Event detail page on venue's site
   ticketUrl?: string;  // Ticket purchase page (etix, etc.)
   imageUrl?: string;
@@ -13,6 +12,7 @@ export interface Event {
   ageRestriction?: string;
   supportingArtists?: string[];  // ["Artist 1", "Artist 2"]
   source: string;
+  addedAt?: string;  // ISO timestamp when first seen
 }
 
 export interface SourceStatus {
@@ -29,4 +29,16 @@ export interface EventsData {
   events: Event[];
   lastUpdated: string;
   sources: SourceStatus[];
+}
+
+export interface HistoricalShow {
+  date: string;
+  title: string;
+  venue: string;
+  supportingArtists?: string[];
+}
+
+export interface ShowHistory {
+  shows: HistoricalShow[];
+  lastUpdated: string;
 }

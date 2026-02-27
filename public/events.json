@@ -1,73 +1,6 @@
 {
   "events": [
     {
-      "id": "reverblounge-2026-02-26-psyclon-nine",
-      "title": "Psyclon Nine",
-      "date": "2026-02-26",
-      "time": "18:30",
-      "venue": "Reverb Lounge",
-      "venueUrl": "https://reverblounge.com",
-      "eventUrl": "https://reverblounge.com/event/psyclon-nine/reverb-lounge/",
-      "ticketUrl": null,
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2025/12/psyclon-nine.jfif",
-      "price": "$20 ADV / $25 DOS",
-      "ageRestriction": "All Ages",
-      "supportingArtists": [
-        "Clockwork Echo",
-        "Our Frankenstein"
-      ],
-      "source": "reverblounge"
-    },
-    {
-      "id": "bourbontheatre-2026-02-26-pecos-the-rooftops-mac-hankins-the-moonlighters",
-      "title": "Pecos & the Rooftops, Mac Hankins & The Moonlighters",
-      "date": "2026-02-26",
-      "time": "19:00",
-      "venue": "Bourbon Theatre",
-      "venueUrl": "https://www.bourbontheatre.com",
-      "eventUrl": "https://www.bourbontheatre.com/tm-event/pecos-the-rooftops-mac-hankins-the-moonlighters/",
-      "ticketUrl": null,
-      "imageUrl": "https://i.ticketweb.com/i/00/13/34/45/73_Original.jpg?v=9",
-      "price": null,
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "bourbontheatre"
-    },
-    {
-      "id": "admiral-2026-02-26-dropkick-murphys",
-      "title": "Dropkick Murphys",
-      "date": "2026-02-26",
-      "time": "19:00",
-      "venue": "Admiral",
-      "venueUrl": "https://admiralomaha.com",
-      "eventUrl": "https://admiralomaha.com/event/dropkick-murphys-for-the-peoplein-the-pit-st-patricks-day-2026-tour/the-admiral/omaha-nebraska/",
-      "ticketUrl": "https://www.etix.com/ticket/p/64974965/dropkick-murphysfor-the-peoplein-the-pit-stpatricks-day-2026-tour-omaha-the-admiral-theater?partner_id=100",
-      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/10/etix-Dropkick_554451760346440.jfif",
-      "price": "$45 ADV / $50 DOS / $75 PREMIUM BALCONY",
-      "ageRestriction": "ALL AGES",
-      "supportingArtists": [
-        "The Aggrolites",
-        "Haywire",
-        "Slugger"
-      ],
-      "source": "admiral"
-    },
-    {
-      "id": "steelhouse-2026-02-26-vitamin-string-quartet",
-      "title": "Vitamin String Quartet",
-      "date": "2026-02-26",
-      "time": "19:00",
-      "venue": "Steel House",
-      "venueUrl": "https://steelhouseomaha.com",
-      "eventUrl": "https://steelhouseomaha.com/events/vitamin-string-quartet/",
-      "ticketUrl": "http://www.ticketmaster.com/event/2000631DCB672B12?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
-      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/09/VSQ_Web_558x558-1.jpg",
-      "price": null,
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "steelhouse"
-    },
-    {
       "id": "theslowdown-2026-02-27-gannon-fremin-ccrev",
       "title": "Gannon Fremin & CCREV",
       "date": "2026-02-27",
@@ -82,7 +15,8 @@
       "supportingArtists": [
         "The Traynr Band"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-02-27-snowball-showdown-2",
@@ -97,7 +31,8 @@
       "price": "$15 ADV / $20 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-02-27-jack",
@@ -115,7 +50,8 @@
         "Infielder",
         "Mouse Heart"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-02-27-bingo-loco",
@@ -130,7 +66,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-02-27-melodrama-olio-night-three",
@@ -145,7 +82,8 @@
       "price": "$20",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "other-2026-02-27-mixed-bill-at-the-breakroom",
@@ -160,7 +98,8 @@
       "price": "$10 PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-02-28-can-t-feel-my-face-2010s-dance-party",
@@ -175,7 +114,8 @@
       "price": "$12.50-$20.00",
       "ageRestriction": "21+",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-02-28-plack-blague-birthday-bash",
@@ -193,7 +133,8 @@
         "Vempire",
         "Dead Poets"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-02-28-ricky-chilton",
@@ -208,7 +149,8 @@
       "price": "$15 ADV / $20 DOS",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-02-28-sky-cirque-and-parkour-early-and-late-show",
@@ -223,7 +165,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-02-28-melodrama-olio-night-four",
@@ -238,7 +181,8 @@
       "price": "$20",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "other-2026-02-28-glitterer-graham-hunt-prize-horse",
@@ -253,7 +197,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "other-2026-02-28-clunt-wood-haven-more-cheese",
@@ -268,7 +213,8 @@
       "price": "PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-01-scattered-hamlet",
@@ -288,7 +234,8 @@
         "The Hooligan Gentlemen",
         "The Dead Man's Band"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-02-stateside",
@@ -305,7 +252,8 @@
       "supportingArtists": [
         "Firestarter"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-03-all-them-witches",
@@ -322,7 +270,8 @@
       "supportingArtists": [
         "King Buffalo"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-05-leila-s-rose",
@@ -339,7 +288,8 @@
       "supportingArtists": [
         "Hold Your Breath"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-06-kaivon",
@@ -357,7 +307,8 @@
         "Hyddin",
         "Bllaine"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-06-volumes",
@@ -376,7 +327,8 @@
         "Catsclaw",
         "REVIVER"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-06-beast-eagle",
@@ -395,7 +347,8 @@
         "Of The Skies",
         "Pull The Plug"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-06-zoso-the-ultimate-led-zeppelin-experience",
@@ -410,7 +363,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-03-06-heated-rivalry-night",
@@ -425,7 +379,8 @@
       "price": "$32.39 to $62.90",
       "ageRestriction": "Ages 18 and up",
       "supportingArtists": null,
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-03-06-blackhawk",
@@ -436,13 +391,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/blackhawk/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000636392B1382E",
-      "imageUrl": "/OmahaShows/images/astro/13055cad97b7.png",
+      "imageUrl": "/images/astro/13055cad97b7.png",
       "price": "$41.10",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Ryan Manuel"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-07-psychostick-galactic-empire",
@@ -460,7 +416,8 @@
         "Narcotic Self",
         "Hatricide"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-07-good-terms",
@@ -479,7 +436,8 @@
         "Public Figure",
         "Feel Good"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-07-dad-rock-night-presented-by-council-hill",
@@ -494,7 +452,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-03-07-felipe-esparza",
@@ -505,11 +464,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/felipe-esparza/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000634ED57333A3",
-      "imageUrl": "/OmahaShows/images/astro/10b7bf139ad6.png",
+      "imageUrl": "/images/astro/10b7bf139ad6.png",
       "price": "$26",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-07-eyes-of-sorrow-with-local-support",
@@ -524,7 +484,8 @@
       "price": "$10 PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-07-cope-acidic-ep-release-show",
@@ -539,7 +500,8 @@
       "price": "$10 PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-08-victor-jones",
@@ -556,7 +518,8 @@
       "supportingArtists": [
         "Zach Peterson"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-08-nxsw-x-in-your-house-tour",
@@ -575,7 +538,8 @@
         "Durow",
         "ATM and 3lade"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-08-sleazyworld-go",
@@ -590,7 +554,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-09-peter-mcpoland",
@@ -607,7 +572,8 @@
       "supportingArtists": [
         "Girl Tones"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-09-dave-s-cosmic-birthday-bash",
@@ -627,7 +593,8 @@
         "Anarchist Trashcan",
         "Gear Issue"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-10-fia",
@@ -644,7 +611,8 @@
       "supportingArtists": [
         "Johnny Suite"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-10-railroad-earth",
@@ -659,7 +627,8 @@
       "price": "$30 ADV / $35 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-11-hawthorne-heights",
@@ -677,7 +646,8 @@
         "letlive.",
         "Creeper"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-11-jeff-tweedy",
@@ -694,7 +664,8 @@
       "supportingArtists": [
         "Macie Stewart"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-11-snooze",
@@ -711,7 +682,8 @@
       "supportingArtists": [
         "The Light That Blinds"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-03-11-in-the-air-tonight-the-phil-collins-story",
@@ -726,7 +698,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-12-jordana",
@@ -743,7 +716,8 @@
       "supportingArtists": [
         "Kelcey Ayer"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-12-disco-always-a-harry-styles-dance-night",
@@ -758,7 +732,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-03-12-jim-breuer",
@@ -769,13 +744,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/jim-breuer/",
       "ticketUrl": "https://www.ticketmaster.com/event/200063719F7237DD",
-      "imageUrl": "/OmahaShows/images/astro/0b0b8c46ffe3.png",
+      "imageUrl": "/images/astro/0b0b8c46ffe3.png",
       "price": "$61.60",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Bryan McKenna"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-13-floyd",
@@ -790,7 +766,8 @@
       "price": "$25.00-$40.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-13-merkules",
@@ -808,7 +785,8 @@
         "HEXXX",
         "I AM CRICCHI"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-13-benn-sieff-and-a-murder-of-crows",
@@ -825,7 +803,8 @@
       "supportingArtists": [
         "Jake Bellows"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-13-am-fm-pre-st-patrick-s-day-celebration",
@@ -836,11 +815,12 @@
       "venueUrl": "https://www.bourbontheatre.com",
       "eventUrl": "https://www.bourbontheatre.com/tm-event/am-fm-pre-st-patricks-day-celebration/",
       "ticketUrl": null,
-      "imageUrl": "https://i.ticketweb.com/i/00/12/78/73/24_Original.jpg?v=4",
+      "imageUrl": "https://i.ticketweb.com/i/00/12/78/73/24_Original.jpg?v=5",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-03-13-rory-scovel",
@@ -857,7 +837,8 @@
       "supportingArtists": [
         "Solon Holt"
       ],
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-03-13-descendents-and-frank-turner-the-sleeping-souls",
@@ -872,7 +853,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-13-so-it-goes-rat-fight-mn-not-ben-shin-free",
@@ -887,7 +869,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-14-saturdays-at-your-place",
@@ -905,7 +888,8 @@
         "Retirement Party",
         "Kerosene Heights"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-14-lucero",
@@ -922,7 +906,8 @@
       "supportingArtists": [
         "Otis Gibbs"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-14-chasing-chance",
@@ -941,7 +926,8 @@
         "Beyond the World Ahead",
         "The Losing Formula"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-14-petrock",
@@ -956,7 +942,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-14-brando-s-birthday-bash",
@@ -971,7 +958,8 @@
       "price": "$10",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-14-21-big-gay-dance-party",
@@ -986,7 +974,24 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
+    },
+    {
+      "id": "other-2026-03-14-slab-mourning-dolls-march-murder-masquerade",
+      "title": "SLAB & Mourning Dolls March Murder Masquerade",
+      "date": "2026-03-14",
+      "time": "20:00",
+      "venue": "Red Light Lounge",
+      "venueUrl": "https://omahaunderground.net",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-14-3",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/slab-2026march14-horizontal.jpg",
+      "price": "$5 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other",
+      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "other-2026-03-15-haunt-w-phantom-crypt-and-cycles-of-entro",
@@ -1001,7 +1006,8 @@
       "price": "$20",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-03-16-houndmouth",
@@ -1018,7 +1024,8 @@
       "supportingArtists": [
         "The Bends"
       ],
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-17-paddy-s-rave",
@@ -1033,7 +1040,8 @@
       "price": "$15 EARLY BIRD / $18 ADV / $20 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-17-oms-winter-showcase",
@@ -1053,7 +1061,8 @@
         "Python",
         "The Memphis Rejects"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-18-two-feet",
@@ -1071,7 +1080,8 @@
         "Sub Urban",
         "brothel."
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-18-black-pistol-fire",
@@ -1086,7 +1096,8 @@
       "price": "$25 ADV / $30 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-18-crazy-the-brains",
@@ -1104,7 +1115,8 @@
         "Hans Gruber & the Die Hards",
         "Dummy Head Torpedo"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-19-heatwaves-record-release-party",
@@ -1119,7 +1131,8 @@
       "price": "$10 ADV / $12 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-19-overkill-ezra-molten",
@@ -1134,7 +1147,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-20-graham-barham",
@@ -1151,7 +1165,8 @@
       "supportingArtists": [
         "Noah Hicks"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-20-lateralus",
@@ -1169,7 +1184,8 @@
         "Twistercult",
         "Mindflight"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-20-jxhnny-bliss-cope-acetic-album-release",
@@ -1184,7 +1200,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-20-losing-dice-and-mass-hysteria-with-support",
@@ -1199,7 +1216,27 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
+    },
+    {
+      "id": "reverblounge-2026-03-20-indian-caves",
+      "title": "Indian Caves",
+      "date": "2026-03-20",
+      "time": "20:00",
+      "venue": "Reverb Lounge",
+      "venueUrl": "https://reverblounge.com",
+      "eventUrl": "https://reverblounge.com/event/indian-caves/reverb-lounge/",
+      "ticketUrl": "https://www.etix.com/ticket/p/78276856/indian-caves-omaha-reverb-lounge?partner_id=100",
+      "imageUrl": "https://reverblounge.com/wp-content/uploads/2024/02/1percentEventDefault.png",
+      "price": null,
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Wedding",
+        "Radical Sabbatical"
+      ],
+      "source": "reverblounge",
+      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "theslowdown-2026-03-21-tophouse",
@@ -1216,7 +1253,8 @@
       "supportingArtists": [
         "Wheelwright"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-21-the-impulsive",
@@ -1234,7 +1272,8 @@
         "Virgin Mary Pistol Grip",
         "The Absent"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-21-fust-merce-lemon",
@@ -1251,7 +1290,8 @@
       "supportingArtists": [
         "Walker Rider"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-21-the-steel-wheels-corson-branch-buzzard-club-rascal-mar",
@@ -1266,7 +1306,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-03-21-let-s-sing-taylor",
@@ -1277,11 +1318,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/lets-sing-taylor/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006349D1C03493",
-      "imageUrl": "/OmahaShows/images/astro/c04464941ad2.png",
+      "imageUrl": "/images/astro/c04464941ad2.png",
       "price": "$33.55",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-21-spurney-s-hawk-record-release",
@@ -1296,7 +1338,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-22-ventana",
@@ -1313,7 +1356,8 @@
       "supportingArtists": [
         "Aeternum"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-22-mellow-rackz",
@@ -1328,7 +1372,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-03-22-inzo-mirrorverse-tour",
@@ -1347,7 +1392,8 @@
         "Blookah",
         "SPENNY"
       ],
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-03-22-boys-like-girls",
@@ -1362,7 +1408,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-22-mile-end-and-gasket-with-locals",
@@ -1377,7 +1424,8 @@
       "price": "$10",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-23-hot-flash-heat-wave",
@@ -1394,7 +1442,8 @@
       "supportingArtists": [
         "The Credentials"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-24-buffalo-traffic-jam",
@@ -1411,7 +1460,8 @@
       "supportingArtists": [
         "Sons of Habit"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-25-nick-hexum",
@@ -1428,7 +1478,8 @@
       "supportingArtists": [
         "Water Tower"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-25-kash-d-out",
@@ -1445,7 +1496,8 @@
       "supportingArtists": [
         "Beach Fly"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-25-platinum-moon-the-zooeys-the-groove-lagoon",
@@ -1460,7 +1512,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-26-the-happy-fits",
@@ -1477,7 +1530,8 @@
       "supportingArtists": [
         "BEL"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-26-pwp-wrestling-battle-of-the-phoenix-2026",
@@ -1492,7 +1546,8 @@
       "price": "$13.88 to $20.04",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-26-semler-the-mirages-tour",
@@ -1509,7 +1564,8 @@
       "supportingArtists": [
         "Nathan Roberts"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-26-josh-abbott-band-dylan-bloom-band",
@@ -1524,7 +1580,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-27-clarence-tilton",
@@ -1542,7 +1599,8 @@
         "Lightning Stills",
         "Black Cat Rodeo"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-27-k-pop-night",
@@ -1557,7 +1615,8 @@
       "price": "$17 ADV / $20 DOS",
       "ageRestriction": "18+",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-27-chasing-supernovas",
@@ -1575,7 +1634,8 @@
         "The Clincher",
         "Pop Shove It"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-27-the-warped-band-the-official-tribute-to-warped-tour",
@@ -1590,7 +1650,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-03-27-whitney-cummings",
@@ -1601,11 +1662,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/whitney-cummings/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000637299233228",
-      "imageUrl": "/OmahaShows/images/astro/fb01a3fb3bb2.png",
+      "imageUrl": "/images/astro/fb01a3fb3bb2.png",
       "price": "$38.80",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-28-satchel-grande",
@@ -1622,7 +1684,8 @@
       "supportingArtists": [
         "Magū"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-28-arcade-riot-s-y2k-spectacular",
@@ -1641,7 +1704,8 @@
         "Jack The Underdog",
         "Infielder"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-28-danny-worsnop-tyler-rich",
@@ -1658,7 +1722,8 @@
       "supportingArtists": [
         "Erin Kinsey"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-03-28-micro-wrestling-federation",
@@ -1673,7 +1738,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-03-28-bingo-loco",
@@ -1688,7 +1754,8 @@
       "price": "$36",
       "ageRestriction": "21+",
       "supportingArtists": null,
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-28-rawr-xd",
@@ -1703,7 +1770,8 @@
       "price": "$5",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "other-2026-03-28-hollow-bastion-quilt-lula-leanne",
@@ -1718,7 +1786,8 @@
       "price": "$10 PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-29-nequient",
@@ -1737,7 +1806,8 @@
         "EPIMELIDES",
         "MOON PIGEONS"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-03-30-teenage-bottlerocket",
@@ -1756,7 +1826,8 @@
         "Sam Russo",
         "DSM-5"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-03-31-runo-plum",
@@ -1773,7 +1844,8 @@
       "supportingArtists": [
         "Aubory Bugg"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-03-31-pinksqueeze",
@@ -1792,7 +1864,8 @@
         "Cavedivers",
         "and amphibaphobia"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-03-31-bbno",
@@ -1807,7 +1880,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-01-clarion",
@@ -1825,7 +1899,8 @@
         "Forest",
         "Bed"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-02-quazy",
@@ -1840,7 +1915,8 @@
       "price": "$15",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-02-rittz-dropout-kings-loud-pack-ent-jay-influential",
@@ -1855,7 +1931,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-03-cottage-chemistry-a-heated-rivalry-dance-party",
@@ -1870,7 +1947,8 @@
       "price": "$17.00-$22.00",
       "ageRestriction": "21+",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-03-auslander-rammstein-tribute",
@@ -1887,7 +1965,8 @@
       "supportingArtists": [
         "Up The Irons – Iron Maiden Tribute"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-03-club-90s-la-presents-heated-rivalry-night",
@@ -1902,7 +1981,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-04-devil-in-the-details",
@@ -1921,7 +2001,8 @@
         "LGHTBRNGR",
         "Ex Nihilo"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-04-subhumans",
@@ -1938,7 +2019,8 @@
       "supportingArtists": [
         "La Pobreska"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-04-smith",
@@ -1953,7 +2035,8 @@
       "price": "$25 ADV / $30 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-04-onslaught-warlord-haunter-fascinus-rex",
@@ -1968,7 +2051,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-05-mei-semones",
@@ -1983,7 +2067,8 @@
       "price": "$20 ADV / $25 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-07-magnolia-park",
@@ -2001,7 +2086,8 @@
         "Silly Goose",
         "Pinknoise"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-07-carly-cosgrove",
@@ -2019,7 +2105,8 @@
         "Leisure Hour",
         "Summerbruise"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-07-freddie-dredd-back-to-hell-tour",
@@ -2034,7 +2121,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-08-the-koffin-kats",
@@ -2052,7 +2140,8 @@
         "The Rumours",
         "Carrie Nation & the Speakeasy"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-09-devotchka",
@@ -2067,7 +2156,8 @@
       "price": "$25 ADV / $30 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-09-goalkeeper",
@@ -2084,7 +2174,8 @@
       "supportingArtists": [
         "Capture This"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-09-curren-y-the-winners-circle-tour-w-the-747-band-specia",
@@ -2099,7 +2190,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "other-2026-04-09-myles-bullen-happy-john-not-ben-shin-ts",
@@ -2114,7 +2206,8 @@
       "price": "$10 PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-10-lumasi",
@@ -2133,7 +2226,8 @@
         "Drty Lndry",
         "Callisto"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-10-space-to-play",
@@ -2151,7 +2245,8 @@
         "Velvet Velvet",
         "Infielder"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-10-colby-acuff",
@@ -2166,7 +2261,8 @@
       "price": "$15 ADV / $18 DOS",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-11-anchondo-plays-sublime",
@@ -2183,7 +2279,8 @@
       "supportingArtists": [
         "Aly Peeler"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-11-erin-feichtinger-for-ld8-fundraiser-concert",
@@ -2201,7 +2298,8 @@
         "Bad Self Portraits",
         "See Through Dresses"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-11-zwarte-judd-hoos",
@@ -2216,7 +2314,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-12-ryan-caraveo",
@@ -2233,7 +2332,8 @@
       "supportingArtists": [
         "Travis Thompson"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-13-free-throw",
@@ -2252,7 +2352,8 @@
         "TRSH",
         "Wakelee"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-13-little-miss-nasty-deaddollz-tour-2026",
@@ -2267,7 +2368,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-04-13-insane-clown-posse",
@@ -2282,7 +2384,8 @@
       "price": "$49.50 ADV / $54 DOS / $75 PREMIUM BALCONY",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-14-dance-with-the-dead-magic-sword",
@@ -2299,7 +2402,8 @@
       "supportingArtists": [
         "Megan McDuffee"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-14-past-self",
@@ -2314,7 +2418,8 @@
       "price": "$12 ADV / $15 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-15-stomach-book",
@@ -2331,7 +2436,8 @@
       "supportingArtists": [
         "Girls Rituals"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-15-ratboys",
@@ -2348,7 +2454,8 @@
       "supportingArtists": [
         "villagerrr"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-15-vial",
@@ -2363,7 +2470,8 @@
       "price": "$18 ADV / $20 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-15-bleed-from-within-the-zenith-tour-north-america",
@@ -2378,7 +2486,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-16-selwyn-birchwood-album-release-party",
@@ -2393,7 +2502,8 @@
       "price": "$26.21",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-16-weedeater",
@@ -2411,7 +2521,8 @@
         "Conan",
         "Telekinetic Yeti"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-17-william-basinski",
@@ -2428,7 +2539,8 @@
       "supportingArtists": [
         "Paul Riedl"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-17-letdown",
@@ -2448,7 +2560,8 @@
         "YOUTHYEAR",
         "LUCHIANO"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-17-glizzyfest",
@@ -2463,7 +2576,8 @@
       "price": "$15 DAY PASS / $25 WEEKEND PASS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-17-ashes-remain-what-i-ve-become-15-year-anniversary-tour",
@@ -2478,7 +2592,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "other-2026-04-17-sin-miedo-with-teraway-extravasate-defaced",
@@ -2493,7 +2608,8 @@
       "price": "$10 PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-18-cold",
@@ -2511,7 +2627,8 @@
         "special guests University Drive",
         "Rival Within"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-18-the-killigans-this-is-only-a-drill-album-release",
@@ -2526,7 +2643,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-04-18-max-mcnown",
@@ -2541,7 +2659,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-19-sunn-o",
@@ -2556,7 +2675,8 @@
       "price": "$35 ADV / $40 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-20-thursday",
@@ -2573,7 +2693,8 @@
       "supportingArtists": [
         "Chris Conley"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-04-20-lorna-shore",
@@ -2588,7 +2709,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-21-ashes-to-amber",
@@ -2606,7 +2728,8 @@
         "Nature TV",
         "JACK"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-04-21-the-psychology-of-serial-killers",
@@ -2617,11 +2740,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/the-psychology-of-serial-killers/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000642ECC633EC1",
-      "imageUrl": "/OmahaShows/images/astro/3e7079d5274a.png",
+      "imageUrl": "/images/astro/3e7079d5274a.png",
       "price": "$30.60",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-22-buckethead",
@@ -2636,7 +2760,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-04-22-stephen-wilson-jr",
@@ -2651,7 +2776,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-23-zero-9-36",
@@ -2669,7 +2795,8 @@
         "Downswing",
         "The Tale Untold"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-04-23-ethel-cain",
@@ -2680,13 +2807,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/ethel-cain/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000633ACA3D2D0E",
-      "imageUrl": "/OmahaShows/images/astro/6151f59be95a.png",
+      "imageUrl": "/images/astro/6151f59be95a.png",
       "price": "$60.35",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "9million"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-24-fleshwater-julie",
@@ -2703,7 +2831,8 @@
       "supportingArtists": [
         "Midrift"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-24-matt-mason",
@@ -2718,7 +2847,8 @@
       "price": "$20 ADV / $25 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-24-zach-rushing",
@@ -2733,7 +2863,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "other-2026-04-24-ingrown-with-mask-and-local-support",
@@ -2748,7 +2879,8 @@
       "price": "$20",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-25-the-pork-tornadoes",
@@ -2765,7 +2897,8 @@
       "supportingArtists": [
         "Dan Olsen"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-25-smells-like-nirvana",
@@ -2780,7 +2913,8 @@
       "price": "$20 ADV / $25 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-25-ungoliant",
@@ -2799,7 +2933,8 @@
         "Rahvn",
         "Manson Lamps"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-25-he-is-legend-a-lot-like-birds-lost-in-separation-from-",
@@ -2814,7 +2949,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-04-25-avatar",
@@ -2829,7 +2965,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "other-2026-04-25-no-guard-w-basic-needs-sacred-ronda-civic",
@@ -2844,7 +2981,8 @@
       "price": "$10 PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-26-june-star",
@@ -2859,7 +2997,8 @@
       "price": "$18 ADV / $23 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-04-26-demon-hunter-there-was-a-light-here-tour",
@@ -2874,7 +3013,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-28-bumpin-uglies-ballyhoo",
@@ -2891,7 +3031,8 @@
       "supportingArtists": [
         "The Quasi Kings"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-28-struggle-jennings",
@@ -2906,7 +3047,8 @@
       "price": "$25 ADV / $30 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-28-barns-courtney-unplugged-solo-sessions",
@@ -2923,7 +3065,8 @@
       "supportingArtists": [
         "Belle and Chain"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-29-hail-the-sun",
@@ -2942,7 +3085,8 @@
         "Makari",
         "RESILIA"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-04-29-the-growlers",
@@ -2957,7 +3101,8 @@
       "price": "$40 ADV / $45 DOS / $60 PREMIUM BALCONY",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-04-29-iron-wine",
@@ -2968,11 +3113,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/iron-wine/",
       "ticketUrl": "https://www.ticketmaster.com/event/200063888C2D28CF",
-      "imageUrl": "/OmahaShows/images/astro/dd65775f741b.png",
+      "imageUrl": "/images/astro/dd65775f741b.png",
       "price": "$50.40",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-04-30-pert-near-sandstone-arkansauce",
@@ -2987,7 +3133,8 @@
       "price": "$20.00-$25.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-04-30-james-mcmurtry-and-the-martial-law-review",
@@ -3004,7 +3151,8 @@
       "supportingArtists": [
         "BettySoo"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-04-30-dancefestopia-yellow-brick-road",
@@ -3019,7 +3167,8 @@
       "price": "$15 ADV / $20 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-04-30-afi",
@@ -3036,7 +3185,8 @@
       "supportingArtists": [
         "Choir Boy"
       ],
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-01-phoneboy-heart-attack-man",
@@ -3054,7 +3204,8 @@
         "Slow Joy",
         "PONY"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-05-01-anthony-gomes",
@@ -3069,7 +3220,8 @@
       "price": "$30 ADV / $35 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-01-remember-sports",
@@ -3087,7 +3239,8 @@
         "Madeline Reddel",
         "Penny & The Dimes"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-01-walker-montgomery-hank-weaver",
@@ -3102,7 +3255,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-02-ashley-kutcher",
@@ -3117,7 +3271,8 @@
       "price": "$20.00-$25.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-02-nu-metal-sucks-tour-spineshank-hed-pe-primer-55",
@@ -3132,7 +3287,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-05-02-black-veil-brides",
@@ -3143,7 +3299,7 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/black-veil-brides/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006434A986325F",
-      "imageUrl": "/OmahaShows/images/astro/56d792f299bd.png",
+      "imageUrl": "/images/astro/56d792f299bd.png",
       "price": "$57.60",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -3151,7 +3307,8 @@
         "TX2",
         "As December Falls"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-05-02-alter-bridge",
@@ -3166,7 +3323,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-03-master-boot-record",
@@ -3181,7 +3339,8 @@
       "price": "$25.00-$30.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-03-rickshaw-billie-s-burger-patrol",
@@ -3199,7 +3358,8 @@
         "American Sharks",
         "Pink Fuzz"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-05-03-the-amity-affliction-august-burns-red",
@@ -3210,14 +3370,15 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/the-amity-affliction-august-burns-red/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006372BFD83CD2",
-      "imageUrl": "/OmahaShows/images/astro/e3fd5ee71d84.png",
+      "imageUrl": "/images/astro/e3fd5ee71d84.png",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Boundaries",
         "Heavensgate"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "other-2026-05-03-battle-of-the-bands-free-at-millwork-common",
@@ -3232,7 +3393,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-04-vnv-nation",
@@ -3247,7 +3409,8 @@
       "price": "$35.00-$50.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-05-ollie-joseph-matt-corman",
@@ -3262,7 +3425,8 @@
       "price": "$15 ADV / $18 DOS",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-05-geoff-tate-s-operation-mindcrime-the-final-chapter",
@@ -3277,7 +3441,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-05-05-mac-demarco",
@@ -3288,13 +3453,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/mac-demarco/",
       "ticketUrl": null,
-      "imageUrl": "/OmahaShows/images/astro/2f9ada6c5ef6.png",
+      "imageUrl": "/images/astro/2f9ada6c5ef6.png",
       "price": "$55",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Mock Media"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-06-la-dispute",
@@ -3312,7 +3478,8 @@
         "From Indian Lakes",
         "Flooding"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "other-2026-05-06-hang-your-hate",
@@ -3327,7 +3494,8 @@
       "price": "$10 PWYC",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-07-the-slackers",
@@ -3346,7 +3514,8 @@
         "The Operators",
         "Top Ranx Sound System"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-07-the-garcia-project-performing-full-classic-jerry-garci",
@@ -3361,7 +3530,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-05-07-sam-barber",
@@ -3372,14 +3542,15 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/sam-barber/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006355B1262C10",
-      "imageUrl": "/OmahaShows/images/astro/d51adb838468.jpg",
+      "imageUrl": "/images/astro/d51adb838468.jpg",
       "price": "$59.25",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Michael Marcagi",
         "Bebe Stockwell"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-05-07-nate-smith",
@@ -3394,7 +3565,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-08-brenn",
@@ -3411,7 +3583,8 @@
       "supportingArtists": [
         "Hudson Ingram"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-05-08-wage-war",
@@ -3429,7 +3602,8 @@
         "Nevertel",
         "Orthodox"
       ],
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-09-ambar-lucid-maye",
@@ -3446,7 +3620,8 @@
       "supportingArtists": [
         "judith"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-09-tommy-castro-the-painkillers",
@@ -3461,7 +3636,8 @@
       "price": "$25 ADV / $30 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-09-george-michael-reborn-tribute-to-wham-george-michael",
@@ -3476,7 +3652,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-05-09-jimmy-failla",
@@ -3487,11 +3664,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/jimmy-failla/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006385A29C3CAC",
-      "imageUrl": "/OmahaShows/images/astro/f60f2f29d7f2.png",
+      "imageUrl": "/images/astro/f60f2f29d7f2.png",
       "price": "$61.75",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "other-2026-05-09-everybody-s-here-fest",
@@ -3506,7 +3684,8 @@
       "price": "$25",
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "other"
+      "source": "other",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-11-the-moss",
@@ -3523,7 +3702,8 @@
       "supportingArtists": [
         "Gatlin"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-12-dry-cleaning",
@@ -3540,7 +3720,8 @@
       "supportingArtists": [
         "Hotline TNT"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-12-fit-for-a-king-lonely-god-north-american-tour",
@@ -3555,7 +3736,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-14-snake-lucci-s-my-darkest-tour",
@@ -3576,7 +3758,8 @@
         "Xeno Zeus",
         "CityboyyDon & Dei Moreno"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-15-tyler-richton-the-high-bank-boys",
@@ -3593,7 +3776,8 @@
       "supportingArtists": [
         "Owen Justice Band"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-05-15-jim-jefferies",
@@ -3604,11 +3788,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/jim-jefferies/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000634F96B32EA7",
-      "imageUrl": "/OmahaShows/images/astro/e9225e37f160.png",
+      "imageUrl": "/images/astro/e9225e37f160.png",
       "price": "$89.65",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-16-petrock",
@@ -3623,7 +3808,8 @@
       "price": "$30.00-$65.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-05-16-chelcie-lynn",
@@ -3638,7 +3824,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-17-inner-wave-los-mesoneros",
@@ -3653,7 +3840,8 @@
       "price": "$25.00-$30.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-05-17-george-thorogood-and-the-destroyers",
@@ -3664,13 +3852,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/george-thorogood-and-the-destroyers/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000642C997F2C28",
-      "imageUrl": "/OmahaShows/images/astro/a287668825f1.png",
+      "imageUrl": "/images/astro/a287668825f1.png",
       "price": "$47.30",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "The Marshall Tucker Band"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-18-the-callous-daoboys",
@@ -3688,7 +3877,8 @@
         "Tombstone",
         "Ex-Nihilo"
       ],
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-19-the-casualties",
@@ -3705,7 +3895,8 @@
       "supportingArtists": [
         "The Drowns"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-05-19-spiritworld",
@@ -3723,7 +3914,8 @@
         "Roman Candle",
         "Doomsday"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-20-electric-six",
@@ -3738,7 +3930,8 @@
       "price": "$25 ADV / $30 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-20-poet-the-almas-embers-rise-after-arizona",
@@ -3753,7 +3946,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-05-21-qveen-herby-isle-of-qveen-tour",
@@ -3770,7 +3964,8 @@
       "supportingArtists": [
         "Thot Squad"
       ],
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-05-22-blade-rave",
@@ -3785,7 +3980,8 @@
       "price": "$20 ADV / $25 DOS",
       "ageRestriction": "18+",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-22-cradle-of-filth-suffocation-ghost-bath-cultus-black",
@@ -3800,7 +3996,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-05-23-archspire",
@@ -3819,7 +4016,8 @@
         "CROWN MAGNETAR",
         "MUTILATION BARBECUE"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-05-23-80-s-kids-featuring-shannon-curtis",
@@ -3834,7 +4032,8 @@
       "price": "$25 ADV / $30 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-05-27-peelingflesh",
@@ -3854,7 +4053,8 @@
         "Bayway",
         "SETBACK"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-05-29-noah-james-tyler-anthony",
@@ -3869,7 +4069,8 @@
       "price": "$15 ADV / $20 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-05-30-alpha-wolf",
@@ -3888,7 +4089,8 @@
         "Mugshot",
         "Resolve"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-30-savannah-dexter-damage-control-tour",
@@ -3903,7 +4105,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-05-30-gasolina-party",
@@ -3918,7 +4121,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-05-31-the-black-angels",
@@ -3935,7 +4139,8 @@
       "supportingArtists": [
         "L.A. Witch"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-05-31-between-the-buried-and-me-the-blue-nowhere-u-s-tour-sp",
@@ -3950,7 +4155,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-06-03-troy-doherty",
@@ -3965,7 +4171,8 @@
       "price": "$25.00-$85.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-06-03-toadies",
@@ -3976,14 +4183,15 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/toadies/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000644AD0063C96",
-      "imageUrl": "/OmahaShows/images/astro/e279df62cdd7.png",
+      "imageUrl": "/images/astro/e279df62cdd7.png",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Local H",
         "Vandoliers"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-06-06-citizen-soldier-secret-songs-tour-ii",
@@ -3998,7 +4206,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-06-06-nitty-gritty-dirt-band",
@@ -4009,13 +4218,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/nitty-gritty-dirt-band/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006430861A22E7",
-      "imageUrl": "/OmahaShows/images/astro/457d200f2eb8.png",
+      "imageUrl": "/images/astro/457d200f2eb8.png",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Brit Taylor"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-06-09-josiah-and-the-bonnevilles-the-redline-north-american-tour-20",
@@ -4030,7 +4240,8 @@
       "price": "$25 ADV / $30 DOS / $50 PREMIUM BALCONY",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-06-09-iration",
@@ -4041,13 +4252,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/iration/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000638CB02744F2",
-      "imageUrl": "/OmahaShows/images/astro/def133f69989.jpg",
+      "imageUrl": "/images/astro/def133f69989.jpg",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Tribal Seeds"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-06-11-belles",
@@ -4062,7 +4274,8 @@
       "price": "$15 ADV / $18 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-06-12-joe-jackson",
@@ -4077,7 +4290,24 @@
       "price": "Starting at $45  -  SEATED SHOW",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
+    },
+    {
+      "id": "bourbontheatre-2026-06-12-bingo-loco",
+      "title": "BINGO LOCO",
+      "date": "2026-06-12",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "venueUrl": "https://www.bourbontheatre.com",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/bingo-loco-2/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/35/52/03_Original.jpg?v=4",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre",
+      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "reverblounge-2026-06-15-mikaela-davis",
@@ -4092,7 +4322,8 @@
       "price": "$20 ADV / $25 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-06-16-amyl-and-the-sniffers",
@@ -4103,11 +4334,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/amyl-and-the-sniffers/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006378909D2E0F",
-      "imageUrl": "/OmahaShows/images/astro/54f262dae6ed.png",
+      "imageUrl": "/images/astro/54f262dae6ed.png",
       "price": "$52.45",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-06-19-jonathan-van-ness",
@@ -4122,7 +4354,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-06-20-the-wallflowers",
@@ -4137,7 +4370,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-06-21-five-for-fighting-edwin-mccain",
@@ -4152,7 +4386,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-06-22-bug-hunter-the-narcissist-cookbook",
@@ -4167,7 +4402,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-06-23-yachtley-crew",
@@ -4182,7 +4418,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-06-24-connor-price-and-nic-d",
@@ -4197,7 +4434,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-07-15-juvenile-s-boiling-point-album-release-tour-w-the-400-",
@@ -4212,7 +4450,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-07-17-a-foreigner-s-journey-to-boston",
@@ -4227,7 +4466,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-07-18-mammoth",
@@ -4238,11 +4478,12 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/mammoth/",
       "ticketUrl": "https://www.ticketmaster.com/event/200062F8CFC730EA",
-      "imageUrl": "/OmahaShows/images/astro/b69fca26e934.png",
+      "imageUrl": "/images/astro/b69fca26e934.png",
       "price": "$46.25",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-07-20-the-black-keys",
@@ -4253,13 +4494,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/the-black-keys/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006442CCBB37C9",
-      "imageUrl": "/OmahaShows/images/astro/b2c2bc18df9f.png",
+      "imageUrl": "/images/astro/b2c2bc18df9f.png",
       "price": "$74.85",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Eddie 9V"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "admiral-2026-07-27-poppy",
@@ -4277,7 +4519,8 @@
         "Landmvks",
         "Thousand Below"
       ],
-      "source": "admiral"
+      "source": "admiral",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-07-30-benjamin-tod",
@@ -4294,7 +4537,8 @@
       "supportingArtists": [
         "Kelsey Waldon"
       ],
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-08-03-young-the-giant",
@@ -4305,14 +4549,15 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/young-the-giant/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006446B29649B7",
-      "imageUrl": "/OmahaShows/images/astro/aedcab18d7d5.png",
+      "imageUrl": "/images/astro/aedcab18d7d5.png",
       "price": "$58.65",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "Cold War Kids",
         "KennyHoopla"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "reverblounge-2026-08-09-overtime-the-blue-collar-soldiers-band",
@@ -4327,7 +4572,8 @@
       "price": "$20 ADV / $25 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "reverblounge"
+      "source": "reverblounge",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-08-11-lindsey-stirling",
@@ -4338,13 +4584,14 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/lindsey-stirling/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006435973231BF",
-      "imageUrl": "/OmahaShows/images/astro/1392ccad1c04.png",
+      "imageUrl": "/images/astro/1392ccad1c04.png",
       "price": "$57.60",
       "ageRestriction": "All Ages",
       "supportingArtists": [
         "PVRIS"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-08-19-diggy-graves",
@@ -4362,7 +4609,8 @@
         "Resentvul",
         "Ryan Oakes"
       ],
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-09-22-bilmuri",
@@ -4377,7 +4625,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-09-23-yacht-rock-revue",
@@ -4392,7 +4641,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-09-24-jefferson-starship",
@@ -4403,7 +4653,7 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/jefferson-starship/",
       "ticketUrl": "https://www.ticketmaster.com/event/20006443C9803FF0",
-      "imageUrl": "/OmahaShows/images/astro/fee1f4b16c32.png",
+      "imageUrl": "/images/astro/fee1f4b16c32.png",
       "price": "$46.15",
       "ageRestriction": "All Ages",
       "supportingArtists": [
@@ -4411,7 +4661,8 @@
         "Pure Prairie League",
         "Firefall"
       ],
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
     },
     {
       "id": "steelhouse-2026-09-27-juanes",
@@ -4426,7 +4677,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "steelhouse"
+      "source": "steelhouse",
+      "addedAt": null
     },
     {
       "id": "bourbontheatre-2026-10-07-gnash",
@@ -4441,7 +4693,8 @@
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
-      "source": "bourbontheatre"
+      "source": "bourbontheatre",
+      "addedAt": null
     },
     {
       "id": "theslowdown-2026-10-08-big-head-todd-and-the-monsters",
@@ -4456,7 +4709,8 @@
       "price": "$47.00-$82.00",
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
-      "source": "theslowdown"
+      "source": "theslowdown",
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-10-09-roger-clyne-and-the-peacemakers",
@@ -4471,7 +4725,8 @@
       "price": "$30 ADV / $35 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     },
     {
       "id": "astrotheater-2026-10-09-labyrinth-in-concert",
@@ -4482,11 +4737,28 @@
       "venueUrl": "https://theastrotheater.com",
       "eventUrl": "https://theastrotheater.com/event/labyrinth-in-concert/",
       "ticketUrl": "https://www.ticketmaster.com/event/200064259DA724A6",
-      "imageUrl": "/OmahaShows/images/astro/a50e94e4881c.png",
+      "imageUrl": "/images/astro/a50e94e4881c.png",
       "price": "$50.90",
       "ageRestriction": "All Ages",
       "supportingArtists": null,
-      "source": "astrotheater"
+      "source": "astrotheater",
+      "addedAt": null
+    },
+    {
+      "id": "steelhouse-2026-10-16-the-black-jacket-symphony",
+      "title": "The Black Jacket Symphony",
+      "date": "2026-10-16",
+      "time": "19:30",
+      "venue": "Steel House",
+      "venueUrl": "https://steelhouseomaha.com",
+      "eventUrl": "https://steelhouseomaha.com/events/the-black-jacket-symphony-bon-jovi/",
+      "ticketUrl": "https://www.ticketmaster.com/the-black-jacket-symphony-presents-bon-omaha-nebraska-10-16-2026/event/200064529E56321B?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2024/10/Black-Jacket-Symphony_Web_558x558_ALT.jpg",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "steelhouse",
+      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "waitingroom-2026-12-03-dad-rock-night-2000s-rock-tribute",
@@ -4501,17 +4773,18 @@
       "price": "$22.75 ADV / $29 AT THE DOOR",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
-      "source": "waitingroom"
+      "source": "waitingroom",
+      "addedAt": null
     }
   ],
-  "lastUpdated": "2026-02-26T22:14:53.775210+00:00",
+  "lastUpdated": "2026-02-27T16:10:28.744745+00:00",
   "sources": [
     {
       "name": "The Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T22:14:30.771294+00:00",
+      "lastScraped": "2026-02-27T16:10:03.583038+00:00",
       "eventCount": 48,
       "error": null
     },
@@ -4520,7 +4793,7 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T22:14:33.183205+00:00",
+      "lastScraped": "2026-02-27T16:10:05.817898+00:00",
       "eventCount": 44,
       "error": null
     },
@@ -4529,7 +4802,7 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T22:14:33.503177+00:00",
+      "lastScraped": "2026-02-27T16:10:06.288665+00:00",
       "eventCount": 56,
       "error": null
     },
@@ -4538,7 +4811,7 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-02-26T22:14:41.743616+00:00",
+      "lastScraped": "2026-02-27T16:10:14.758856+00:00",
       "eventCount": 46,
       "error": null
     },
@@ -4547,8 +4820,8 @@
       "id": "admiral",
       "url": "https://admiralomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T22:14:42.215213+00:00",
-      "eventCount": 16,
+      "lastScraped": "2026-02-27T16:10:15.294282+00:00",
+      "eventCount": 15,
       "error": null
     },
     {
@@ -4556,7 +4829,7 @@
       "id": "astrotheater",
       "url": "https://theastrotheater.com/#shows",
       "status": "ok",
-      "lastScraped": "2026-02-26T22:14:50.741450+00:00",
+      "lastScraped": "2026-02-27T16:10:23.893874+00:00",
       "eventCount": 25,
       "error": null
     },
@@ -4565,7 +4838,7 @@
       "id": "steelhouse",
       "url": "https://steelhouseomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-26T22:14:50.895034+00:00",
+      "lastScraped": "2026-02-27T16:10:24.073796+00:00",
       "eventCount": 21,
       "error": null
     },
@@ -4574,8 +4847,8 @@
       "id": "other",
       "url": "https://omahaunderground.net/shows/",
       "status": "ok",
-      "lastScraped": "2026-02-26T22:14:53.774963+00:00",
-      "eventCount": 21,
+      "lastScraped": "2026-02-27T16:10:28.744313+00:00",
+      "eventCount": 22,
       "error": null
     }
   ]

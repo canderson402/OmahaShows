@@ -6,9 +6,10 @@ type VenueColors = Record<string, { bg: string; text: string; border: string }>;
 interface EventCardCompactProps {
   event: Event;
   venueColors?: VenueColors;
+  isJustAdded?: boolean;
 }
 
-export function EventCardCompact({ event, venueColors }: EventCardCompactProps) {
+export function EventCardCompact({ event, venueColors, isJustAdded }: EventCardCompactProps) {
   const formatDateOverlay = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
@@ -26,19 +27,19 @@ export function EventCardCompact({ event, venueColors }: EventCardCompactProps) 
     return `${hour12}:${minutes} ${ampm}`;
   };
 
-  const listingUrl = event.eventUrl || event.ticketUrl || event.venueUrl;
+  const listingUrl = event.eventUrl || event.ticketUrl;
 
   return (
     <div className="py-6">
       {/* Mobile Layout */}
       <div className="md:hidden flex flex-col gap-4">
-        {/* Image with date header */}
-        <a
-          href={listingUrl || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block hover:opacity-90 transition-opacity"
-        >
+        {/* Image with date header - not clickable on mobile to prevent accidental taps */}
+        <div className="relative">
+          {isJustAdded && (
+            <span className="absolute top-2 right-2 z-10 px-2 py-0.5 bg-green-500/90 text-white text-xs rounded-full font-medium shadow-lg">
+              Just Added
+            </span>
+          )}
           <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
             <p className="text-white font-semibold text-center text-sm">
               {formatDateOverlay(event.date)}
@@ -65,7 +66,7 @@ export function EventCardCompact({ event, venueColors }: EventCardCompactProps) 
               </div>
             )}
           </div>
-        </a>
+        </div>
 
         {/* Content */}
         <div>
@@ -99,9 +100,9 @@ export function EventCardCompact({ event, venueColors }: EventCardCompactProps) 
 
         {/* Buttons */}
         <div className="flex gap-3">
-          {(event.eventUrl || (!event.ticketUrl && event.venueUrl)) && (
+          {event.eventUrl && (
             <a
-              href={event.eventUrl || event.venueUrl}
+              href={event.eventUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 text-center px-4 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
@@ -124,11 +125,17 @@ export function EventCardCompact({ event, venueColors }: EventCardCompactProps) 
 
       {/* Desktop Layout */}
       <div className="hidden md:flex gap-5 relative">
+        {/* Just Added badge - top right */}
+        {isJustAdded && (
+          <span className="absolute -top-2 -right-2 z-10 px-2 py-0.5 bg-green-500/90 text-white text-xs rounded-full font-medium shadow-lg">
+            Just Added
+          </span>
+        )}
         {/* Buttons - top right */}
-        <div className="absolute top-0 right-0 flex gap-3">
-          {(event.eventUrl || (!event.ticketUrl && event.venueUrl)) && (
+        <div className="absolute top-0 right-0 flex gap-3 mt-6">
+          {event.eventUrl && (
             <a
-              href={event.eventUrl || event.venueUrl}
+              href={event.eventUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="px-5 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"

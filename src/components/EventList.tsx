@@ -14,18 +14,21 @@ interface EventListProps {
   filter?: {
     enabledVenues?: Set<string>;
     showPast?: boolean;  // true = show only past, false = show only upcoming, undefined = show all
+    timeFilter?: "all" | "today" | "week" | "just-added";
+    searchQuery?: string;
   };
   venueColors?: VenueColors;
+  isJustAdded?: (event: Event) => boolean;  // function to check if event is just added
 }
 
-export function EventList({ events, layout, filter, venueColors }: EventListProps) {
+export function EventList({ events, layout, filter, venueColors, isJustAdded }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
   const today = new Date().toISOString().split('T')[0];  // YYYY-MM-DD
 
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(EVENTS_PER_PAGE);
-  }, [filter?.enabledVenues?.size, filter?.showPast]);
+  }, [filter?.enabledVenues?.size, filter?.showPast, filter?.timeFilter, filter?.searchQuery]);
 
   let filtered = events;
 
@@ -41,6 +44,31 @@ export function EventList({ events, layout, filter, venueColors }: EventListProp
   } else if (filter?.showPast === false) {
     // Events view: only upcoming events (today and future)
     filtered = filtered.filter((e) => e.date >= today);
+  }
+
+  // Apply time filter
+  if (filter?.timeFilter && filter.timeFilter !== "all") {
+    const weekFromNow = new Date();
+    weekFromNow.setDate(weekFromNow.getDate() + 7);
+    const weekDateStr = weekFromNow.toISOString().split('T')[0];
+
+    if (filter.timeFilter === "today") {
+      filtered = filtered.filter((e) => e.date === today);
+    } else if (filter.timeFilter === "week") {
+      filtered = filtered.filter((e) => e.date >= today && e.date <= weekDateStr);
+    } else if (filter.timeFilter === "just-added" && isJustAdded) {
+      filtered = filtered.filter(isJustAdded);
+    }
+  }
+
+  // Apply search filter
+  if (filter?.searchQuery?.trim()) {
+    const query = filter.searchQuery.toLowerCase();
+    filtered = filtered.filter((e) =>
+      e.title.toLowerCase().includes(query) ||
+      e.venue.toLowerCase().includes(query) ||
+      e.supportingArtists?.some(a => a.toLowerCase().includes(query))
+    );
   }
 
   // Sort by date
@@ -88,7 +116,12 @@ export function EventList({ events, layout, filter, venueColors }: EventListProp
       <div>
         <div className="divide-y divide-gray-700">
           {visibleEvents.map((event) => (
-            <EventCardCompact key={event.id} event={event} venueColors={venueColors} />
+            <EventCardCompact
+              key={event.id}
+              event={event}
+              venueColors={venueColors}
+              isJustAdded={isJustAdded?.(event)}
+            />
           ))}
         </div>
         {hasMore && <LoadMoreButton />}
