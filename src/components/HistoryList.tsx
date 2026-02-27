@@ -1,6 +1,7 @@
 // web/src/components/HistoryList.tsx
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import type { HistoricalShow } from "../types";
+import type { HistoryTimeFilter } from "./FiltersDropdown";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
 
@@ -9,6 +10,7 @@ interface HistoryListProps {
   enabledVenues: Set<string>;
   searchQuery: string;
   venueColors: VenueColors;
+  timeFilter?: HistoryTimeFilter;
 }
 
 const SHOWS_PER_PAGE = 25;
@@ -26,17 +28,45 @@ const venueNameToId: Record<string, string> = {
   "Steel House": "steelhouse",
 };
 
-export function HistoryList({ shows, enabledVenues, searchQuery, venueColors }: HistoryListProps) {
+export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, timeFilter = "all" }: HistoryListProps) {
   const [visibleCount, setVisibleCount] = useState(SHOWS_PER_PAGE);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(SHOWS_PER_PAGE);
-  }, [enabledVenues.size, searchQuery]);
+  }, [enabledVenues.size, searchQuery, timeFilter]);
 
   // Filter shows
   const filtered = useMemo(() => {
     let result = shows;
+
+    // Filter by time period
+    if (timeFilter !== "all") {
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      let cutoffDate: string;
+
+      if (timeFilter === "30days") {
+        const d = new Date(now);
+        d.setDate(d.getDate() - 30);
+        cutoffDate = d.toISOString().split('T')[0];
+      } else if (timeFilter === "90days") {
+        const d = new Date(now);
+        d.setDate(d.getDate() - 90);
+        cutoffDate = d.toISOString().split('T')[0];
+      } else if (timeFilter === "year") {
+        const d = new Date(now);
+        d.setFullYear(d.getFullYear() - 1);
+        cutoffDate = d.toISOString().split('T')[0];
+      } else if (timeFilter === "this-year") {
+        cutoffDate = `${now.getFullYear()}-01-01`;
+      } else {
+        cutoffDate = "1900-01-01";
+      }
+
+      result = result.filter((show) => show.date >= cutoffDate && show.date < today);
+    }
 
     // Filter by venue
     if (enabledVenues.size > 0) {
@@ -56,11 +86,37 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors }: 
     }
 
     return result;
-  }, [shows, enabledVenues, searchQuery]);
+  }, [shows, enabledVenues, searchQuery, timeFilter]);
 
-  const visibleShows = filtered.slice(0, visibleCount);
+  // Infinite scroll with IntersectionObserver
+  const loadMore = useCallback(() => {
+    setVisibleCount(v => Math.min(v + SHOWS_PER_PAGE, filtered.length));
+  }, [filtered.length]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [loadMore]);
+
+  const visibleShows = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
   const hasMore = visibleCount < filtered.length;
-  const remainingCount = filtered.length - visibleCount;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
@@ -144,18 +200,10 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors }: 
         </div>
       ))}
 
-      {/* Load More */}
+      {/* Infinite scroll sentinel */}
       {hasMore && (
-        <div className="flex flex-col items-center gap-2 py-8">
-          <button
-            onClick={() => setVisibleCount((v) => v + SHOWS_PER_PAGE)}
-            className="px-6 py-3 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
-          >
-            Load More
-          </button>
-          <span className="text-gray-500 text-sm">
-            {remainingCount.toLocaleString()} more show{remainingCount !== 1 ? "s" : ""}
-          </span>
+        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
         </div>
       )}
     </div>

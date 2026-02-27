@@ -4,7 +4,7 @@ import type { EventsData, ShowHistory, Event } from "./types";
 import { EventList } from "./components/EventList";
 import { Dashboard } from "./components/Dashboard";
 import { HistoryList } from "./components/HistoryList";
-import { FiltersDropdown } from "./components/FiltersDropdown";
+import { FiltersDropdown, type HistoryTimeFilter } from "./components/FiltersDropdown";
 import { ContactModal } from "./components/ContactModal";
 import { CalendarView } from "./components/CalendarView";
 import { useDebounce } from "./hooks/useDebounce";
@@ -54,6 +54,7 @@ function App() {
   const [enabledVenues, setEnabledVenues] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
+  const [historyTimeFilter, setHistoryTimeFilter] = useState<HistoryTimeFilter>("30days");
   const [historySearch, setHistorySearch] = useState("");
   const [eventSearch, setEventSearch] = useState("");
   const [showContact, setShowContact] = useState(false);
@@ -112,6 +113,11 @@ function App() {
     logoClickTimer.current = setTimeout(() => setLogoClicks(0), 2000);
   };
 
+  // Memoize derived data (must be before early return to maintain hook order)
+  const venues = useMemo(() => data?.sources.map((s) => ({ id: s.id, name: s.name })) ?? [], [data?.sources]);
+  const justAddedCount = useMemo(() => data?.events.filter(isJustAdded).length ?? 0, [data?.events]);
+  const filteredEvents = useMemo(() => data?.events.filter((e) => enabledVenues.has(e.source)) ?? [], [data?.events, enabledVenues]);
+
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -119,11 +125,6 @@ function App() {
       </div>
     );
   }
-
-  // Memoize derived data
-  const venues = useMemo(() => data.sources.map((s) => ({ id: s.id, name: s.name })), [data.sources]);
-  const justAddedCount = useMemo(() => data.events.filter(isJustAdded).length, [data.events]);
-  const filteredEvents = useMemo(() => data.events.filter((e) => enabledVenues.has(e.source)), [data.events, enabledVenues]);
 
   const toggleVenue = (venueId: string) => {
     setEnabledVenues((prev) => {
@@ -237,16 +238,32 @@ function App() {
                     </>
                   ) : view === "history" ? (
                     <>
-                      <span className="text-sm text-gray-400">
+                      <span className="text-xs text-gray-500 hidden sm:inline">
                         {(history?.shows?.length || 0).toLocaleString()} past shows
                       </span>
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        className="px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 w-40"
-                        onChange={(e) => setHistorySearch(e.target.value)}
-                        value={historySearch}
-                      />
+                      <div className="flex items-center gap-2">
+                        <div className="relative">
+                          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <input
+                            type="text"
+                            placeholder="Search..."
+                            value={historySearch}
+                            onChange={(e) => setHistorySearch(e.target.value)}
+                            className="w-32 sm:w-40 pl-8 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                          />
+                        </div>
+                        <FiltersDropdown
+                          mode="history"
+                          venues={venues}
+                          enabledVenues={enabledVenues}
+                          toggleVenue={toggleVenue}
+                          venueColors={VENUE_COLORS}
+                          timeFilter={historyTimeFilter}
+                          setTimeFilter={setHistoryTimeFilter}
+                        />
+                      </div>
                     </>
                   ) : (
                     <>
@@ -297,6 +314,7 @@ function App() {
                     enabledVenues={enabledVenues}
                     searchQuery={debouncedHistorySearch}
                     venueColors={VENUE_COLORS}
+                    timeFilter={historyTimeFilter}
                   />
                 ) : (
                   <CalendarView

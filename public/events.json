@@ -40,7 +40,7 @@
       "venue": "Reverb Lounge",
       "eventUrl": "https://reverblounge.com/event/jack/reverb-lounge/",
       "ticketUrl": "https://www.etix.com/ticket/p/37456999/jack-omaha-reverb-lounge?partner_id=100",
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/01/JACKWEB.webp",
+      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/01/JACKWEB.png",
       "price": "$12 ADV / $15 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": [
@@ -800,7 +800,7 @@
       "venue": "Steel House",
       "eventUrl": "https://steelhouseomaha.com/events/descendents-and-frank-turner-the-sleeping-souls/",
       "ticketUrl": "https://www.ticketmaster.com/event/2000635DED323FE2?CAMEFROM=CFC_AGF_STL_WEB_WEB_11-15-2024",
-      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/11/Chromeo-Static-588x588-1.webp",
+      "imageUrl": "https://steelhouseomaha.com/wp-content/uploads/2025/11/Chromeo-Static-588x588-1.png",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
@@ -892,6 +892,21 @@
       "addedAt": null
     },
     {
+      "id": "other-2026-03-14-slab-mourning-dolls-march-murder-masquerade",
+      "title": "SLAB & Mourning Dolls March Murder Masquerade",
+      "date": "2026-03-14",
+      "time": "20:00",
+      "venue": "Red Light Lounge",
+      "eventUrl": "https://omahaunderground.net/shows/2026-03-14-3",
+      "ticketUrl": null,
+      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/slab-2026march14-horizontal.jpg",
+      "price": "$5 PWYC",
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "other",
+      "addedAt": null
+    },
+    {
       "id": "other-2026-03-14-brando-s-birthday-bash",
       "title": "Brando’s Birthday Bash",
       "date": "2026-03-14",
@@ -916,36 +931,6 @@
       "ticketUrl": null,
       "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_9560136.jpg",
       "price": null,
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "other",
-      "addedAt": null
-    },
-    {
-      "id": "other-2026-03-14-slab-mourning-dolls-march-murder-masquerade",
-      "title": "SLAB & Mourning Dolls March Murder Masquerade",
-      "date": "2026-03-14",
-      "time": "20:00",
-      "venue": "Red Light Lounge",
-      "eventUrl": "https://omahaunderground.net/shows/2026-03-14-3",
-      "ticketUrl": null,
-      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/slab-2026march14-horizontal.jpg",
-      "price": "$5 PWYC",
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "other",
-      "addedAt": "2026-02-27T16:10:03.153622+00:00"
-    },
-    {
-      "id": "other-2026-03-15-haunt-w-phantom-crypt-and-cycles-of-entro",
-      "title": "Haunt w/ Phantom Crypt and Cycles of Entro",
-      "date": "2026-03-15",
-      "time": "20:00",
-      "venue": "The Sydney",
-      "eventUrl": "https://omahaunderground.net/shows/2026-03-15-2",
-      "ticketUrl": null,
-      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/screenshot_20260209_145406_instagram.jpg",
-      "price": "$20",
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
@@ -991,7 +976,7 @@
       "venue": "Reverb Lounge",
       "eventUrl": "https://reverblounge.com/event/oms-winter-showcase/reverb-lounge/",
       "ticketUrl": null,
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/01/OMSWEBS.webp",
+      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/01/OMSWEBS.png",
       "price": null,
       "ageRestriction": "ALL AGES",
       "supportingArtists": [
@@ -1120,6 +1105,24 @@
       "addedAt": null
     },
     {
+      "id": "reverblounge-2026-03-20-indian-caves",
+      "title": "Indian Caves",
+      "date": "2026-03-20",
+      "time": "20:00",
+      "venue": "Reverb Lounge",
+      "eventUrl": "https://reverblounge.com/event/indian-caves/reverb-lounge/",
+      "ticketUrl": "https://www.etix.com/ticket/p/78276856/indian-caves-omaha-reverb-lounge?partner_id=100",
+      "imageUrl": "https://reverblounge.com/wp-content/uploads/2024/02/1percentEventDefault.png",
+      "price": "$16.14 / Day Of : $20.04",
+      "ageRestriction": "All Ages",
+      "supportingArtists": [
+        "Wedding",
+        "Radical Sabbatical"
+      ],
+      "source": "reverblounge",
+      "addedAt": null
+    },
+    {
       "id": "bourbontheatre-2026-03-20-jxhnny-bliss-cope-acetic-album-release",
       "title": "Jxhnny Bliss (COPE)acetic Album Release",
       "date": "2026-03-20",
@@ -1148,24 +1151,6 @@
       "supportingArtists": null,
       "source": "other",
       "addedAt": null
-    },
-    {
-      "id": "reverblounge-2026-03-20-indian-caves",
-      "title": "Indian Caves",
-      "date": "2026-03-20",
-      "time": "20:00",
-      "venue": "Reverb Lounge",
-      "eventUrl": "https://reverblounge.com/event/indian-caves/reverb-lounge/",
-      "ticketUrl": "https://www.etix.com/ticket/p/78276856/indian-caves-omaha-reverb-lounge?partner_id=100",
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2024/02/1percentEventDefault.webp",
-      "price": "$16.14 / Day Of : $20.04",
-      "ageRestriction": "All Ages",
-      "supportingArtists": [
-        "Wedding",
-        "Radical Sabbatical"
-      ],
-      "source": "reverblounge",
-      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "theslowdown-2026-03-21-tophouse",
@@ -2028,7 +2013,7 @@
       "venue": "Waiting Room Lounge",
       "eventUrl": "https://waitingroomlounge.com/event/devotchka/waiting-room-lounge/omaha-nebraska/",
       "ticketUrl": "https://www.etix.com/ticket/p/90315277/devotchka-omaha-the-waiting-room?partner_id=100",
-      "imageUrl": "https://waitingroomlounge.com/wp-content/uploads/2025/12/deboWEB.webp",
+      "imageUrl": "https://waitingroomlounge.com/wp-content/uploads/2025/12/deboWEB.png",
       "price": "$25 ADV / $30 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
@@ -2741,7 +2726,7 @@
       "venue": "Waiting Room Lounge",
       "eventUrl": "https://waitingroomlounge.com/event/smells-like-nirvana/waiting-room-lounge/omaha-nebraska/",
       "ticketUrl": "https://www.etix.com/ticket/p/47251715/smells-like-nirvana-omaha-the-waiting-room?partner_id=100",
-      "imageUrl": "https://waitingroomlounge.com/wp-content/uploads/2026/01/SLNetix.webp",
+      "imageUrl": "https://waitingroomlounge.com/wp-content/uploads/2026/01/SLNetix.png",
       "price": "$20 ADV / $25 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
@@ -2820,7 +2805,7 @@
       "venue": "Reverb Lounge",
       "eventUrl": "https://reverblounge.com/event/june-star-2/reverb-lounge/",
       "ticketUrl": null,
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2025/02/junestar_wp.webp",
+      "imageUrl": "https://reverblounge.com/wp-content/uploads/2025/02/junestar_wp.png",
       "price": "$18 ADV / $23 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
@@ -3911,7 +3896,7 @@
       "venue": "Bourbon Theatre",
       "eventUrl": "https://www.bourbontheatre.com/tm-event/between-the-buried-and-me-the-blue-nowhere-u-s-tour-spring-2026/",
       "ticketUrl": null,
-      "imageUrl": "https://i.ticketweb.com/i/00/12/88/74/44_Original.jpg?v=4",
+      "imageUrl": "https://i.ticketweb.com/i/00/12/88/74/44_Original.jpg?v=5",
       "price": null,
       "ageRestriction": null,
       "supportingArtists": null,
@@ -4031,6 +4016,21 @@
       "addedAt": null
     },
     {
+      "id": "bourbontheatre-2026-06-12-bingo-loco",
+      "title": "BINGO LOCO",
+      "date": "2026-06-12",
+      "time": null,
+      "venue": "Bourbon Theatre",
+      "eventUrl": "https://www.bourbontheatre.com/tm-event/bingo-loco-2/",
+      "ticketUrl": null,
+      "imageUrl": "https://i.ticketweb.com/i/00/13/35/52/03_Original.jpg?v=4",
+      "price": null,
+      "ageRestriction": null,
+      "supportingArtists": null,
+      "source": "bourbontheatre",
+      "addedAt": null
+    },
+    {
       "id": "admiral-2026-06-12-joe-jackson",
       "title": "Joe Jackson",
       "date": "2026-06-12",
@@ -4044,21 +4044,6 @@
       "supportingArtists": null,
       "source": "admiral",
       "addedAt": null
-    },
-    {
-      "id": "bourbontheatre-2026-06-12-bingo-loco",
-      "title": "BINGO LOCO",
-      "date": "2026-06-12",
-      "time": null,
-      "venue": "Bourbon Theatre",
-      "eventUrl": "https://www.bourbontheatre.com/tm-event/bingo-loco-2/",
-      "ticketUrl": null,
-      "imageUrl": "https://i.ticketweb.com/i/00/13/35/52/03_Original.jpg?v=4",
-      "price": null,
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "bourbontheatre",
-      "addedAt": "2026-02-27T16:10:03.153622+00:00"
     },
     {
       "id": "reverblounge-2026-06-15-mikaela-davis",
@@ -4482,7 +4467,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": "2026-02-27T16:10:03.153622+00:00"
+      "addedAt": null
     },
     {
       "id": "waitingroom-2026-12-03-dad-rock-night-2000s-rock-tribute",
@@ -4500,14 +4485,14 @@
       "addedAt": null
     }
   ],
-  "lastUpdated": "2026-02-27T17:49:45.540653+00:00",
+  "lastUpdated": "2026-02-27T19:25:30.019980+00:00",
   "sources": [
     {
       "name": "The Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T17:49:19.056333+00:00",
+      "lastScraped": "2026-02-27T19:24:49.323042+00:00",
       "eventCount": 48,
       "error": null
     },
@@ -4516,7 +4501,7 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T17:49:21.396233+00:00",
+      "lastScraped": "2026-02-27T19:24:51.671447+00:00",
       "eventCount": 44,
       "error": null
     },
@@ -4525,7 +4510,7 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T17:49:21.779956+00:00",
+      "lastScraped": "2026-02-27T19:24:51.988694+00:00",
       "eventCount": 56,
       "error": null
     },
@@ -4534,7 +4519,7 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-02-27T17:49:30.668324+00:00",
+      "lastScraped": "2026-02-27T19:25:00.816132+00:00",
       "eventCount": 46,
       "error": null
     },
@@ -4543,7 +4528,7 @@
       "id": "admiral",
       "url": "https://admiralomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T17:49:31.208055+00:00",
+      "lastScraped": "2026-02-27T19:25:03.079390+00:00",
       "eventCount": 15,
       "error": null
     },
@@ -4552,7 +4537,7 @@
       "id": "astrotheater",
       "url": "https://theastrotheater.com/#shows",
       "status": "ok",
-      "lastScraped": "2026-02-27T17:49:40.335465+00:00",
+      "lastScraped": "2026-02-27T19:25:11.006004+00:00",
       "eventCount": 25,
       "error": null
     },
@@ -4561,7 +4546,7 @@
       "id": "steelhouse",
       "url": "https://steelhouseomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-27T17:49:40.505506+00:00",
+      "lastScraped": "2026-02-27T19:25:11.147987+00:00",
       "eventCount": 21,
       "error": null
     },
@@ -4570,8 +4555,8 @@
       "id": "other",
       "url": "https://omahaunderground.net/shows/",
       "status": "ok",
-      "lastScraped": "2026-02-27T17:49:45.540284+00:00",
-      "eventCount": 22,
+      "lastScraped": "2026-02-27T19:25:30.019701+00:00",
+      "eventCount": 21,
       "error": null
     }
   ]

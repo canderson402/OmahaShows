@@ -3,25 +3,44 @@ import { useState, useEffect } from "react";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
 
-interface FiltersDropdownProps {
+export type TimeFilter = "all" | "today" | "week" | "just-added";
+export type HistoryTimeFilter = "all" | "30days" | "90days" | "year" | "this-year";
+
+interface BaseFiltersDropdownProps {
   venues: { id: string; name: string }[];
   enabledVenues: Set<string>;
   toggleVenue: (venueId: string) => void;
   venueColors: VenueColors;
-  timeFilter: "all" | "today" | "week" | "just-added";
-  setTimeFilter: (filter: "all" | "today" | "week" | "just-added") => void;
+}
+
+interface EventsFiltersDropdownProps extends BaseFiltersDropdownProps {
+  mode?: "events";
+  timeFilter: TimeFilter;
+  setTimeFilter: (filter: TimeFilter) => void;
   justAddedCount: number;
 }
 
-export function FiltersDropdown({
-  venues,
-  enabledVenues,
-  toggleVenue,
-  venueColors,
-  timeFilter,
-  setTimeFilter,
-  justAddedCount,
-}: FiltersDropdownProps) {
+interface HistoryFiltersDropdownProps extends BaseFiltersDropdownProps {
+  mode: "history";
+  timeFilter: HistoryTimeFilter;
+  setTimeFilter: (filter: HistoryTimeFilter) => void;
+}
+
+type FiltersDropdownProps = EventsFiltersDropdownProps | HistoryFiltersDropdownProps;
+
+export function FiltersDropdown(props: FiltersDropdownProps) {
+  const {
+    venues,
+    enabledVenues,
+    toggleVenue,
+    venueColors,
+    timeFilter,
+    setTimeFilter,
+  } = props;
+
+  const mode = props.mode ?? "events";
+  const justAddedCount = mode === "events" ? (props as EventsFiltersDropdownProps).justAddedCount : 0;
+
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -53,9 +72,12 @@ export function FiltersDropdown({
     };
   }, [isVisible]);
 
+  // Default time filter depends on mode
+  const defaultTimeFilter = mode === "history" ? "30days" : "all";
+
   const activeFiltersCount =
     (enabledVenues.size < venues.length ? 1 : 0) +
-    (timeFilter !== "all" ? 1 : 0);
+    (timeFilter !== defaultTimeFilter ? 1 : 0);
 
   const selectAllVenues = () => {
     venues.forEach((v) => {
@@ -70,29 +92,42 @@ export function FiltersDropdown({
   };
 
   const clearAllFilters = () => {
-    setTimeFilter("all");
+    (setTimeFilter as (f: string) => void)(defaultTimeFilter);
     selectAllVenues();
   };
 
-  const hasActiveFilters = timeFilter !== "all" || enabledVenues.size < venues.length;
+  const hasActiveFilters = timeFilter !== defaultTimeFilter || enabledVenues.size < venues.length;
+
+  const eventsTimeOptions = [
+    { id: "all", label: "All Upcoming" },
+    { id: "today", label: "Today" },
+    { id: "week", label: "Next 7 Days" },
+    { id: "just-added", label: "Just Added", count: justAddedCount },
+  ];
+
+  const historyTimeOptions = [
+    { id: "30days", label: "Last 30 Days" },
+    { id: "90days", label: "Last 90 Days" },
+    { id: "this-year", label: "This Year" },
+    { id: "year", label: "Last 12 Months" },
+    { id: "all", label: "All History" },
+  ];
+
+  const timeOptions = mode === "history" ? historyTimeOptions : eventsTimeOptions;
+  const timeLabel = mode === "history" ? "Time Period" : "Show";
 
   const FilterContent = () => (
     <>
       {/* Time Filters */}
       <div className="p-4 md:p-6 border-b border-gray-700/50">
         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Show
+          {timeLabel}
         </h4>
         <div className="space-y-1">
-          {[
-            { id: "all", label: "All Upcoming" },
-            { id: "today", label: "Today" },
-            { id: "week", label: "Next 7 Days" },
-            { id: "just-added", label: "Just Added", count: justAddedCount },
-          ].map((option) => (
+          {timeOptions.map((option) => (
             <button
               key={option.id}
-              onClick={() => setTimeFilter(option.id as typeof timeFilter)}
+              onClick={() => (setTimeFilter as (f: string) => void)(option.id)}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all active:scale-[0.98] ${
                 timeFilter === option.id
                   ? "bg-purple-500/20 text-purple-400"
@@ -101,7 +136,7 @@ export function FiltersDropdown({
             >
               <span>{option.label}</span>
               <div className="flex items-center gap-2">
-                {option.count !== undefined && option.count > 0 && (
+                {"count" in option && typeof option.count === "number" && option.count > 0 && (
                   <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
                     {option.count}
                   </span>

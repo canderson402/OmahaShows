@@ -71,3 +71,9 @@ html {
   transform: translateZ(0);
   will-change: transform;
 }
+
+/* Optimize rendering for off-screen content */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 300px;
+}

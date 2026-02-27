@@ -1,5 +1,5 @@
 // web/src/components/EventList.tsx
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import type { Event } from "../types";
 import { EventCard } from "./EventCard";
 import { EventCardCompact } from "./EventCardCompact";
@@ -23,6 +23,7 @@ interface EventListProps {
 
 export function EventList({ events, layout, filter, venueColors, isJustAdded }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
 
   // Reset visible count when filters change
@@ -85,10 +86,36 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
     return result;
   }, [events, filter?.enabledVenues, filter?.showPast, filter?.timeFilter, filter?.searchQuery, today, isJustAdded]);
 
-  // Only show events up to visibleCount - only these images load
+  // Infinite scroll with IntersectionObserver
+  const loadMore = useCallback(() => {
+    setVisibleCount(v => Math.min(v + EVENTS_PER_PAGE, filtered.length));
+  }, [filtered.length]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: '200px' } // Load more before reaching the end
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [loadMore]);
+
+  // Only show events up to visibleCount
   const visibleEvents = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
   const hasMore = visibleCount < filtered.length;
-  const remainingCount = filtered.length - visibleCount;
 
   if (filtered.length === 0) {
     return (
@@ -97,20 +124,6 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
       </div>
     );
   }
-
-  const LoadMoreButton = () => (
-    <div className="flex flex-col items-center gap-2 py-8">
-      <button
-        onClick={() => setVisibleCount(v => v + EVENTS_PER_PAGE)}
-        className="px-6 py-3 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
-      >
-        Load More
-      </button>
-      <span className="text-gray-500 text-sm">
-        {remainingCount} more event{remainingCount !== 1 ? 's' : ''}
-      </span>
-    </div>
-  );
 
   if (layout === "compact") {
     return (
@@ -125,7 +138,12 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
             />
           ))}
         </div>
-        {hasMore && <LoadMoreButton />}
+        {/* Invisible sentinel for infinite scroll */}
+        {hasMore && (
+          <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+            <div className="w-6 h-6 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
+          </div>
+        )}
       </div>
     );
   }
@@ -137,7 +155,12 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
           <EventCard key={event.id} event={event} venueColors={venueColors} />
         ))}
       </div>
-      {hasMore && <LoadMoreButton />}
+      {/* Invisible sentinel for infinite scroll */}
+      {hasMore && (
+        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   );
 }

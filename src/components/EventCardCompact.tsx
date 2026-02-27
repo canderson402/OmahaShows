@@ -1,5 +1,5 @@
 // web/src/components/EventCardCompact.tsx
-import { memo } from "react";
+import { memo, useState } from "react";
 import type { Event } from "../types";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
@@ -8,6 +8,41 @@ interface EventCardCompactProps {
   event: Event;
   venueColors?: VenueColors;
   isJustAdded?: boolean;
+}
+
+// Image component with error fallback
+function EventImage({ src, alt }: { src: string; alt: string }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+        <span className="text-gray-500 text-5xl">&#9834;</span>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <img
+        src={src}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        onError={() => setHasError(true)}
+        className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60"
+      />
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        onError={() => setHasError(true)}
+        className="relative w-full h-full object-contain"
+      />
+    </>
+  );
 }
 
 // Memoized to prevent unnecessary re-renders
@@ -53,23 +88,7 @@ export const EventCardCompact = memo(function EventCardCompact({
           </div>
           <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square">
             {event.imageUrl ? (
-              <>
-                <img
-                  src={event.imageUrl}
-                  alt=""
-                  aria-hidden="true"
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60"
-                />
-                <img
-                  src={event.imageUrl}
-                  alt={event.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="relative w-full h-full object-contain"
-                />
-              </>
+              <EventImage src={event.imageUrl} alt={event.title} />
             ) : (
               <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                 <span className="text-gray-500 text-5xl">&#9834;</span>
@@ -179,23 +198,7 @@ export const EventCardCompact = memo(function EventCardCompact({
           </div>
           <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square">
             {event.imageUrl ? (
-              <>
-                <img
-                  src={event.imageUrl}
-                  alt=""
-                  aria-hidden="true"
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60"
-                />
-                <img
-                  src={event.imageUrl}
-                  alt={event.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="relative w-full h-full object-contain"
-                />
-              </>
+              <EventImage src={event.imageUrl} alt={event.title} />
             ) : (
               <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                 <span className="text-gray-500 text-5xl">&#9834;</span>
