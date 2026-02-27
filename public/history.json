@@ -3,23 +3,27 @@
     {
       "date": "2026-02-26",
       "title": "Psyclon Nine",
-      "venue": "Reverb Lounge"
+      "venue": "Reverb Lounge",
+      "supportingArtists": null
     },
     {
       "date": "2026-02-26",
       "title": "Pecos & the Rooftops, Mac Hankins & The Moonlighters",
-      "venue": "Bourbon Theatre"
+      "venue": "Bourbon Theatre",
+      "supportingArtists": null
     },
     {
       "date": "2026-02-26",
       "title": "Dropkick Murphys",
-      "venue": "Admiral"
+      "venue": "Admiral",
+      "supportingArtists": null
     },
     {
       "date": "2026-02-26",
       "title": "Vitamin String Quartet",
-      "venue": "Steel House"
+      "venue": "Steel House",
+      "supportingArtists": null
     }
   ],
-  "lastUpdated": "2026-02-27T16:10:28.744671+00:00"
+  "lastUpdated": "2026-02-27T17:36:57.687191+00:00"
 }
