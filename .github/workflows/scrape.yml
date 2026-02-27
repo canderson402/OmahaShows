@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write  # Need write to commit changes
+  actions: write   # Need to trigger deploy workflow
 
 jobs:
   scrape:
