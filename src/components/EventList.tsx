@@ -119,8 +119,9 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
 
   if (filtered.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-400">
-        {filter?.showPast ? "No past events found." : "No upcoming events found."}
+      <div className="text-center py-12">
+        <p className="text-gray-400">No upcoming shows found.</p>
+        <p className="text-gray-500 text-sm mt-2">Try adjusting your filters.</p>
       </div>
     );
   }

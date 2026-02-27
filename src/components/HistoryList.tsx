@@ -155,8 +155,9 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
 
   if (filtered.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-400">
-        {searchQuery ? "No shows match your search." : "No history yet."}
+      <div className="text-center py-12">
+        <p className="text-gray-400">No shows found.</p>
+        <p className="text-gray-500 text-sm mt-2">Try adjusting your filters.</p>
       </div>
     );
   }

@@ -11,6 +11,8 @@ interface BaseFiltersDropdownProps {
   enabledVenues: Set<string>;
   toggleVenue: (venueId: string) => void;
   venueColors: VenueColors;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface EventsFiltersDropdownProps extends BaseFiltersDropdownProps {
@@ -36,13 +38,25 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
     venueColors,
     timeFilter,
     setTimeFilter,
+    isOpen: externalIsOpen,
+    onOpenChange,
   } = props;
 
   const mode = props.mode ?? "events";
   const justAddedCount = mode === "events" ? (props as EventsFiltersDropdownProps).justAddedCount : 0;
 
-  const [isVisible, setIsVisible] = useState(false);
+  const [internalIsVisible, setInternalIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // Use external control if provided, otherwise internal state
+  const isVisible = externalIsOpen !== undefined ? externalIsOpen : internalIsVisible;
+  const setIsVisible = (value: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(value);
+    } else {
+      setInternalIsVisible(value);
+    }
+  };
 
   const openPanel = () => {
     setIsVisible(true);
@@ -59,6 +73,17 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
       setIsVisible(false);
     }, 150);
   };
+
+  // Sync animation state when externally opened
+  useEffect(() => {
+    if (externalIsOpen) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsAnimating(true);
+        });
+      });
+    }
+  }, [externalIsOpen]);
 
   // Prevent body scroll when panel is open
   useEffect(() => {

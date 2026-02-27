@@ -136,7 +136,7 @@ export const EventCardCompact = memo(function EventCardCompact({
               rel="noopener noreferrer"
               className="flex-1 text-center px-4 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
             >
-              Listing
+              Info
             </a>
           )}
           {event.ticketUrl && (
@@ -169,7 +169,7 @@ export const EventCardCompact = memo(function EventCardCompact({
               rel="noopener noreferrer"
               className="px-5 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
             >
-              Listing
+              Info
             </a>
           )}
           {event.ticketUrl && (

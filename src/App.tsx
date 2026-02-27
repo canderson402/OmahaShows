@@ -58,6 +58,7 @@ function App() {
   const [historySearch, setHistorySearch] = useState("");
   const [eventSearch, setEventSearch] = useState("");
   const [showContact, setShowContact] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Debounce search inputs for better performance
   const debouncedEventSearch = useDebounce(eventSearch, 300);
@@ -116,7 +117,6 @@ function App() {
   // Memoize derived data (must be before early return to maintain hook order)
   const venues = useMemo(() => data?.sources.map((s) => ({ id: s.id, name: s.name })) ?? [], [data?.sources]);
   const justAddedCount = useMemo(() => data?.events.filter(isJustAdded).length ?? 0, [data?.events]);
-  const filteredEvents = useMemo(() => data?.events.filter((e) => enabledVenues.has(e.source)) ?? [], [data?.events, enabledVenues]);
 
   if (!data) {
     return (
@@ -206,70 +206,38 @@ function App() {
             {(view === "events" || view === "history" || view === "calendar") && (
               <>
                 {/* Header row with filters */}
-                <div className="h-10 flex items-center justify-between mb-4">
-                  {view === "events" ? (
-                    <>
-                      <span className="text-xs text-gray-500 hidden sm:inline">
-                        Updated {formatTimestamp(data.lastUpdated)}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
-                          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                          <input
-                            type="text"
-                            placeholder="Search..."
-                            value={eventSearch}
-                            onChange={(e) => setEventSearch(e.target.value)}
-                            className="w-32 sm:w-40 pl-8 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
-                          />
-                        </div>
-                        <FiltersDropdown
-                          venues={venues}
-                          enabledVenues={enabledVenues}
-                          toggleVenue={toggleVenue}
-                          venueColors={VENUE_COLORS}
-                          timeFilter={timeFilter}
-                          setTimeFilter={setTimeFilter}
-                          justAddedCount={justAddedCount}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs text-gray-500">
+                    Updated {formatTimestamp(data.lastUpdated)}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {(view === "events" || view === "history") && (
+                      <div className="relative">
+                        <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                          type="text"
+                          placeholder="Search..."
+                          value={view === "events" ? eventSearch : historySearch}
+                          onChange={(e) => view === "events" ? setEventSearch(e.target.value) : setHistorySearch(e.target.value)}
+                          className="w-28 sm:w-40 pl-8 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
                         />
                       </div>
-                    </>
-                  ) : view === "history" ? (
-                    <>
-                      <span className="text-xs text-gray-500 hidden sm:inline">
-                        {(history?.shows?.length || 0).toLocaleString()} past shows
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
-                          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                          <input
-                            type="text"
-                            placeholder="Search..."
-                            value={historySearch}
-                            onChange={(e) => setHistorySearch(e.target.value)}
-                            className="w-32 sm:w-40 pl-8 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
-                          />
-                        </div>
-                        <FiltersDropdown
-                          mode="history"
-                          venues={venues}
-                          enabledVenues={enabledVenues}
-                          toggleVenue={toggleVenue}
-                          venueColors={VENUE_COLORS}
-                          timeFilter={historyTimeFilter}
-                          setTimeFilter={setHistoryTimeFilter}
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-xs text-gray-500 hidden sm:inline">
-                        {filteredEvents.length} upcoming shows
-                      </span>
+                    )}
+                    {view === "history" ? (
+                      <FiltersDropdown
+                        mode="history"
+                        venues={venues}
+                        enabledVenues={enabledVenues}
+                        toggleVenue={toggleVenue}
+                        venueColors={VENUE_COLORS}
+                        timeFilter={historyTimeFilter}
+                        setTimeFilter={setHistoryTimeFilter}
+                        isOpen={filtersOpen}
+                        onOpenChange={setFiltersOpen}
+                      />
+                    ) : (
                       <FiltersDropdown
                         venues={venues}
                         enabledVenues={enabledVenues}
@@ -278,9 +246,11 @@ function App() {
                         timeFilter={timeFilter}
                         setTimeFilter={setTimeFilter}
                         justAddedCount={justAddedCount}
+                        isOpen={filtersOpen}
+                        onOpenChange={setFiltersOpen}
                       />
-                    </>
-                  )}
+                    )}
+                  </div>
                 </div>
 
                 {/* Victorian Decorative Divider */}
@@ -335,25 +305,81 @@ function App() {
               />
             )}
 
-            {/* Footer */}
-            <footer className="mt-8 pt-6 border-t border-gray-800 text-center text-xs text-gray-500">
-              <p>
-                Made with love for the Omaha music scene. Not affiliated with any venues.
-              </p>
-              <p className="mt-1">
-                <button
-                  onClick={() => setShowContact(true)}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  Contact
-                </button>
-              </p>
-            </footer>
-
             <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
+
+            {/* Spacer for sticky footer */}
+            <div className="h-16" />
           </div>
         </div>
       </main>
+
+      {/* Mobile Sticky Footer */}
+      <footer className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-800">
+        <div className="relative px-3 py-1 flex items-center justify-between">
+          <button
+            onClick={() => setShowContact(true)}
+            className="p-1.5 text-gray-400 hover:text-white transition-colors z-10"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </button>
+
+          <span className="absolute inset-0 flex items-center justify-center text-gray-500 text-xs font-medium tracking-wide pointer-events-none">OMAHA SHOWS</span>
+
+          <div className="flex items-center z-10">
+            <button
+              onClick={() => setFiltersOpen(true)}
+              className="p-1.5 text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="p-1.5 text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </footer>
+
+      {/* Desktop Floating Pills */}
+      <div className="hidden md:block fixed bottom-4 left-4 z-40">
+        <button
+          onClick={() => setShowContact(true)}
+          className="flex items-center justify-center w-10 h-10 bg-gray-800/90 backdrop-blur-sm text-gray-400 hover:text-white hover:bg-gray-700/90 rounded-full transition-all shadow-lg"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="hidden md:flex fixed bottom-4 right-4 z-40 items-center gap-2">
+        <button
+          onClick={() => setFiltersOpen(true)}
+          className="flex items-center justify-center w-10 h-10 bg-gray-800/90 backdrop-blur-sm text-gray-400 hover:text-white hover:bg-gray-700/90 rounded-full transition-all shadow-lg"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+        </button>
+
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="flex items-center justify-center w-10 h-10 bg-gray-800/90 backdrop-blur-sm text-gray-400 hover:text-white hover:bg-gray-700/90 rounded-full transition-all shadow-lg"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
