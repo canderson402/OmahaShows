@@ -2,6 +2,13 @@
 
 A local music event aggregator that scrapes venue websites and displays upcoming shows in a unified interface.
 
+## Workflow Rules
+
+- **NEVER commit until the user has tested the changes first.** Always wait for explicit approval before committing.
+- Run `npm run build` to verify changes compile, but let the user run `npm run dev` and test before committing.
+- **NEVER modify external URLs in events.json.** Only the scraper should set image URLs. External URLs (http/https) must never be changed - we don't control those files. Only local paths like `/images/astro/` can be modified.
+- Before committing events.json changes, run `npm run validate` to check for issues.
+
 **Live Site:** https://canderson402.github.io/OmahaShows/
 
 ## Project Structure
