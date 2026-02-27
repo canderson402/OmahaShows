@@ -3,7 +3,7 @@ import pytest
 import json
 import sys
 from pathlib import Path
-sys.path.insert(0, '/Users/codyanderson/Dev/ShowCal/scraper')
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).parent.parent))
 from main import run_all_scrapers, save_output
 
 def test_save_output_creates_valid_json(tmp_path):

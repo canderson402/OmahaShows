@@ -6,9 +6,10 @@ This venue uses TicketWeb widget and renders events via JavaScript.
 import re
 import sys
 from datetime import datetime
+from pathlib import Path
 from playwright.sync_api import sync_playwright
 
-sys.path.insert(0, '/Users/codyanderson/Dev/ShowCal/scraper')
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
 

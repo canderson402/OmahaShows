@@ -2,8 +2,9 @@
 import re
 import sys
 from datetime import datetime
+from pathlib import Path
 import requests
-sys.path.insert(0, '/Users/codyanderson/Dev/ShowCal/scraper')
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
 

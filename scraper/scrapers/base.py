@@ -1,7 +1,8 @@
 # scraper/scrapers/base.py
 from abc import ABC, abstractmethod
 import sys
-sys.path.insert(0, '/Users/codyanderson/Dev/ShowCal/scraper')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 import requests
 from bs4 import BeautifulSoup
 from models import Event

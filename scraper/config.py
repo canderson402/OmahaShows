@@ -1,6 +1,7 @@
 # scraper/config.py
 import sys
-sys.path.insert(0, '/Users/codyanderson/Dev/ShowCal/scraper')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
 from scrapers.theslowdown import SlowdownScraper
 from scrapers.waitingroom import WaitingRoomScraper
 from scrapers.reverblounge import ReverbLoungeScraper

@@ -3,7 +3,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-sys.path.insert(0, '/Users/codyanderson/Dev/ShowCal/scraper')
+sys.path.insert(0, str(Path(__file__).parent))
 from models import Event, SourceStatus, ScraperOutput
 from config import SCRAPERS
 

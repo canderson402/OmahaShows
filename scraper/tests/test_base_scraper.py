@@ -1,7 +1,7 @@
 # scraper/tests/test_base_scraper.py
 import pytest
 import sys
-sys.path.insert(0, '/Users/codyanderson/Dev/ShowCal/scraper')
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
 
