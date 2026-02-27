@@ -306,54 +306,15 @@ function App() {
             )}
 
             <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
-
-            {/* Spacer for sticky footer */}
-            <div className="h-16" />
           </div>
         </div>
       </main>
 
-      {/* Mobile Sticky Footer */}
-      <footer className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-800">
-        <div className="relative px-3 py-1 flex items-center justify-between">
-          <button
-            onClick={() => setShowContact(true)}
-            className="p-1.5 text-gray-400 hover:text-white transition-colors z-10"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </button>
-
-          <span className="absolute inset-0 flex items-center justify-center text-gray-500 text-xs font-medium tracking-wide pointer-events-none">OMAHA SHOWS</span>
-
-          <div className="flex items-center z-10">
-            <button
-              onClick={() => setFiltersOpen(true)}
-              className="p-1.5 text-gray-400 hover:text-white transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="p-1.5 text-gray-400 hover:text-white transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </footer>
-
-      {/* Desktop Floating Pills */}
-      <div className="hidden md:block fixed bottom-6 left-6 z-40">
+      {/* Floating Pills - both mobile and desktop */}
+      <div className="fixed bottom-4 left-4 z-40">
         <button
           onClick={() => setShowContact(true)}
-          className="flex items-center justify-center w-12 h-12 bg-gray-800/90 backdrop-blur-sm text-gray-400 hover:text-white hover:bg-gray-700/90 rounded-full transition-all shadow-lg"
+          className="flex items-center justify-center w-12 h-12 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-all shadow-lg"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -361,10 +322,10 @@ function App() {
         </button>
       </div>
 
-      <div className="hidden md:flex fixed bottom-6 right-6 z-40 items-center gap-3">
+      <div className="fixed bottom-4 right-4 z-40 flex items-center gap-3">
         <button
           onClick={() => setFiltersOpen(true)}
-          className="flex items-center justify-center w-12 h-12 bg-gray-800/90 backdrop-blur-sm text-gray-400 hover:text-white hover:bg-gray-700/90 rounded-full transition-all shadow-lg"
+          className="flex items-center justify-center w-12 h-12 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-all shadow-lg"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -373,7 +334,7 @@ function App() {
 
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="flex items-center justify-center w-12 h-12 bg-gray-800/90 backdrop-blur-sm text-gray-400 hover:text-white hover:bg-gray-700/90 rounded-full transition-all shadow-lg"
+          className="flex items-center justify-center w-12 h-12 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-all shadow-lg"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
