@@ -74,20 +74,18 @@ function App() {
 
   const fetchEvents = useCallback(async () => {
     try {
-      // Try API first (local dev), fall back to static file (production)
-      let response = await fetch(`${API_BASE}/api/events`).catch(() => null);
-      if (response?.ok) {
-        const json = await response.json();
-        setData(json);
-        setEnabledVenues(new Set(json.sources.map((s: { id: string }) => s.id)));
-        setError(null);
-      } else {
-        response = await fetch(`${import.meta.env.BASE_URL}events.json`);
-        const json = await response.json();
-        setData(json);
-        setEnabledVenues(new Set(json.sources.map((s: { id: string }) => s.id)));
-        setError(null);
+      // In dev, try local API first; in production, go straight to static file
+      let response: Response | null = null;
+      if (import.meta.env.DEV) {
+        response = await fetch(`${API_BASE}/api/events`).catch(() => null);
       }
+      if (!response?.ok) {
+        response = await fetch(`${import.meta.env.BASE_URL}events.json`);
+      }
+      const json = await response.json();
+      setData(json);
+      setEnabledVenues(new Set(json.sources.map((s: { id: string }) => s.id)));
+      setError(null);
 
       const historyResponse = await fetch(`${import.meta.env.BASE_URL}history.json`).catch(() => null);
       if (historyResponse?.ok) {
