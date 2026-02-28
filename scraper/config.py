@@ -10,6 +10,8 @@ from scrapers.admiral import AdmiralScraper
 from scrapers.astrotheater import AstroTheaterScraper
 from scrapers.steelhouse import SteelHouseScraper
 from scrapers.omahaunderground import OtherVenuesScraper
+from scrapers.opa import OPAScraper
+from scrapers.ticketweb import TicketWebScraper
 
 SCRAPERS = [
     SlowdownScraper(),
@@ -20,4 +22,7 @@ SCRAPERS = [
     AstroTheaterScraper(),
     SteelHouseScraper(),
     OtherVenuesScraper(),
+    OPAScraper("Holland Center", "holland"),
+    OPAScraper("Orpheum Theater", "orpheum"),
+    TicketWebScraper("Barnato", "barnato", "https://barnato.bar/events/"),
 ]

@@ -185,6 +185,24 @@ class AstroTheaterScraper(BaseScraper):
         except Exception:
             return None, None
 
+    def _is_valid_image(self, data: bytes) -> bool:
+        """Check if data starts with known image file signatures."""
+        if len(data) < 1024:
+            return False
+        # JPEG: FF D8 FF
+        if data[:3] == b'\xff\xd8\xff':
+            return True
+        # PNG: 89 50 4E 47
+        if data[:4] == b'\x89PNG':
+            return True
+        # WebP: RIFF....WEBP
+        if data[:4] == b'RIFF' and data[8:12] == b'WEBP':
+            return True
+        # GIF: GIF87a or GIF89a
+        if data[:3] == b'GIF':
+            return True
+        return False
+
     def _download_image(self, page, remote_url: str) -> str | None:
         """Download image locally and return local path."""
         try:
@@ -192,18 +210,29 @@ class AstroTheaterScraper(BaseScraper):
             url_hash = hashlib.md5(remote_url.encode()).hexdigest()[:12]
             ext = Path(remote_url).suffix or '.png'
             filename = f"{url_hash}{ext}"
+            webp_filename = f"{url_hash}.webp"
             local_path = IMAGES_DIR / filename
+            webp_path = IMAGES_DIR / webp_filename
 
-            # Skip if already downloaded
+            # If optimized .webp version exists, use that
+            if webp_path.exists() and self._is_valid_image(webp_path.read_bytes()):
+                return f"/images/astro/{webp_filename}"
+
+            # Skip if original already downloaded and valid
             if local_path.exists():
-                return f"/images/astro/{filename}"
+                if self._is_valid_image(local_path.read_bytes()):
+                    return f"/images/astro/{filename}"
+                # Delete corrupt file so we re-download
+                local_path.unlink()
 
             # Download using Playwright's request context (same session, bypasses protection)
             response = page.request.get(remote_url)
             if response.ok:
-                IMAGES_DIR.mkdir(parents=True, exist_ok=True)
-                local_path.write_bytes(response.body())
-                return f"/images/astro/{filename}"
+                body = response.body()
+                if self._is_valid_image(body):
+                    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+                    local_path.write_bytes(body)
+                    return f"/images/astro/{filename}"
         except Exception:
             pass
         return None

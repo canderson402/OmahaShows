@@ -17,6 +17,8 @@ from scrapers.admiral import AdmiralScraper
 from scrapers.astrotheater import AstroTheaterScraper
 from scrapers.steelhouse import SteelHouseScraper
 from scrapers.omahaunderground import OtherVenuesScraper
+from scrapers.opa import OPAScraper
+from scrapers.ticketweb import TicketWebScraper
 
 app = FastAPI(title="ShowCal Scraper API")
 
@@ -39,6 +41,9 @@ SCRAPERS = {
     "astrotheater": AstroTheaterScraper(),
     "steelhouse": SteelHouseScraper(),
     "other": OtherVenuesScraper(),
+    "holland": OPAScraper("Holland Center", "holland"),
+    "orpheum": OPAScraper("Orpheum Theater", "orpheum"),
+    "barnato": TicketWebScraper("Barnato", "barnato", "https://barnato.bar/events/"),
 }
 
 OUTPUT_PATH = Path(__file__).parent / "output" / "events.json"

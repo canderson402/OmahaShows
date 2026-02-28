@@ -44,21 +44,22 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
     // Filter by time period
     if (timeFilter !== "all") {
       const now = new Date();
-      const today = now.toISOString().split('T')[0];
+      const toLocalDateStr = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const today = toLocalDateStr(now);
       let cutoffDate: string;
 
       if (timeFilter === "30days") {
         const d = new Date(now);
         d.setDate(d.getDate() - 30);
-        cutoffDate = d.toISOString().split('T')[0];
+        cutoffDate = toLocalDateStr(d);
       } else if (timeFilter === "90days") {
         const d = new Date(now);
         d.setDate(d.getDate() - 90);
-        cutoffDate = d.toISOString().split('T')[0];
+        cutoffDate = toLocalDateStr(d);
       } else if (timeFilter === "year") {
         const d = new Date(now);
         d.setFullYear(d.getFullYear() - 1);
-        cutoffDate = d.toISOString().split('T')[0];
+        cutoffDate = toLocalDateStr(d);
       } else if (timeFilter === "this-year") {
         cutoffDate = `${now.getFullYear()}-01-01`;
       } else {

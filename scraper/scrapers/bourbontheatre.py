@@ -1,13 +1,9 @@
 # scraper/scrapers/bourbontheatre.py
-"""
-Bourbon Theatre scraper using Playwright for JS-rendered content.
-This venue uses TicketWeb widget and renders events via JavaScript.
-"""
 import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from playwright.sync_api import sync_playwright
+import requests
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
@@ -19,67 +15,56 @@ class BourbonTheatreScraper(BaseScraper):
     id = "bourbontheatre"
     url = "https://www.bourbontheatre.com/calendar/"
 
-    def scrape(self) -> list[Event]:
-        """Override scrape to use Playwright instead of requests."""
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
-            page.goto(self.url, wait_until="networkidle", timeout=30000)
-            page.wait_for_timeout(3000)  # Wait for JS to render
+    def fetch_html(self) -> str:
+        response = requests.get(self.url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }, timeout=self.timeout)
+        response.raise_for_status()
+        return response.text
 
-            events = self._extract_events(page)
-            browser.close()
-            return events
-
-    def _extract_events(self, page) -> list[Event]:
-        """Extract events from the rendered page."""
+    def parse_events(self, html: str) -> list[Event]:
+        soup = self.get_soup(html)
         events = []
         seen_ids = set()
 
-        # Find all tw-cal-event containers (this is the TicketWeb widget structure)
-        event_containers = page.query_selector_all('.tw-cal-event')
-
-        for container in event_containers:
+        for popup in soup.select('.tw-cal-event-popup'):
             try:
-                # Get title and event URL from .tw-name a
-                name_link = container.query_selector('.tw-name a')
+                # Title and event URL
+                name_link = popup.select_one('.tw-name a')
                 if not name_link:
                     continue
-
-                title = name_link.inner_text().strip()
-                event_url = name_link.get_attribute('href')
-
+                title = name_link.get_text(strip=True)
+                event_url = name_link.get('href')
                 if not title:
                     continue
 
-                # Get image URL from .tw-image img
-                img_el = container.query_selector('.tw-image img')
-                image_url = img_el.get_attribute('src') if img_el else None
-
-                # Get date from .tw-event-date
-                date_el = container.query_selector('.tw-event-date')
-                date_str = None
-                if date_el:
-                    date_text = date_el.inner_text().strip()
-                    date_str = self._parse_date(date_text)
-
+                # Date
+                date_el = popup.select_one('.tw-event-date')
+                if not date_el:
+                    continue
+                date_str = self._parse_date(date_el.get_text(strip=True))
                 if not date_str:
                     continue
 
-                # Get time from calendar popup or event content
-                time_str = None
-                time_el = container.query_selector('.tw-calendar-event-time, .tw-event-time-complete')
-                if time_el:
-                    time_text = time_el.inner_text().strip()
-                    time_str = self._parse_time(time_text)
+                # Time (format: "19:00 pm" or "20:00 pm")
+                time_el = popup.select_one('.tw-event-time-complete')
+                time_str = self._parse_time(time_el.get_text(strip=True)) if time_el else None
 
-                # Generate ticket URL from event URL
-                # Pattern: /tm-event/slug/ -> ticketweb URL
-                ticket_url = None
-                if event_url:
-                    # We'll need to visit the event page to get the actual ticket URL
-                    # For now, leave it as None - the event URL links to info page
-                    pass
+                # Price
+                price_el = popup.select_one('.tw-price')
+                price = price_el.get_text(strip=True) if price_el else None
+
+                # Ticket URL from buy button
+                buy_el = popup.select_one('a.tw-buy-tix-btn')
+                ticket_url = buy_el.get('href') if buy_el else None
+
+                # Image
+                img_el = popup.select_one('img')
+                image_url = img_el.get('src') if img_el else None
+
+                # Age restriction
+                age_el = popup.select_one('.tw-age-restriction')
+                age = age_el.get_text(strip=True) if age_el else None
 
                 # Generate ID
                 slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
@@ -98,115 +83,50 @@ class BourbonTheatreScraper(BaseScraper):
                     eventUrl=event_url,
                     ticketUrl=ticket_url,
                     imageUrl=image_url,
-                    price=None,
-                    ageRestriction=None,
-                    supportingArtists=None,
-                    source=self.id
+                    price=price,
+                    ageRestriction=age,
+                    source=self.id,
                 ))
-            except Exception:
-                continue
-
-        # Also check calendar view for events with times
-        events = self._enrich_with_calendar_times(page, events)
-
-        return events
-
-    def _enrich_with_calendar_times(self, page, events: list[Event]) -> list[Event]:
-        """Try to get show times from the calendar view."""
-        # Build a map of date+slug to event for updating
-        event_map = {(e.date, re.sub(r'[^a-z0-9]+', '-', e.title.lower()).strip('-')[:30]): e for e in events}
-
-        # Look for calendar entries with times
-        calendar_events = page.query_selector_all('.tw-calendar-event-content')
-        for cal_event in calendar_events:
-            try:
-                title_el = cal_event.query_selector('.tw-calendar-event-title')
-                if not title_el:
-                    continue
-
-                title = title_el.inner_text().strip()
-                slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:30]
-
-                # Get time
-                time_el = cal_event.query_selector('.tw-calendar-event-time')
-                doors_el = cal_event.query_selector('.tw-calendar-event-doors')
-
-                show_time = None
-                if time_el:
-                    time_text = time_el.inner_text().strip()
-                    # Format: "Show: 7:00 PM"
-                    match = re.search(r'(\d{1,2}:\d{2}\s*[AP]M)', time_text, re.I)
-                    if match:
-                        show_time = self._parse_time(match.group(1))
-
-                if not show_time and doors_el:
-                    doors_text = doors_el.inner_text().strip()
-                    match = re.search(r'(\d{1,2}:\d{2}\s*[AP]M)', doors_text, re.I)
-                    if match:
-                        show_time = self._parse_time(match.group(1))
-
-                # Try to find matching event and update time
-                for (date, event_slug), event in event_map.items():
-                    if slug in event_slug or event_slug in slug:
-                        if show_time and not event.time:
-                            event.time = show_time
-                        break
-
             except Exception:
                 continue
 
         return events
 
     def _parse_date(self, date_text: str) -> str | None:
-        """Parse date like 'February 26, 2026' to YYYY-MM-DD."""
+        """Parse date like 'February 27, 2026' to YYYY-MM-DD."""
         try:
             date_text = date_text.strip()
-            # Try full format: "February 26, 2026"
-            try:
-                date_obj = datetime.strptime(date_text, "%B %d, %Y")
-                return date_obj.strftime("%Y-%m-%d")
-            except ValueError:
-                pass
-
-            # Try short format: "Feb 26, 2026"
-            try:
-                date_obj = datetime.strptime(date_text, "%b %d, %Y")
-                return date_obj.strftime("%Y-%m-%d")
-            except ValueError:
-                pass
-
+            for fmt in ("%B %d, %Y", "%b %d, %Y"):
+                try:
+                    return datetime.strptime(date_text, fmt).strftime("%Y-%m-%d")
+                except ValueError:
+                    continue
             return None
         except Exception:
             return None
 
-    def _parse_time(self, time_str: str) -> str | None:
-        """Convert time like '07:00 PM' or '7:00 pm' to 24-hour format."""
-        if not time_str:
+    def _parse_time(self, time_text: str) -> str | None:
+        """Convert time like '19:00 pm' or '7:00 PM' to HH:MM 24-hour."""
+        if not time_text:
             return None
-
         try:
-            time_str = time_str.strip().upper()
-            match = re.search(r'(\d{1,2}):(\d{2})\s*(AM|PM)', time_str)
+            time_text = time_text.strip()
+            # Handle "19:00 pm" format (already 24h with spurious am/pm)
+            match = re.match(r'(\d{1,2}):(\d{2})\s*(am|pm)?', time_text, re.I)
             if not match:
                 return None
 
             hour = int(match.group(1))
             minute = int(match.group(2))
-            period = match.group(3)
+            period = (match.group(3) or '').upper()
 
-            if period == 'PM' and hour != 12:
-                hour += 12
-            elif period == 'AM' and hour == 12:
-                hour = 0
+            # If hour > 12, it's already 24-hour format, ignore am/pm
+            if hour <= 12 and period:
+                if period == 'PM' and hour != 12:
+                    hour += 12
+                elif period == 'AM' and hour == 12:
+                    hour = 0
 
             return f"{hour:02d}:{minute:02d}"
-        except:
+        except Exception:
             return None
-
-    def fetch_html(self) -> str:
-        """Not used - this scraper uses Playwright instead."""
-        raise NotImplementedError("Use scrape() directly for JS-rendered sites")
-
-    def parse_events(self, html: str) -> list[Event]:
-        """Not used - this scraper uses Playwright instead."""
-        raise NotImplementedError("Use scrape() directly for JS-rendered sites")

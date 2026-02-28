@@ -25,6 +25,9 @@ export const VENUE_COLORS: Record<string, { bg: string; text: string; border: st
   astrotheater: { bg: "bg-purple-500/20", text: "text-purple-400", border: "border-purple-500" },
   steelhouse: { bg: "bg-cyan-500/20", text: "text-cyan-400", border: "border-cyan-500" },
   other: { bg: "bg-emerald-500/20", text: "text-emerald-400", border: "border-emerald-500" },
+  holland: { bg: "bg-teal-500/20", text: "text-teal-400", border: "border-teal-500" },
+  orpheum: { bg: "bg-indigo-500/20", text: "text-indigo-400", border: "border-indigo-500" },
+  barnato: { bg: "bg-lime-500/20", text: "text-lime-400", border: "border-lime-500" },
 };
 
 // Helper to check if event was added within last 7 days
@@ -59,6 +62,7 @@ function App() {
   const [eventSearch, setEventSearch] = useState("");
   const [showContact, setShowContact] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [ready, setReady] = useState(false);
 
   // Debounce search inputs for better performance
   const debouncedEventSearch = useDebounce(eventSearch, 300);
@@ -100,6 +104,14 @@ function App() {
     fetchEvents();
   }, [fetchEvents]);
 
+  // Fade out loading screen once data arrives
+  useEffect(() => {
+    if (data && !ready) {
+      const timer = setTimeout(() => setReady(true), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [data, ready]);
+
   // Secret menu: click logo 5 times within 2 seconds
   const handleLogoClick = () => {
     const newCount = logoClicks + 1;
@@ -115,16 +127,15 @@ function App() {
   };
 
   // Memoize derived data (must be before early return to maintain hook order)
-  const venues = useMemo(() => data?.sources.map((s) => ({ id: s.id, name: s.name })) ?? [], [data?.sources]);
+  const venues = useMemo(() => {
+    const list = data?.sources.map((s) => ({ id: s.id, name: s.name })) ?? [];
+    return list.sort((a, b) => {
+      if (a.id === "other") return 1;
+      if (b.id === "other") return -1;
+      return 0;
+    });
+  }, [data?.sources]);
   const justAddedCount = useMemo(() => data?.events.filter(isJustAdded).length ?? 0, [data?.events]);
-
-  if (!data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        {error ? <div className="text-red-600">{error}</div> : "Loading..."}
-      </div>
-    );
-  }
 
   const toggleVenue = (venueId: string) => {
     setEnabledVenues((prev) => {
@@ -140,7 +151,36 @@ function App() {
 
   return (
     <div className="min-h-screen bg-texture">
-      <main className="md:py-8">
+      {/* Loading overlay */}
+      {!ready && (
+        <div
+          className="fixed inset-0 z-50 bg-[#0d0d0f] flex flex-col items-center justify-center gap-6 transition-opacity duration-500"
+          style={{ opacity: data ? 0 : 1, pointerEvents: data ? "none" : "auto" }}
+        >
+          {error ? (
+            <div className="text-red-400 bg-red-900/30 border border-red-700 rounded-lg px-6 py-3">{error}</div>
+          ) : (
+            <>
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight">
+                <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-purple-500 bg-clip-text text-transparent">
+                  OMAHA
+                </span>
+                <span className="text-white ml-3">SHOWS</span>
+              </h1>
+              <div className="flex gap-1.5">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 rounded-full bg-gradient-to-r from-amber-400 to-purple-500 animate-bounce"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      {data && <main className="md:py-8">
         <div className={`mx-auto md:px-4 ${layout === "compact" ? "max-w-4xl" : "max-w-xl"}`}>
           <div className="content-container md:rounded-2xl p-6">
             {/* Logo */}
@@ -308,7 +348,7 @@ function App() {
             <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
           </div>
         </div>
-      </main>
+      </main>}
 
       {/* Floating Pills - both mobile and desktop */}
       <div className="fixed bottom-4 left-4 z-40">

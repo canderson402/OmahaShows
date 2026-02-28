@@ -24,7 +24,10 @@ interface EventListProps {
 export function EventList({ events, layout, filter, venueColors, isJustAdded }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const today = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }, []);
 
   // Reset visible count when filters change
   useEffect(() => {
@@ -51,7 +54,7 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
     if (filter?.timeFilter && filter.timeFilter !== "all") {
       const weekFromNow = new Date();
       weekFromNow.setDate(weekFromNow.getDate() + 7);
-      const weekDateStr = weekFromNow.toISOString().split('T')[0];
+      const weekDateStr = `${weekFromNow.getFullYear()}-${String(weekFromNow.getMonth() + 1).padStart(2, '0')}-${String(weekFromNow.getDate()).padStart(2, '0')}`;
 
       if (filter.timeFilter === "today") {
         result = result.filter((e) => e.date === today);

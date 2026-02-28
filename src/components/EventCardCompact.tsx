@@ -117,7 +117,7 @@ export const EventCardCompact = memo(function EventCardCompact({
             </p>
           )}
           <p className="text-gray-400 mt-2">
-            {formatTime(event.time) || "TBA"} ·{" "}
+            {formatTime(event.time) && <>{formatTime(event.time)} · </>}
             <span className={venueColors?.[event.source]?.text || "text-gray-400"}>
               {event.venue}
             </span>
@@ -227,7 +227,7 @@ export const EventCardCompact = memo(function EventCardCompact({
             </p>
           )}
           <p className="text-gray-400 mt-3">
-            {formatTime(event.time) || "TBA"} ·{" "}
+            {formatTime(event.time) && <>{formatTime(event.time)} · </>}
             <span className={venueColors?.[event.source]?.text || "text-gray-400"}>
               {event.venue}
             </span>
