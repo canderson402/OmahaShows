@@ -18,24 +18,24 @@ HISTORY_PATH = OUTPUT_DIR / "history.json"
 
 def load_events() -> ScraperOutput:
     if EVENTS_PATH.exists():
-        return ScraperOutput(**json.loads(EVENTS_PATH.read_text()))
+        return ScraperOutput(**json.loads(EVENTS_PATH.read_text(encoding="utf-8")))
     return ScraperOutput(events=[], lastUpdated="", sources=[])
 
 
 def load_history() -> ShowHistory:
     if HISTORY_PATH.exists():
-        return ShowHistory(**json.loads(HISTORY_PATH.read_text()))
+        return ShowHistory(**json.loads(HISTORY_PATH.read_text(encoding="utf-8")))
     return ShowHistory(shows=[], lastUpdated="")
 
 
 def save_events(output: ScraperOutput):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    EVENTS_PATH.write_text(output.model_dump_json(indent=2))
+    EVENTS_PATH.write_text(output.model_dump_json(indent=2), encoding="utf-8")
 
 
 def save_history(history: ShowHistory):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    HISTORY_PATH.write_text(history.model_dump_json(indent=2))
+    HISTORY_PATH.write_text(history.model_dump_json(indent=2), encoding="utf-8")
 
 
 def run():

@@ -8,14 +8,14 @@ def test_event_model_creates_valid_event():
         title="Test Band",
         date="2026-03-15",
         time="20:00",
-        venue="The Slowdown",
+        venue="Slowdown",
         venueUrl="https://theslowdown.com",
         ticketUrl="https://theslowdown.com/events/test",
         price="$25",
         source="theslowdown"
     )
     assert event.title == "Test Band"
-    assert event.venue == "The Slowdown"
+    assert event.venue == "Slowdown"
 
 def test_event_model_optional_fields():
     event = Event(

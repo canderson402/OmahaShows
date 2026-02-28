@@ -18,6 +18,7 @@ class OPAScraper(BaseScraper):
 
     _cache: list[dict] | None = None
     _cache_time: float = 0
+    _price_cache: dict[str, str | None] = {}
 
     BASE_URL = "https://ticketomaha.com/events"
     VENUE_MAP = {
@@ -36,6 +37,7 @@ class OPAScraper(BaseScraper):
         for raw in all_raw:
             if raw["venue_id"] != self.id:
                 continue
+            price = self._fetch_price(raw["event_url"]) if raw["event_url"] else None
             events.append(Event(
                 id=raw["id"],
                 title=raw["title"],
@@ -45,7 +47,7 @@ class OPAScraper(BaseScraper):
                 eventUrl=raw["event_url"],
                 ticketUrl=raw["ticket_url"],
                 imageUrl=raw["image_url"],
-                price=None,
+                price=price,
                 ageRestriction=raw["age_restriction"],
                 source=self.id,
             ))
@@ -90,6 +92,35 @@ class OPAScraper(BaseScraper):
         cls._cache = all_raw
         cls._cache_time = time.time()
         return all_raw
+
+    @classmethod
+    def _fetch_price(cls, url: str) -> str | None:
+        """Fetch an event detail page to extract 'Tickets start at $X'."""
+        if url in cls._price_cache:
+            return cls._price_cache[url]
+
+        import requests
+        from bs4 import BeautifulSoup
+
+        try:
+            time.sleep(0.5)  # Be polite
+            resp = requests.get(url, timeout=15, headers={
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+            })
+            resp.raise_for_status()
+            soup = BeautifulSoup(resp.text, "html.parser")
+            text = soup.get_text(" ", strip=True)
+            match = re.search(r'Tickets\s+start\s+at\s+\$(\d+(?:\.\d+)?)', text)
+            if match:
+                dollars = match.group(1).split('.')[0]
+                price = f"From ${dollars}"
+            else:
+                price = None
+        except Exception:
+            price = None
+
+        cls._price_cache[url] = price
+        return price
 
     @classmethod
     def _parse_page(cls, html: str) -> list[dict]:

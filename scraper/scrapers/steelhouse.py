@@ -9,7 +9,7 @@ from models import Event
 
 
 class SteelHouseScraper(BaseScraper):
-    name = "Steel House"
+    name = "Steelhouse"
     id = "steelhouse"
     url = "https://steelhouseomaha.com/events/"
 

@@ -44,8 +44,6 @@ const formatTimestamp = (isoString: string) => {
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
   });
 };
 

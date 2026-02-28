@@ -17,13 +17,13 @@ def test_slowdown_scraper_parses_events(sample_html):
     assert len(events) > 0
     event = events[0]
     assert event.source == "theslowdown"
-    assert event.venue == "The Slowdown"
+    assert event.venue == "Slowdown"
     assert event.title  # Has a title
     assert event.date   # Has a date
 
 def test_slowdown_scraper_attributes():
     scraper = SlowdownScraper()
-    assert scraper.name == "The Slowdown"
+    assert scraper.name == "Slowdown"
     assert scraper.id == "theslowdown"
     assert "theslowdown.com" in scraper.url
 

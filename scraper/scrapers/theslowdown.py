@@ -8,7 +8,7 @@ from scrapers.base import BaseScraper
 from models import Event
 
 class SlowdownScraper(BaseScraper):
-    name = "The Slowdown"
+    name = "Slowdown"
     id = "theslowdown"
     url = "https://theslowdown.com/events/"
 
@@ -41,9 +41,11 @@ class SlowdownScraper(BaseScraper):
                 img_el = card.select_one("img.seetickets-list-view-event-image")
                 image_url = img_el.get("src") if img_el else None
 
-                # Price
+                # Price - extract starting price from hidden range (e.g. "$14.00-$17.00" -> "From $14")
+                price = None
                 price_el = card.select_one(".price")
-                price = price_el.get_text(strip=True) if price_el else None
+                if price_el:
+                    price = self._format_price(price_el.get_text(strip=True))
 
                 # Age restriction
                 ages_el = card.select_one(".ages")
@@ -124,6 +126,19 @@ class SlowdownScraper(BaseScraper):
                     year += 1
 
             return f"{year:04d}-{month:02d}-{day:02d}"
+        except Exception:
+            return None
+
+    def _format_price(self, price_text: str) -> str | None:
+        """Convert price range like '$14.00-$17.00' to 'From $14'."""
+        try:
+            match = re.match(r'\$(\d+)\.?(\d*)', price_text)
+            if not match:
+                return None
+            dollars = int(match.group(1))
+            if dollars == 0:
+                return "Free"
+            return f"From ${dollars}"
         except Exception:
             return None
 

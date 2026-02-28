@@ -1,25 +1,70 @@
 {
   "shows": [
     {
+      "date": "2026-02-27",
+      "title": "Gannon Fremin & CCREV",
+      "venue": "Slowdown",
+      "supportingArtists": [
+        "The Traynr Band"
+      ]
+    },
+    {
+      "date": "2026-02-27",
+      "title": "Snowball Showdown 2!!",
+      "venue": "Waiting Room Lounge",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-27",
+      "title": "JACK",
+      "venue": "Reverb Lounge",
+      "supportingArtists": [
+        "Infielder",
+        "Mouse Heart"
+      ]
+    },
+    {
+      "date": "2026-02-27",
+      "title": "Melodrama / Olio \u2013 Night Three",
+      "venue": "Admiral",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-27",
+      "title": "Mixed Bill at The Breakroom",
+      "venue": "The Breakroom",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-27",
+      "title": "BINGO LOCO",
+      "venue": "Bourbon Theatre",
+      "supportingArtists": null
+    },
+    {
       "date": "2026-02-26",
       "title": "Psyclon Nine",
-      "venue": "Reverb Lounge"
+      "venue": "Reverb Lounge",
+      "supportingArtists": null
     },
     {
       "date": "2026-02-26",
       "title": "Pecos & the Rooftops, Mac Hankins & The Moonlighters",
-      "venue": "Bourbon Theatre"
+      "venue": "Bourbon Theatre",
+      "supportingArtists": null
     },
     {
       "date": "2026-02-26",
       "title": "Dropkick Murphys",
-      "venue": "Admiral"
+      "venue": "Admiral",
+      "supportingArtists": null
     },
     {
       "date": "2026-02-26",
       "title": "Vitamin String Quartet",
-      "venue": "Steel House"
+      "venue": "Steelhouse",
+      "supportingArtists": null
     }
   ],
-  "lastUpdated": "2026-02-27T16:10:28.744671+00:00"
+  "lastUpdated": "2026-02-28T16:20:53.685702+00:00"
 }
