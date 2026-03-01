@@ -1,7 +1,7 @@
 // web/src/components/DayEventsSheet.tsx
 import { useState, useEffect } from "react";
 import type { Event } from "../types";
-import { trackOutboundClick } from "../analytics";
+import { outboundClickProps } from "../analytics";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
 
@@ -140,7 +140,7 @@ export function DayEventsSheet({
                           href={listingUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={() => trackOutboundClick(event.venue, event.title, "info", listingUrl)}
+                          {...outboundClickProps(event.venue, event.title, "info", listingUrl)}
                           className="text-white font-medium hover:text-blue-400 transition-colors"
                         >
                           {event.title}
@@ -173,7 +173,7 @@ export function DayEventsSheet({
                           href={event.eventUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={() => trackOutboundClick(event.venue, event.title, "info", event.eventUrl!)}
+                          {...outboundClickProps(event.venue, event.title, "info", event.eventUrl!)}
                           className="px-3 py-1.5 bg-gray-800 text-gray-300 text-sm rounded hover:bg-gray-700 transition-colors"
                         >
                           Info
@@ -184,7 +184,7 @@ export function DayEventsSheet({
                           href={event.ticketUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={() => trackOutboundClick(event.venue, event.title, "tickets", event.ticketUrl!)}
+                          {...outboundClickProps(event.venue, event.title, "tickets", event.ticketUrl!)}
                           className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-500 transition-colors"
                         >
                           Tickets

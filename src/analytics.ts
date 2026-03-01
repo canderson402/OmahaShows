@@ -17,7 +17,7 @@ function trackEvent(eventName: string, params: Record<string, string | number>) 
 }
 
 /** Track outbound link clicks (Info, Tickets, or Image links) */
-export function trackOutboundClick(
+function trackOutboundClick(
   venue: string,
   eventTitle: string,
   linkType: "info" | "tickets" | "image",
@@ -29,6 +29,17 @@ export function trackOutboundClick(
     link_type: linkType,
     destination_url: destinationUrl,
   });
+}
+
+/** Returns onClick + onAuxClick handlers to track left and middle clicks */
+export function outboundClickProps(
+  venue: string,
+  eventTitle: string,
+  linkType: "info" | "tickets" | "image",
+  destinationUrl: string,
+) {
+  const track = () => trackOutboundClick(venue, eventTitle, linkType, destinationUrl);
+  return { onClick: track, onAuxClick: track };
 }
 
 /** Track view tab changes (shows, calendar, history) */
