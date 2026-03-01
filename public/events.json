@@ -1,114 +1,6 @@
 {
   "events": [
     {
-      "id": "theslowdown-2026-02-28-can-t-feel-my-face-2010s-dance-party",
-      "title": "Can't Feel My Face: 2010s Dance Party",
-      "date": "2026-02-28",
-      "time": "21:00",
-      "venue": "Slowdown",
-      "eventUrl": "https://wl.seetickets.us/event/cant-feel-my-face-2010s-dance-party/676656?afflky=Slowdown",
-      "ticketUrl": "https://wl.seetickets.us/event/cant-feel-my-face-2010s-dance-party/676656?afflky=Slowdown",
-      "imageUrl": "https://prod-images.seetickets.us/eyJidWNrZXQiOiJwcm9kLXNpaC5zZWV0aWNrZXRzdXNhLnVzIiwia2V5IjoiMjUzMmY3YzMtOWE2NS00ZjYwLTk2ZjMtMzA3YTVmMThkOTI0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo2MDB9LCJqcGVnIjp7InF1YWxpdHkiOjYwfSwicG5nIjp7ImNvbXByZXNzaW9uTGV2ZWwiOjksInF1YWxpdHkiOjYwfSwid2VicCI6eyJxdWFsaXR5Ijo2MH19fQ==",
-      "price": "From $12",
-      "ageRestriction": "21+",
-      "supportingArtists": null,
-      "source": "theslowdown",
-      "addedAt": null
-    },
-    {
-      "id": "waitingroom-2026-02-28-plack-blague-birthday-bash",
-      "title": "Plack Blague Birthday Bash",
-      "date": "2026-02-28",
-      "time": "20:00",
-      "venue": "Waiting Room Lounge",
-      "eventUrl": "https://waitingroomlounge.com/event/plack-blague-birthday-bash/waiting-room-lounge/omaha-nebraska/",
-      "ticketUrl": "https://www.etix.com/ticket/p/94867241/plack-blague-birthday-bash-omaha-the-waiting-room?partner_id=100",
-      "imageUrl": "https://waitingroomlounge.com/wp-content/uploads/2026/02/plack-blague-birthday-bash.jfif",
-      "price": "$12 ADV / $15 DOS",
-      "ageRestriction": "ALL AGES",
-      "supportingArtists": [
-        "Vempire",
-        "Dead Poets"
-      ],
-      "source": "waitingroom",
-      "addedAt": null
-    },
-    {
-      "id": "reverblounge-2026-02-28-ricky-chilton",
-      "title": "Ricky Chilton",
-      "date": "2026-02-28",
-      "time": "19:00",
-      "venue": "Reverb Lounge",
-      "eventUrl": "https://reverblounge.com/event/ricky-chilton/reverb-lounge/",
-      "ticketUrl": "https://www.etix.com/ticket/p/35671393/ricky-chilton-omaha-reverb-lounge?partner_id=100",
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2025/10/etix-Ricky_3466031759448181.jfif",
-      "price": "$15 ADV / $20 DOS",
-      "ageRestriction": "All Ages",
-      "supportingArtists": null,
-      "source": "reverblounge",
-      "addedAt": null
-    },
-    {
-      "id": "bourbontheatre-2026-02-28-sky-cirque-and-parkour-early-and-late-show",
-      "title": "Sky Cirque and Parkour: Early and Late Show",
-      "date": "2026-02-28",
-      "time": "17:00",
-      "venue": "Bourbon Theatre",
-      "eventUrl": "https://www.bourbontheatre.com/tm-event/sky-cirque-and-parkour-early-and-late-show/",
-      "ticketUrl": "https://www.ticketweb.com/event/sky-cirque-and-parkour-early-bourbon-theatre-tickets/14058404?pl=bourbontheatre",
-      "imageUrl": "https://i.ticketweb.com/i/00/12/78/62/14_Original.jpg?v=14",
-      "price": "$29.81 - $47.32",
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "bourbontheatre",
-      "addedAt": null
-    },
-    {
-      "id": "admiral-2026-02-28-melodrama-olio-night-four",
-      "title": "Melodrama / Olio – Night Four",
-      "date": "2026-02-28",
-      "time": "19:30",
-      "venue": "Admiral",
-      "eventUrl": "https://admiralomaha.com/event/melodrama-olio-night-four-2/the-admiral/omaha-nebraska/",
-      "ticketUrl": "https://www.etix.com/ticket/p/69158010/melodrama-olio-night-four-omaha-the-admiral-theater?partner_id=100",
-      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/10/etix-Melodrama_559501761472838.jfif",
-      "price": "$20",
-      "ageRestriction": "ALL AGES",
-      "supportingArtists": null,
-      "source": "admiral",
-      "addedAt": null
-    },
-    {
-      "id": "other-2026-02-28-glitterer-graham-hunt-prize-horse",
-      "title": "Glitterer, Graham Hunt, Prize Horse",
-      "date": "2026-02-28",
-      "time": null,
-      "venue": "American Legion Post #1",
-      "eventUrl": "https://omahaunderground.net/shows/2026-02-28",
-      "ticketUrl": null,
-      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_1804066.jpg",
-      "price": null,
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "other",
-      "addedAt": null
-    },
-    {
-      "id": "other-2026-02-28-clunt-wood-haven-more-cheese",
-      "title": "CLUNT, Wood Haven, More Cheese",
-      "date": "2026-02-28",
-      "time": "19:00",
-      "venue": "O'Leaver's",
-      "eventUrl": "https://omahaunderground.net/shows/2026-02-28-2",
-      "ticketUrl": null,
-      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_4706969.jpg",
-      "price": "PWYC",
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "other",
-      "addedAt": null
-    },
-    {
       "id": "reverblounge-2026-03-01-scattered-hamlet",
       "title": "Scattered Hamlet",
       "date": "2026-03-01",
@@ -5125,14 +5017,14 @@
       "addedAt": null
     }
   ],
-  "lastUpdated": "2026-02-28T16:20:53.685722+00:00",
+  "lastUpdated": "2026-03-01T09:20:45.215070+00:00",
   "sources": [
     {
       "name": "Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:36.317455+00:00",
+      "lastScraped": "2026-03-01T09:19:42.629906+00:00",
       "eventCount": 47,
       "error": null
     },
@@ -5141,8 +5033,8 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:40.384352+00:00",
-      "eventCount": 43,
+      "lastScraped": "2026-03-01T09:19:44.239623+00:00",
+      "eventCount": 42,
       "error": null
     },
     {
@@ -5150,8 +5042,8 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:43.119267+00:00",
-      "eventCount": 55,
+      "lastScraped": "2026-03-01T09:19:46.709420+00:00",
+      "eventCount": 54,
       "error": null
     },
     {
@@ -5159,8 +5051,8 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:43.509526+00:00",
-      "eventCount": 45,
+      "lastScraped": "2026-03-01T09:19:48.803937+00:00",
+      "eventCount": 44,
       "error": null
     },
     {
@@ -5168,8 +5060,8 @@
       "id": "admiral",
       "url": "https://admiralomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:45.503693+00:00",
-      "eventCount": 14,
+      "lastScraped": "2026-03-01T09:19:49.314059+00:00",
+      "eventCount": 13,
       "error": null
     },
     {
@@ -5177,7 +5069,7 @@
       "id": "astrotheater",
       "url": "https://theastrotheater.com/#shows",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:56.765600+00:00",
+      "lastScraped": "2026-03-01T09:20:00.475272+00:00",
       "eventCount": 25,
       "error": null
     },
@@ -5186,7 +5078,7 @@
       "id": "steelhouse",
       "url": "https://steelhouseomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:57.028760+00:00",
+      "lastScraped": "2026-03-01T09:20:01.373310+00:00",
       "eventCount": 21,
       "error": null
     },
@@ -5195,8 +5087,8 @@
       "id": "other",
       "url": "https://omahaunderground.net/shows/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:20:06.957186+00:00",
-      "eventCount": 21,
+      "lastScraped": "2026-03-01T09:20:05.518119+00:00",
+      "eventCount": 19,
       "error": null
     },
     {
@@ -5204,7 +5096,7 @@
       "id": "holland",
       "url": "https://ticketomaha.com/events?themes%5B%5D=6",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:20:30.350178+00:00",
+      "lastScraped": "2026-03-01T09:20:24.060362+00:00",
       "eventCount": 12,
       "error": null
     },
@@ -5213,7 +5105,7 @@
       "id": "orpheum",
       "url": "https://ticketomaha.com/events?themes%5B%5D=6",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:20:52.607595+00:00",
+      "lastScraped": "2026-03-01T09:20:42.391205+00:00",
       "eventCount": 15,
       "error": null
     },
@@ -5222,7 +5114,7 @@
       "id": "barnato",
       "url": "https://barnato.bar/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:20:53.685542+00:00",
+      "lastScraped": "2026-03-01T09:20:45.214589+00:00",
       "eventCount": 21,
       "error": null
     }
