@@ -109,7 +109,7 @@ function App() {
   // Dynamic document title based on current view
   useEffect(() => {
     const titles: Record<View, string> = {
-      events: "Omaha Shows | Live Music & Concerts in Omaha, NE",
+      events: "Omaha Shows | Live Music in Omaha, NE",
       calendar: "Calendar | Omaha Shows",
       history: "Past Shows | Omaha Shows",
       dashboard: "Dashboard | Omaha Shows",
