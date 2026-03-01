@@ -1,5 +1,6 @@
 // web/src/components/FiltersDropdown.tsx
 import { useState, useEffect } from "react";
+import { trackFilterApplied } from "../analytics";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
 
@@ -68,6 +69,16 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
   };
 
   const closePanel = () => {
+    if (hasActiveFilters) {
+      const disabledVenues = venues.filter(v => !enabledVenues.has(v.id)).map(v => v.name);
+      if (timeFilter !== defaultTimeFilter) {
+        trackFilterApplied("time", timeFilter);
+      }
+      if (disabledVenues.length > 0) {
+        const selected = venues.filter(v => enabledVenues.has(v.id)).map(v => v.name);
+        trackFilterApplied("venue", selected.join(", "));
+      }
+    }
     setIsAnimating(false);
     setTimeout(() => {
       setIsVisible(false);

@@ -9,6 +9,7 @@ import { ContactModal } from "./components/ContactModal";
 import { CalendarView } from "./components/CalendarView";
 import { SeoStructuredData } from "./components/SeoStructuredData";
 import { useDebounce } from "./hooks/useDebounce";
+import { trackViewChange } from "./analytics";
 
 type View = "events" | "dashboard" | "history" | "calendar";
 type Layout = "compact" | "full";
@@ -210,7 +211,7 @@ function App() {
               {view !== "dashboard" && (
                 <div className="flex justify-center gap-2 mt-4">
                   <button
-                    onClick={() => setView("events")}
+                    onClick={() => { setView("events"); trackViewChange("shows"); }}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                       view === "events"
                         ? "bg-white/10 text-white"
@@ -220,7 +221,7 @@ function App() {
                     Shows
                   </button>
                   <button
-                    onClick={() => setView("calendar")}
+                    onClick={() => { setView("calendar"); trackViewChange("calendar"); }}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                       view === "calendar"
                         ? "bg-white/10 text-white"
@@ -230,7 +231,7 @@ function App() {
                     Calendar
                   </button>
                   <button
-                    onClick={() => setView("history")}
+                    onClick={() => { setView("history"); trackViewChange("history"); }}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                       view === "history"
                         ? "bg-white/10 text-white"

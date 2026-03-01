@@ -8,7 +8,8 @@ A local music event aggregator that scrapes venue websites and displays upcoming
 - Run `npm run build` to verify changes compile, but let the user run `npm run dev` and test before committing.
 - **NEVER modify external URLs in events.json.** Only the scraper should set image URLs. External URLs (http/https) must never be changed - we don't control those files. Only local paths like `/images/astro/` can be modified.
 - Before committing events.json changes, run `npm run validate` to check for issues.
-- **Always use `run_scrape.py` for scraping** - never use inline scrape scripts. `run_scrape.py` handles archiving past events to `history.json`, tracking new/changed events, and `addedAt` timestamps. After running, copy both output files:
+- **Do not include `Co-Authored-By` in commit messages** unless the user explicitly asks for it.
+- **Always use `run_scrape.py` for scraping** - never use inline scrape scripts. `run_scrape.py` handles archiving past events to `history.json`, tracking new/changed/removed events, and `addedAt` timestamps. After running, copy both output files (only written if changes detected):
   ```bash
   cd scraper
   PYTHONIOENCODING=utf-8 python3 run_scrape.py
@@ -17,7 +18,7 @@ A local music event aggregator that scrapes venue websites and displays upcoming
   ```
 - **Windows encoding**: Always use `encoding="utf-8"` when reading/writing JSON files in Python on Windows. The default `cp1252` codec will fail on special characters.
 
-**Live Site:** https://canderson402.github.io/OmahaShows/
+**Live Site:** https://omahashows.com/ (custom domain, GitHub Pages with auto HTTPS)
 
 ## Project Structure
 
@@ -34,6 +35,7 @@ omaha_shows/
 │   │   ├── DayEventsSheet.tsx   # Side panel for calendar day details
 │   │   ├── FiltersDropdown.tsx  # Venue/time filter dropdowns
 │   │   ├── ContactModal.tsx     # Contact form modal
+│   │   ├── SeoStructuredData.tsx # Dynamic JSON-LD MusicEvent schema injection
 │   │   └── Dashboard.tsx        # Scraper dashboard (dev only)
 │   ├── index.css               # Global styles, backgrounds
 │   └── types.ts                # TypeScript types
@@ -41,7 +43,11 @@ omaha_shows/
 │   ├── events.json             # Scraped event data (upcoming)
 │   ├── history.json            # Archived past events
 │   ├── images/astro/           # Downloaded Astro Theater images
-│   └── favicon.svg             # Gradient "O" favicon
+│   ├── favicon.svg             # Gradient "O" favicon
+│   ├── og-image.png            # 1200x630 Open Graph image for social sharing
+│   ├── robots.txt              # Search engine crawl rules + sitemap reference
+│   ├── sitemap.xml             # Sitemap for Google Search Console
+│   └── 404.html                # Branded 404 page (GitHub Pages serves this)
 ├── scraper/                    # Python scrapers
 │   ├── scrapers/
 │   │   ├── base.py             # BaseScraper class
@@ -96,6 +102,26 @@ Past events are automatically archived to `history.json` by `run_scrape.py`:
 - Deduplication by `(date, title, venue)` tuple
 - The history tab in the frontend shows collapsible month sections, with only the last 7 days expanded by default
 - The GitHub Actions scrape workflow commits both `events.json` and `history.json`
+- Unknown venues in history (from "other" scraper) fall back to `"other"` venue ID for filtering/colors
+
+## Scraper Change Detection
+
+`run_scrape.py` tracks four types of changes:
+- **Added** — new events not seen before (sets `addedAt` timestamp)
+- **Changed** — existing events with updated title, date, time, price, image, or URLs
+- **Removed** — events that disappeared from a successful scraper (cancelled/delisted). Failed scrapers don't trigger removals.
+- **Archived** — past events moved to history
+
+If no changes are detected (added=0, changed=0, removed=0, archived=0), output files are **not written**, preventing unnecessary git commits and deploys.
+
+## SEO
+
+- **Meta tags**: title, description, canonical, theme-color, Open Graph, Twitter Card in `index.html`
+- **Structured data**: Static `WebSite` JSON-LD in `index.html`; dynamic `MusicEvent` `ItemList` JSON-LD injected by `SeoStructuredData.tsx` with venue addresses
+- **Dynamic document title**: Changes per view (Shows/Calendar/History)
+- **Static files**: `robots.txt`, `sitemap.xml`, `404.html`, `og-image.png` in `public/`
+- **Domain**: `omahashows.com` with HTTPS via GitHub Pages (free Let's Encrypt cert)
+- Submit sitemap at Google Search Console after deploying
 
 ## Adding New Venues
 
@@ -276,8 +302,9 @@ cp output/history.json ../public/history.json
 
 3. **Daily Scrape**: GitHub Actions runs `scrape.yml` daily at 9 AM UTC (3 AM Central). It:
    - Runs `run_scrape.py` which scrapes all venues, archives past events to history
+   - `run_scrape.py` only writes files if changes detected (new/changed/removed/archived events)
    - Copies both `events.json` and `history.json` to `public/`
-   - Commits and pushes if changed
+   - Commits and pushes only if files actually changed (git diff check)
    - Triggers `deploy.yml` to rebuild and deploy the site
 
 4. **Check Workflow Status**:
@@ -334,6 +361,19 @@ cp output/history.json ../public/history.json
 # Test a single scraper
 python3 -c "from scrapers.theslowdown import SlowdownScraper; s = SlowdownScraper(); print(len(s.scrape()))"
 ```
+
+## Recently Added System
+
+- Events get an `addedAt` ISO timestamp when first scraped. Existing events without `addedAt` get backfilled on next scrape.
+- The "Recently Added" badge shows on up to 10 events that have a **newer** `addedAt` than the oldest event. If all events share the same timestamp, no badges are shown.
+- The "Recently Added" filter in FiltersDropdown uses the same logic.
+
+## UI Notes
+
+- When `eventUrl` and `ticketUrl` are the same, only the "Info" button is shown (avoids duplicate buttons, e.g. Slowdown).
+- History day rows have a subtle `bg-gray-800/30` background to visually separate them from show entries.
+- The site uses system fonts (no custom font imports) with `font-black tracking-tight` on the header.
+- Header gradient colors: `from-amber-400` (#fbbf24) `via-rose-400` (#fb7185) `to-purple-500` (#a855f7).
 
 ## Future Ideas
 
