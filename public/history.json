@@ -1,51 +1,6 @@
 {
   "shows": [
     {
-      "date": "2026-02-28",
-      "title": "Can't Feel My Face: 2010s Dance Party",
-      "venue": "Slowdown",
-      "supportingArtists": null
-    },
-    {
-      "date": "2026-02-28",
-      "title": "Plack Blague Birthday Bash",
-      "venue": "Waiting Room Lounge",
-      "supportingArtists": [
-        "Vempire",
-        "Dead Poets"
-      ]
-    },
-    {
-      "date": "2026-02-28",
-      "title": "Ricky Chilton",
-      "venue": "Reverb Lounge",
-      "supportingArtists": null
-    },
-    {
-      "date": "2026-02-28",
-      "title": "Sky Cirque and Parkour: Early and Late Show",
-      "venue": "Bourbon Theatre",
-      "supportingArtists": null
-    },
-    {
-      "date": "2026-02-28",
-      "title": "Melodrama / Olio – Night Four",
-      "venue": "Admiral",
-      "supportingArtists": null
-    },
-    {
-      "date": "2026-02-28",
-      "title": "Glitterer, Graham Hunt, Prize Horse",
-      "venue": "American Legion Post #1",
-      "supportingArtists": null
-    },
-    {
-      "date": "2026-02-28",
-      "title": "CLUNT, Wood Haven, More Cheese",
-      "venue": "O'Leaver's",
-      "supportingArtists": null
-    },
-    {
       "date": "2026-02-27",
       "title": "Gannon Fremin & CCREV",
       "venue": "Slowdown",
@@ -111,5 +66,5 @@
       "supportingArtists": null
     }
   ],
-  "lastUpdated": "2026-03-01T09:20:45.215040+00:00"
+  "lastUpdated": "2026-03-01T19:26:37.939507+00:00"
 }

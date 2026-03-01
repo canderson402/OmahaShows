@@ -127,7 +127,7 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
     { id: "all", label: "All Upcoming" },
     { id: "today", label: "Today" },
     { id: "week", label: "Next 7 Days" },
-    { id: "just-added", label: "Just Added", count: justAddedCount },
+    { id: "just-added", label: "Recently Added", count: justAddedCount },
   ];
 
   const historyTimeOptions = [

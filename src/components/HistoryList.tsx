@@ -26,6 +26,9 @@ const venueNameToId: Record<string, string> = {
   "Astro Theater": "astrotheater",
   "Steelhouse Omaha": "steelhouse",
   "Steelhouse": "steelhouse",
+  "Holland Center": "holland",
+  "Orpheum Theater": "orpheum",
+  "Barnato": "barnato",
 };
 
 export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, timeFilter = "all" }: HistoryListProps) {
@@ -74,8 +77,8 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
     // Filter by venue
     if (enabledVenues.size > 0) {
       result = result.filter((show) => {
-        const venueId = venueNameToId[show.venue];
-        return venueId && enabledVenues.has(venueId);
+        const venueId = venueNameToId[show.venue] || "other";
+        return enabledVenues.has(venueId);
       });
     }
 
@@ -250,7 +253,7 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
                     <div key={day.key}>
                       <button
                         onClick={() => toggleDay(day.key)}
-                        className="w-full flex items-center justify-between py-1.5 px-6 cursor-pointer hover:bg-gray-800/50 transition-colors"
+                        className="w-full flex items-center justify-between py-1.5 px-6 cursor-pointer bg-gray-800/30 hover:bg-gray-800/50 transition-colors"
                       >
                         <span className="text-sm text-gray-400 font-medium">{day.label}</span>
                         <span className="flex items-center gap-2">

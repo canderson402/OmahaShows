@@ -7,6 +7,7 @@ import { HistoryList } from "./components/HistoryList";
 import { FiltersDropdown, type HistoryTimeFilter } from "./components/FiltersDropdown";
 import { ContactModal } from "./components/ContactModal";
 import { CalendarView } from "./components/CalendarView";
+import { SeoStructuredData } from "./components/SeoStructuredData";
 import { useDebounce } from "./hooks/useDebounce";
 
 type View = "events" | "dashboard" | "history" | "calendar";
@@ -30,21 +31,17 @@ export const VENUE_COLORS: Record<string, { bg: string; text: string; border: st
   barnato: { bg: "bg-lime-500/20", text: "text-lime-400", border: "border-lime-500" },
 };
 
-// Helper to check if event was added within last 7 days
-const isJustAdded = (event: Event) => {
-  if (!event.addedAt) return false;
-  const addedTime = new Date(event.addedAt).getTime();
-  const daysSince = (Date.now() - addedTime) / (1000 * 60 * 60 * 24);
-  return daysSince < 7;
-};
-
-// Format as date and time
-const formatTimestamp = (isoString: string) => {
-  const date = new Date(isoString);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+// Build a set of the 10 most recently added event IDs (only if they're newer than the oldest)
+const getRecentlyAddedIds = (events: Event[]): Set<string> => {
+  const withAddedAt = events.filter(e => e.addedAt);
+  if (withAddedAt.length === 0) return new Set();
+  withAddedAt.sort((a, b) => new Date(b.addedAt!).getTime() - new Date(a.addedAt!).getTime());
+  // Only show badge if the newest events have a different timestamp than the oldest
+  const newest = new Date(withAddedAt[0].addedAt!).getTime();
+  const oldest = new Date(withAddedAt[withAddedAt.length - 1].addedAt!).getTime();
+  if (newest === oldest) return new Set();
+  const recent = withAddedAt.filter(e => new Date(e.addedAt!).getTime() > oldest);
+  return new Set(recent.slice(0, 10).map(e => e.id));
 };
 
 function App() {
@@ -108,6 +105,17 @@ function App() {
     }
   }, [data, ready]);
 
+  // Dynamic document title based on current view
+  useEffect(() => {
+    const titles: Record<View, string> = {
+      events: "Omaha Shows | Live Music & Concerts in Omaha, NE",
+      calendar: "Calendar | Omaha Shows",
+      history: "Past Shows | Omaha Shows",
+      dashboard: "Dashboard | Omaha Shows",
+    };
+    document.title = titles[view];
+  }, [view]);
+
   // Secret menu: click logo 5 times within 2 seconds
   const handleLogoClick = () => {
     const newCount = logoClicks + 1;
@@ -131,7 +139,9 @@ function App() {
       return 0;
     });
   }, [data?.sources]);
-  const justAddedCount = useMemo(() => data?.events.filter(isJustAdded).length ?? 0, [data?.events]);
+  const justAddedIds = useMemo(() => data ? getRecentlyAddedIds(data.events) : new Set<string>(), [data?.events]);
+  const isJustAdded = useCallback((event: Event) => justAddedIds.has(event.id), [justAddedIds]);
+  const justAddedCount = justAddedIds.size;
 
   const toggleVenue = (venueId: string) => {
     setEnabledVenues((prev) => {
@@ -242,10 +252,7 @@ function App() {
             {(view === "events" || view === "history" || view === "calendar") && (
               <>
                 {/* Header row with filters */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs text-gray-500">
-                    Updated {formatTimestamp(data.lastUpdated)}
-                  </span>
+                <div className="flex items-center justify-end mb-4">
                   <div className="flex items-center gap-2">
                     {(view === "events" || view === "history") && (
                       <div className="relative">
@@ -344,6 +351,7 @@ function App() {
             <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
           </div>
         </div>
+        <SeoStructuredData events={data.events} />
       </main>}
 
       {/* Floating Pills - both mobile and desktop */}

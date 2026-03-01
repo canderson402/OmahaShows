@@ -50,10 +50,12 @@ def run():
 
     # Track changes
     added = 0
+    changed = 0
+    removed = 0
     archived = 0
     sources = []
     failed_scrapers = []
-    successful_scrapers = []
+    successful_scraper_ids = set()
 
     # Run all scrapers
     for scraper in SCRAPERS:
@@ -64,17 +66,32 @@ def run():
         try:
             print(f"Scraping {scraper.name}...")
             events = scraper.scrape()
+            scraped_ids = set()
             for event in events:
+                scraped_ids.add(event.id)
                 if event.id not in existing_by_id:
                     # New event - set addedAt
                     event.addedAt = now
                     added += 1
                 else:
-                    # Existing event - preserve original addedAt
-                    event.addedAt = existing_by_id[event.id].addedAt
+                    # Existing event - preserve original addedAt (or backfill if missing), check for changes
+                    old = existing_by_id[event.id]
+                    event.addedAt = old.addedAt or now
+                    if (event.title != old.title or event.date != old.date or
+                            event.time != old.time or event.price != old.price or
+                            event.imageUrl != old.imageUrl or event.eventUrl != old.eventUrl or
+                            event.ticketUrl != old.ticketUrl):
+                        changed += 1
                 existing_by_id[event.id] = event
+
+            # Detect removed events (only from successful scrapers)
+            for eid, existing in list(existing_by_id.items()):
+                if existing.source == scraper.id and eid not in scraped_ids:
+                    del existing_by_id[eid]
+                    removed += 1
+
             print(f"  ✓ {len(events)} events")
-            successful_scrapers.append(scraper.name)
+            successful_scraper_ids.add(scraper.id)
         except Exception as e:
             status = "error"
             error = str(e)
@@ -112,26 +129,33 @@ def run():
     # Sort
     active_events.sort(key=lambda e: e.date)
     history.shows.sort(key=lambda h: h.date, reverse=True)
-    history.lastUpdated = datetime.now(timezone.utc).isoformat()
 
-    # Save
-    output = ScraperOutput(
-        events=active_events,
-        lastUpdated=datetime.now(timezone.utc).isoformat(),
-        sources=sources
-    )
-    save_events(output)
-    save_history(history)
+    has_changes = added > 0 or changed > 0 or removed > 0 or archived > 0
+
+    # Only write files if something actually changed (avoids unnecessary deploys)
+    if has_changes:
+        history.lastUpdated = datetime.now(timezone.utc).isoformat()
+        output = ScraperOutput(
+            events=active_events,
+            lastUpdated=datetime.now(timezone.utc).isoformat(),
+            sources=sources
+        )
+        save_events(output)
+        save_history(history)
 
     print(f"\n{'='*50}")
     print(f"SCRAPE SUMMARY - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
     print(f"{'='*50}")
     print(f"Active events: {len(active_events)}")
     print(f"New events added: {added}")
+    print(f"Events changed: {changed}")
+    print(f"Events removed: {removed}")
     print(f"Archived to history: {archived}")
     print(f"Total history: {len(history.shows)}")
+    if not has_changes:
+        print(f"\nNo changes detected — skipping file update.")
     print(f"")
-    print(f"Scrapers: {len(successful_scrapers)}/{len(SCRAPERS)} successful")
+    print(f"Scrapers: {len(successful_scraper_ids)}/{len(SCRAPERS)} successful")
 
     if failed_scrapers:
         print(f"\n{'!'*50}")

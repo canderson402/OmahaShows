@@ -1,114 +1,6 @@
 {
   "events": [
     {
-      "id": "theslowdown-2026-02-28-can-t-feel-my-face-2010s-dance-party",
-      "title": "Can't Feel My Face: 2010s Dance Party",
-      "date": "2026-02-28",
-      "time": "21:00",
-      "venue": "Slowdown",
-      "eventUrl": "https://wl.seetickets.us/event/cant-feel-my-face-2010s-dance-party/676656?afflky=Slowdown",
-      "ticketUrl": "https://wl.seetickets.us/event/cant-feel-my-face-2010s-dance-party/676656?afflky=Slowdown",
-      "imageUrl": "https://prod-images.seetickets.us/eyJidWNrZXQiOiJwcm9kLXNpaC5zZWV0aWNrZXRzdXNhLnVzIiwia2V5IjoiMjUzMmY3YzMtOWE2NS00ZjYwLTk2ZjMtMzA3YTVmMThkOTI0IiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo2MDB9LCJqcGVnIjp7InF1YWxpdHkiOjYwfSwicG5nIjp7ImNvbXByZXNzaW9uTGV2ZWwiOjksInF1YWxpdHkiOjYwfSwid2VicCI6eyJxdWFsaXR5Ijo2MH19fQ==",
-      "price": "From $12",
-      "ageRestriction": "21+",
-      "supportingArtists": null,
-      "source": "theslowdown",
-      "addedAt": null
-    },
-    {
-      "id": "waitingroom-2026-02-28-plack-blague-birthday-bash",
-      "title": "Plack Blague Birthday Bash",
-      "date": "2026-02-28",
-      "time": "20:00",
-      "venue": "Waiting Room Lounge",
-      "eventUrl": "https://waitingroomlounge.com/event/plack-blague-birthday-bash/waiting-room-lounge/omaha-nebraska/",
-      "ticketUrl": "https://www.etix.com/ticket/p/94867241/plack-blague-birthday-bash-omaha-the-waiting-room?partner_id=100",
-      "imageUrl": "https://waitingroomlounge.com/wp-content/uploads/2026/02/plack-blague-birthday-bash.jfif",
-      "price": "$12 ADV / $15 DOS",
-      "ageRestriction": "ALL AGES",
-      "supportingArtists": [
-        "Vempire",
-        "Dead Poets"
-      ],
-      "source": "waitingroom",
-      "addedAt": null
-    },
-    {
-      "id": "reverblounge-2026-02-28-ricky-chilton",
-      "title": "Ricky Chilton",
-      "date": "2026-02-28",
-      "time": "19:00",
-      "venue": "Reverb Lounge",
-      "eventUrl": "https://reverblounge.com/event/ricky-chilton/reverb-lounge/",
-      "ticketUrl": "https://www.etix.com/ticket/p/35671393/ricky-chilton-omaha-reverb-lounge?partner_id=100",
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2025/10/etix-Ricky_3466031759448181.jfif",
-      "price": "$15 ADV / $20 DOS",
-      "ageRestriction": "All Ages",
-      "supportingArtists": null,
-      "source": "reverblounge",
-      "addedAt": null
-    },
-    {
-      "id": "bourbontheatre-2026-02-28-sky-cirque-and-parkour-early-and-late-show",
-      "title": "Sky Cirque and Parkour: Early and Late Show",
-      "date": "2026-02-28",
-      "time": "17:00",
-      "venue": "Bourbon Theatre",
-      "eventUrl": "https://www.bourbontheatre.com/tm-event/sky-cirque-and-parkour-early-and-late-show/",
-      "ticketUrl": "https://www.ticketweb.com/event/sky-cirque-and-parkour-early-bourbon-theatre-tickets/14058404?pl=bourbontheatre",
-      "imageUrl": "https://i.ticketweb.com/i/00/12/78/62/14_Original.jpg?v=14",
-      "price": "$29.81 - $47.32",
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "bourbontheatre",
-      "addedAt": null
-    },
-    {
-      "id": "admiral-2026-02-28-melodrama-olio-night-four",
-      "title": "Melodrama / Olio – Night Four",
-      "date": "2026-02-28",
-      "time": "19:30",
-      "venue": "Admiral",
-      "eventUrl": "https://admiralomaha.com/event/melodrama-olio-night-four-2/the-admiral/omaha-nebraska/",
-      "ticketUrl": "https://www.etix.com/ticket/p/69158010/melodrama-olio-night-four-omaha-the-admiral-theater?partner_id=100",
-      "imageUrl": "https://admiralomaha.com/wp-content/uploads/2025/10/etix-Melodrama_559501761472838.jfif",
-      "price": "$20",
-      "ageRestriction": "ALL AGES",
-      "supportingArtists": null,
-      "source": "admiral",
-      "addedAt": null
-    },
-    {
-      "id": "other-2026-02-28-glitterer-graham-hunt-prize-horse",
-      "title": "Glitterer, Graham Hunt, Prize Horse",
-      "date": "2026-02-28",
-      "time": null,
-      "venue": "American Legion Post #1",
-      "eventUrl": "https://omahaunderground.net/shows/2026-02-28",
-      "ticketUrl": null,
-      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_1804066.jpg",
-      "price": null,
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "other",
-      "addedAt": null
-    },
-    {
-      "id": "other-2026-02-28-clunt-wood-haven-more-cheese",
-      "title": "CLUNT, Wood Haven, More Cheese",
-      "date": "2026-02-28",
-      "time": "19:00",
-      "venue": "O'Leaver's",
-      "eventUrl": "https://omahaunderground.net/shows/2026-02-28-2",
-      "ticketUrl": null,
-      "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/image_-_4706969.jpg",
-      "price": "PWYC",
-      "ageRestriction": null,
-      "supportingArtists": null,
-      "source": "other",
-      "addedAt": null
-    },
-    {
       "id": "reverblounge-2026-03-01-scattered-hamlet",
       "title": "Scattered Hamlet",
       "date": "2026-03-01",
@@ -126,7 +18,7 @@
         "The Dead Man's Band"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-02-stateside",
@@ -143,7 +35,7 @@
         "Firestarter"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-03-all-them-witches",
@@ -160,7 +52,7 @@
         "King Buffalo"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-03-03-juliet",
@@ -175,7 +67,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-05-leila-s-rose",
@@ -192,7 +84,7 @@
         "Hold Your Breath"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-06-kaivon",
@@ -210,7 +102,7 @@
         "Bllaine"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-06-volumes",
@@ -229,7 +121,7 @@
         "REVIVER"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-06-beast-eagle",
@@ -248,7 +140,7 @@
         "Pull The Plug"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-06-zoso-the-ultimate-led-zeppelin-experience",
@@ -263,7 +155,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-03-06-heated-rivalry-night",
@@ -278,7 +170,7 @@
       "ageRestriction": "Ages 18 and up",
       "supportingArtists": null,
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-03-06-blackhawk",
@@ -295,7 +187,7 @@
         "Ryan Manuel"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-03-06-tyler-farr-acoustic-tour-2026",
@@ -310,7 +202,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-07-psychostick-galactic-empire",
@@ -328,7 +220,7 @@
         "Hatricide"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-07-good-terms",
@@ -347,7 +239,7 @@
         "Feel Good"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-07-dad-rock-night-presented-by-council-hill",
@@ -362,7 +254,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-03-07-felipe-esparza",
@@ -377,7 +269,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-07-eyes-of-sorrow-with-local-support",
@@ -392,7 +284,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-07-cope-acidic-ep-release-show",
@@ -407,7 +299,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-08-victor-jones",
@@ -424,7 +316,7 @@
         "Zach Peterson"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-08-nxsw-x-in-your-house-tour",
@@ -443,7 +335,7 @@
         "ATM and 3lade"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-08-sleazyworld-go",
@@ -458,7 +350,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-09-peter-mcpoland",
@@ -475,7 +367,7 @@
         "Girl Tones"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-09-dave-s-cosmic-birthday-bash",
@@ -495,7 +387,7 @@
         "Gear Issue"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-03-09-toto",
@@ -510,7 +402,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-10-fia",
@@ -527,7 +419,7 @@
         "Johnny Suite"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-10-railroad-earth",
@@ -542,7 +434,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-03-10-the-price-is-right-live",
@@ -557,7 +449,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-11-hawthorne-heights",
@@ -575,7 +467,7 @@
         "Creeper"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-11-jeff-tweedy",
@@ -592,7 +484,7 @@
         "Macie Stewart"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-11-snooze",
@@ -609,7 +501,7 @@
         "The Light That Blinds"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-03-11-in-the-air-tonight-the-phil-collins-story",
@@ -624,7 +516,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-12-jordana",
@@ -641,7 +533,7 @@
         "Kelcey Ayer"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-12-disco-always-a-harry-styles-dance-night",
@@ -656,7 +548,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-03-12-jim-breuer",
@@ -673,7 +565,7 @@
         "Bryan McKenna"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-03-12-comedy-night-with-gary-curtis-friends",
@@ -688,7 +580,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-13-floyd",
@@ -703,7 +595,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-13-merkules",
@@ -721,7 +613,7 @@
         "I AM CRICCHI"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-13-benn-sieff-and-a-murder-of-crows",
@@ -738,7 +630,7 @@
         "Jake Bellows"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-13-am-fm-pre-st-patrick-s-day-celebration",
@@ -753,7 +645,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-03-13-rory-scovel",
@@ -770,7 +662,7 @@
         "Solon Holt"
       ],
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-03-13-descendents-and-frank-turner-the-sleeping-souls",
@@ -785,7 +677,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-13-so-it-goes-rat-fight-mn-not-ben-shin-free",
@@ -800,7 +692,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-14-saturdays-at-your-place",
@@ -818,7 +710,7 @@
         "Kerosene Heights"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-14-lucero",
@@ -835,7 +727,7 @@
         "Otis Gibbs"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-14-chasing-chance",
@@ -854,7 +746,7 @@
         "The Losing Formula"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-14-petrock",
@@ -869,7 +761,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-14-slab-mourning-dolls-march-murder-masquerade",
@@ -884,7 +776,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-14-brando-s-birthday-bash",
@@ -899,7 +791,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-14-21-big-gay-dance-party",
@@ -914,7 +806,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-03-14-the-ten-tenors",
@@ -929,7 +821,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-03-14-bryan-martin",
@@ -944,7 +836,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-15-haunt-w-phantom-crypt-and-cycles-of-entro",
@@ -959,7 +851,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-03-15-discovering-the-galapagos",
@@ -974,7 +866,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-03-16-houndmouth",
@@ -991,7 +883,7 @@
         "The Bends"
       ],
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-17-paddy-s-rave",
@@ -1006,7 +898,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-17-oms-winter-showcase",
@@ -1026,7 +918,7 @@
         "The Memphis Rejects"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-03-17-inclusive-communities-presents-gaby-natale",
@@ -1041,7 +933,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-03-17-the-wellermen",
@@ -1056,7 +948,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-18-two-feet",
@@ -1074,7 +966,7 @@
         "brothel."
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-18-black-pistol-fire",
@@ -1089,7 +981,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-18-crazy-the-brains",
@@ -1107,7 +999,7 @@
         "Dummy Head Torpedo"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-19-heatwaves-record-release-party",
@@ -1122,7 +1014,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-19-overkill-ezra-molten",
@@ -1137,7 +1029,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-03-19-etienne-charles-and-creole-soul",
@@ -1152,7 +1044,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-03-19-john-mulaney",
@@ -1167,7 +1059,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-20-graham-barham",
@@ -1184,7 +1076,7 @@
         "Noah Hicks"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-20-lateralus",
@@ -1202,7 +1094,7 @@
         "Mindflight"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-20-indian-caves",
@@ -1220,7 +1112,7 @@
         "Radical Sabbatical"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-20-jxhnny-bliss-cope-acetic-album-release",
@@ -1235,7 +1127,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-20-losing-dice-and-mass-hysteria-with-support",
@@ -1250,7 +1142,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-21-tophouse",
@@ -1267,7 +1159,7 @@
         "Wheelwright"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-21-the-impulsive",
@@ -1285,7 +1177,7 @@
         "The Absent"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-21-fust-merce-lemon",
@@ -1302,7 +1194,7 @@
         "Walker Rider"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-21-the-steel-wheels-corson-branch-buzzard-club-rascal-mar",
@@ -1317,7 +1209,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-03-21-let-s-sing-taylor",
@@ -1332,7 +1224,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-21-spurney-s-hawk-record-release",
@@ -1347,7 +1239,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-03-21-bob-dylan",
@@ -1362,7 +1254,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-03-21-hostage-situation-hostile-frequencies",
@@ -1377,7 +1269,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-22-ventana",
@@ -1394,7 +1286,7 @@
         "Aeternum"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-22-mellow-rackz",
@@ -1409,7 +1301,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-03-22-inzo-mirrorverse-tour",
@@ -1428,7 +1320,7 @@
         "SPENNY"
       ],
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-03-22-boys-like-girls",
@@ -1443,7 +1335,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-22-mile-end-and-gasket-with-locals",
@@ -1458,7 +1350,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-23-hot-flash-heat-wave",
@@ -1475,7 +1367,7 @@
         "The Credentials"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-24-buffalo-traffic-jam",
@@ -1492,7 +1384,7 @@
         "Sons of Habit"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-03-24-young-dubliners-the-hot-toddy-tour",
@@ -1507,7 +1399,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-25-nick-hexum",
@@ -1524,7 +1416,7 @@
         "Water Tower"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-25-kash-d-out",
@@ -1541,7 +1433,7 @@
         "Beach Fly"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-25-platinum-moon-the-zooeys-the-groove-lagoon",
@@ -1556,7 +1448,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-03-25-six",
@@ -1571,7 +1463,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-26-the-happy-fits",
@@ -1588,7 +1480,7 @@
         "BEL"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-26-battle-of-the-phoenix-2026",
@@ -1603,7 +1495,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-26-semler-the-mirages-tour",
@@ -1620,7 +1512,7 @@
         "Nathan Roberts"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-26-josh-abbott-band-dylan-bloom-band",
@@ -1635,7 +1527,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-27-clarence-tilton",
@@ -1653,7 +1545,7 @@
         "Black Cat Rodeo"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-27-k-pop-night",
@@ -1668,7 +1560,7 @@
       "ageRestriction": "18+",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-27-chasing-supernovas",
@@ -1686,7 +1578,7 @@
         "Pop Shove It"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-27-the-warped-band-the-official-tribute-to-warped-tour",
@@ -1701,7 +1593,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-03-27-whitney-cummings",
@@ -1716,7 +1608,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-28-satchel-grande",
@@ -1733,7 +1625,7 @@
         "Magū"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-28-arcade-riot-s-y2k-spectacular",
@@ -1752,7 +1644,7 @@
         "Infielder"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-28-danny-worsnop-tyler-rich",
@@ -1769,7 +1661,7 @@
         "Erin Kinsey"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-03-28-micro-wrestling-federation",
@@ -1784,7 +1676,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-03-28-bingo-loco",
@@ -1799,7 +1691,7 @@
       "ageRestriction": "21+",
       "supportingArtists": null,
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-28-rawr-xd",
@@ -1814,7 +1706,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-03-28-hollow-bastion-quilt-lula-leanne",
@@ -1829,7 +1721,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-29-nequient",
@@ -1848,7 +1740,7 @@
         "MOON PIGEONS"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-03-29-gen-x-takover-comedy-tour",
@@ -1863,7 +1755,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-03-30-teenage-bottlerocket",
@@ -1882,7 +1774,7 @@
         "DSM-5"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-03-31-runo-plum",
@@ -1899,7 +1791,7 @@
         "Aubory Bugg"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-03-31-pinksqueeze",
@@ -1918,7 +1810,7 @@
         "and amphibaphobia"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-03-31-bbno",
@@ -1933,7 +1825,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-01-clarion",
@@ -1951,7 +1843,7 @@
         "Bed"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-02-quazy",
@@ -1966,7 +1858,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-02-rittz-dropout-kings-loud-pack-ent-jay-influential",
@@ -1981,7 +1873,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-03-cottage-chemistry-a-heated-rivalry-dance-party",
@@ -1996,7 +1888,7 @@
       "ageRestriction": "21+",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-03-auslander-rammstein-tribute",
@@ -2013,7 +1905,7 @@
         "Up The Irons – Iron Maiden Tribute"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-03-club-90s-la-presents-heated-rivalry-night",
@@ -2028,7 +1920,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-04-devil-in-the-details",
@@ -2047,7 +1939,7 @@
         "Ex Nihilo"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-04-subhumans",
@@ -2064,7 +1956,7 @@
         "La Pobreska"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-04-smith",
@@ -2079,7 +1971,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-04-onslaught-warlord-haunter-fascinus-rex",
@@ -2094,7 +1986,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-05-mei-semones",
@@ -2109,7 +2001,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-07-magnolia-park",
@@ -2127,7 +2019,7 @@
         "Pinknoise"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-07-carly-cosgrove",
@@ -2145,7 +2037,7 @@
         "Summerbruise"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-07-freddie-dredd-back-to-hell-tour",
@@ -2160,7 +2052,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-04-07-tiffany-all-this-time-tour-2026",
@@ -2175,7 +2067,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-08-the-koffin-kats",
@@ -2193,7 +2085,7 @@
         "Carrie Nation & the Speakeasy"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-04-08-pat-metheny",
@@ -2208,7 +2100,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-09-devotchka",
@@ -2223,7 +2115,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-09-goalkeeper",
@@ -2240,7 +2132,7 @@
         "Capture This"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-09-curren-y-the-winners-circle-tour-w-the-747-band-specia",
@@ -2255,7 +2147,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-04-09-myles-bullen-happy-john-not-ben-shin-ts",
@@ -2270,7 +2162,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-04-09-the-droptines",
@@ -2285,7 +2177,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-10-lumasi",
@@ -2304,7 +2196,7 @@
         "Callisto"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-10-space-to-play",
@@ -2322,7 +2214,7 @@
         "Infielder"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-10-colby-acuff",
@@ -2337,7 +2229,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-11-anchondo-plays-sublime",
@@ -2354,7 +2246,7 @@
         "Aly Peeler"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-11-erin-feichtinger-for-ld8-fundraiser-concert",
@@ -2372,7 +2264,7 @@
         "See Through Dresses"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-11-zwarte-judd-hoos",
@@ -2387,7 +2279,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-04-11-unlimited-miles",
@@ -2402,7 +2294,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-04-11-good-neighbours",
@@ -2417,7 +2309,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-12-ryan-caraveo",
@@ -2434,7 +2326,7 @@
         "Travis Thompson"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-04-12-dr-seuss-s-the-cat-in-the-hat-live-on-stage",
@@ -2449,7 +2341,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-13-free-throw",
@@ -2468,7 +2360,7 @@
         "Wakelee"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-13-little-miss-nasty-deaddollz-tour-2026",
@@ -2483,7 +2375,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-04-13-insane-clown-posse",
@@ -2498,7 +2390,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-14-dance-with-the-dead-magic-sword",
@@ -2515,7 +2407,7 @@
         "Megan McDuffee"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-14-past-self",
@@ -2530,7 +2422,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-15-stomach-book",
@@ -2547,7 +2439,7 @@
         "Girls Rituals"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-15-ratboys",
@@ -2564,7 +2456,7 @@
         "villagerrr"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-15-vial",
@@ -2579,7 +2471,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-15-bleed-from-within-the-zenith-tour-north-america",
@@ -2594,7 +2486,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-16-selwyn-birchwood-album-release-party",
@@ -2609,7 +2501,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-16-weedeater",
@@ -2627,7 +2519,7 @@
         "Telekinetic Yeti"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-17-william-basinski",
@@ -2644,7 +2536,7 @@
         "Paul Riedl"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-17-letdown",
@@ -2664,7 +2556,7 @@
         "LUCHIANO"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-17-glizzyfest",
@@ -2679,7 +2571,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-17-ashes-remain-what-i-ve-become-15-year-anniversary-tour",
@@ -2694,7 +2586,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-04-17-sin-miedo-with-teraway-extravasate-defaced",
@@ -2709,7 +2601,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-04-17-zach-miller",
@@ -2724,7 +2616,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-18-cold",
@@ -2742,7 +2634,7 @@
         "Rival Within"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-18-the-killigans-this-is-only-a-drill-album-release",
@@ -2757,7 +2649,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-04-18-max-mcnown",
@@ -2772,7 +2664,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-19-sunn-o",
@@ -2787,7 +2679,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-20-thursday",
@@ -2804,7 +2696,7 @@
         "Chris Conley"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-04-20-lorna-shore",
@@ -2819,7 +2711,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-21-ashes-to-amber",
@@ -2837,7 +2729,7 @@
         "JACK"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-04-21-the-psychology-of-serial-killers",
@@ -2852,7 +2744,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-22-buckethead",
@@ -2867,7 +2759,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-04-22-stephen-wilson-jr",
@@ -2882,7 +2774,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-04-22-paul-gilbert",
@@ -2897,7 +2789,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-23-zero-9-36",
@@ -2915,7 +2807,7 @@
         "The Tale Untold"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-04-23-ethel-cain",
@@ -2932,7 +2824,7 @@
         "9million"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-04-23-king-cabbage-brass-band",
@@ -2947,7 +2839,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-24-fleshwater-julie",
@@ -2964,7 +2856,7 @@
         "Midrift"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-24-matt-mason",
@@ -2979,7 +2871,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-24-zach-rushing",
@@ -2994,7 +2886,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-04-24-ingrown-with-mask-and-local-support",
@@ -3009,7 +2901,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-25-the-pork-tornadoes",
@@ -3026,7 +2918,7 @@
         "Dan Olsen"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-25-smells-like-nirvana",
@@ -3041,7 +2933,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-25-ungoliant",
@@ -3060,7 +2952,7 @@
         "Manson Lamps"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-25-he-is-legend-a-lot-like-birds-lost-in-separation-from-",
@@ -3075,7 +2967,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-04-25-avatar",
@@ -3090,7 +2982,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-04-25-no-guard-w-basic-needs-sacred-ronda-civic",
@@ -3105,7 +2997,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-26-june-star",
@@ -3120,7 +3012,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-04-26-demon-hunter-there-was-a-light-here-tour",
@@ -3135,7 +3027,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-28-bumpin-uglies-ballyhoo",
@@ -3152,7 +3044,7 @@
         "The Quasi Kings"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-28-struggle-jennings",
@@ -3167,7 +3059,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-28-barns-courtney-unplugged-solo-sessions",
@@ -3184,7 +3076,7 @@
         "Belle and Chain"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-04-28-mamma-mia",
@@ -3199,7 +3091,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-29-hail-the-sun",
@@ -3218,7 +3110,7 @@
         "RESILIA"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-04-29-the-growlers",
@@ -3233,7 +3125,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-04-29-iron-wine",
@@ -3248,7 +3140,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-04-30-pert-near-sandstone-arkansauce",
@@ -3263,7 +3155,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-04-30-james-mcmurtry-and-the-martial-law-review",
@@ -3280,7 +3172,7 @@
         "BettySoo"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-04-30-dancefestopia-yellow-brick-road",
@@ -3295,7 +3187,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-04-30-afi",
@@ -3312,7 +3204,7 @@
         "Choir Boy"
       ],
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-01-phoneboy-heart-attack-man",
@@ -3330,7 +3222,7 @@
         "PONY"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-05-01-anthony-gomes",
@@ -3345,7 +3237,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-01-remember-sports",
@@ -3363,7 +3255,7 @@
         "Penny & The Dimes"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-01-walker-montgomery-hank-weaver",
@@ -3378,7 +3270,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-02-ashley-kutcher",
@@ -3393,7 +3285,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-02-nu-metal-sucks-tour-spineshank-hed-pe-primer-55",
@@ -3408,7 +3300,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-05-02-black-veil-brides",
@@ -3427,7 +3319,7 @@
         "As December Falls"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-05-02-alter-bridge",
@@ -3442,7 +3334,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-05-02-canaan-cox-we-out-here-tour",
@@ -3457,7 +3349,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-03-master-boot-record",
@@ -3472,7 +3364,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-03-rickshaw-billie-s-burger-patrol",
@@ -3490,7 +3382,7 @@
         "Pink Fuzz"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-05-03-the-amity-affliction-august-burns-red",
@@ -3508,7 +3400,7 @@
         "Heavensgate"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-05-03-battle-of-the-bands-free-at-millwork-common",
@@ -3523,7 +3415,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-04-vnv-nation",
@@ -3538,7 +3430,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-05-ollie-joseph-matt-corman",
@@ -3553,7 +3445,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-05-geoff-tate-s-operation-mindcrime-the-final-chapter",
@@ -3568,7 +3460,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-05-05-mac-demarco",
@@ -3585,7 +3477,7 @@
         "Mock Media"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-06-la-dispute",
@@ -3603,7 +3495,7 @@
         "Flooding"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-05-06-hang-your-hate",
@@ -3618,7 +3510,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-07-the-slackers",
@@ -3637,7 +3529,7 @@
         "Top Ranx Sound System"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-07-the-garcia-project-performing-full-classic-jerry-garci",
@@ -3652,7 +3544,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-05-07-sam-barber",
@@ -3670,7 +3562,7 @@
         "Bebe Stockwell"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-05-07-nate-smith",
@@ -3685,7 +3577,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-08-brenn",
@@ -3702,7 +3594,7 @@
         "Hudson Ingram"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-05-08-wage-war",
@@ -3720,7 +3612,7 @@
         "Orthodox"
       ],
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-09-ambar-lucid-maye",
@@ -3737,7 +3629,7 @@
         "judith"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-09-tommy-castro-the-painkillers",
@@ -3752,7 +3644,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-09-george-michael-reborn-tribute-to-wham-george-michael",
@@ -3767,7 +3659,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-05-09-jimmy-failla",
@@ -3782,7 +3674,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "other-2026-05-09-everybody-s-here-fest",
@@ -3797,7 +3689,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-05-09-kylie-morgan-healed-cowgirl-world-tour",
@@ -3812,7 +3704,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-05-10-kevin-james",
@@ -3827,7 +3719,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-11-the-moss",
@@ -3844,7 +3736,7 @@
         "Gatlin"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-12-dry-cleaning",
@@ -3861,7 +3753,7 @@
         "Hotline TNT"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-12-fit-for-a-king-lonely-god-north-american-tour",
@@ -3876,7 +3768,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-05-12-mrs-doubtfire",
@@ -3891,7 +3783,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-14-snake-lucci-s-my-darkest-tour",
@@ -3912,7 +3804,7 @@
         "CityboyyDon & Dei Moreno"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-15-tyler-richton-the-high-bank-boys",
@@ -3929,7 +3821,7 @@
         "Owen Justice Band"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-05-15-jim-jefferies",
@@ -3944,7 +3836,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-05-15-the-princess-bride",
@@ -3959,7 +3851,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-16-petrock",
@@ -3974,7 +3866,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-05-16-chelcie-lynn",
@@ -3989,7 +3881,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-17-inner-wave-los-mesoneros",
@@ -4004,7 +3896,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-05-17-george-thorogood-and-the-destroyers",
@@ -4021,7 +3913,7 @@
         "The Marshall Tucker Band"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-18-the-callous-daoboys",
@@ -4039,7 +3931,7 @@
         "Ex-Nihilo"
       ],
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-19-the-casualties",
@@ -4056,7 +3948,7 @@
         "The Drowns"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-05-19-spiritworld",
@@ -4074,7 +3966,7 @@
         "Doomsday"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-20-electric-six",
@@ -4089,7 +3981,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-20-poet-the-almas-embers-rise-after-arizona",
@@ -4104,7 +3996,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-05-21-qveen-herby-isle-of-qveen-tour",
@@ -4121,7 +4013,7 @@
         "Thot Squad"
       ],
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-05-22-blade-rave",
@@ -4136,7 +4028,7 @@
       "ageRestriction": "18+",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-22-cradle-of-filth-suffocation-ghost-bath-cultus-black",
@@ -4151,7 +4043,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-05-23-archspire",
@@ -4170,7 +4062,7 @@
         "MUTILATION BARBECUE"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-05-23-80-s-kids-featuring-shannon-curtis",
@@ -4185,7 +4077,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-05-24-anberlin-never-take-friendship-personal-tour-20th-anniversary",
@@ -4200,7 +4092,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-05-27-peelingflesh",
@@ -4220,7 +4112,7 @@
         "SETBACK"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-05-29-noah-james-tyler-anthony",
@@ -4235,7 +4127,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-05-30-alpha-wolf",
@@ -4254,7 +4146,7 @@
         "Resolve"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-30-savannah-dexter-damage-control-tour",
@@ -4269,7 +4161,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-05-30-gasolina-party",
@@ -4284,7 +4176,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-05-30-jed-harrelson",
@@ -4299,7 +4191,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-05-31-the-black-angels",
@@ -4316,7 +4208,7 @@
         "L.A. Witch"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-05-31-between-the-buried-and-me-the-blue-nowhere-u-s-tour-sp",
@@ -4331,7 +4223,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-06-03-troy-doherty",
@@ -4346,7 +4238,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-06-03-toadies",
@@ -4364,7 +4256,7 @@
         "Vandoliers"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-06-05-twilight-on-the-terrace",
@@ -4379,7 +4271,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-06-06-citizen-soldier-secret-songs-tour-ii",
@@ -4394,7 +4286,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-06-06-nitty-gritty-dirt-band",
@@ -4411,7 +4303,7 @@
         "Brit Taylor"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-06-06-moon-walker-wasteland-country-tour",
@@ -4426,7 +4318,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-06-09-josiah-and-the-bonnevilles-the-redline-north-american-tour-20",
@@ -4441,7 +4333,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-06-09-iration",
@@ -4458,7 +4350,7 @@
         "Tribal Seeds"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-06-11-belles",
@@ -4473,7 +4365,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-06-12-bingo-loco",
@@ -4488,7 +4380,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-06-12-joe-jackson",
@@ -4503,7 +4395,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-06-12-sal-vulcano",
@@ -4518,7 +4410,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-06-13-fortune-feimster",
@@ -4533,7 +4425,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-06-15-mikaela-davis",
@@ -4548,7 +4440,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-06-16-amyl-and-the-sniffers",
@@ -4563,7 +4455,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-06-17-wicked",
@@ -4578,7 +4470,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-06-19-jonathan-van-ness",
@@ -4593,7 +4485,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-06-20-the-wallflowers",
@@ -4608,7 +4500,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-06-21-five-for-fighting-edwin-mccain",
@@ -4623,7 +4515,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-06-22-bug-hunter-the-narcissist-cookbook",
@@ -4638,7 +4530,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-06-23-yachtley-crew",
@@ -4653,7 +4545,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-06-24-connor-price-and-nic-d",
@@ -4668,7 +4560,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-07-08-derek-hough",
@@ -4683,7 +4575,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-07-09-l-a-guns",
@@ -4698,7 +4590,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-07-15-juvenile-s-boiling-point-album-release-tour-w-the-400-",
@@ -4713,7 +4605,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-07-17-a-foreigner-s-journey-to-boston",
@@ -4728,7 +4620,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-07-18-mammoth",
@@ -4743,7 +4635,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-07-20-the-black-keys",
@@ -4760,7 +4652,7 @@
         "Eddie 9V"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-07-22-buckcherry",
@@ -4775,7 +4667,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "admiral-2026-07-27-poppy",
@@ -4793,7 +4685,7 @@
         "Thousand Below"
       ],
       "source": "admiral",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-07-30-benjamin-tod",
@@ -4810,7 +4702,7 @@
         "Kelsey Waldon"
       ],
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-08-03-young-the-giant",
@@ -4828,7 +4720,7 @@
         "KennyHoopla"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-08-07-scotty-mccreery-lauren-alaina",
@@ -4843,7 +4735,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "barnato-2026-08-08-wyatt-flores-kashus-culpepper",
@@ -4858,7 +4750,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "barnato",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "reverblounge-2026-08-09-overtime-the-blue-collar-soldiers-band",
@@ -4873,7 +4765,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-08-11-lindsey-stirling",
@@ -4890,7 +4782,7 @@
         "PVRIS"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "orpheum-2026-08-18-tori-amos",
@@ -4905,7 +4797,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "orpheum",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-08-19-diggy-graves",
@@ -4923,7 +4815,7 @@
         "Ryan Oakes"
       ],
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-08-28-ray-lamontagne",
@@ -4938,7 +4830,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-09-11-tig-notaro",
@@ -4953,7 +4845,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-09-22-bilmuri",
@@ -4968,7 +4860,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-09-23-yacht-rock-revue",
@@ -4983,7 +4875,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-09-24-jefferson-starship",
@@ -5002,7 +4894,7 @@
         "Firefall"
       ],
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-09-27-juanes",
@@ -5017,7 +4909,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "bourbontheatre-2026-10-07-gnash",
@@ -5032,7 +4924,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "theslowdown-2026-10-08-big-head-todd-and-the-monsters",
@@ -5047,7 +4939,7 @@
       "ageRestriction": "All Ages*",
       "supportingArtists": null,
       "source": "theslowdown",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-10-09-roger-clyne-and-the-peacemakers",
@@ -5062,7 +4954,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "astrotheater-2026-10-09-labyrinth-in-concert",
@@ -5077,7 +4969,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "astrotheater",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "steelhouse-2026-10-16-the-black-jacket-symphony",
@@ -5092,7 +4984,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "steelhouse",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "holland-2026-10-17-brad-williams",
@@ -5107,7 +4999,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "holland",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
       "id": "waitingroom-2026-12-03-dad-rock-night-2000s-rock-tribute",
@@ -5122,18 +5014,18 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": null
+      "addedAt": "2026-03-01T19:28:38.192087+00:00"
     }
   ],
-  "lastUpdated": "2026-02-28T16:20:53.685722+00:00",
+  "lastUpdated": "2026-03-01T19:26:37.939531+00:00",
   "sources": [
     {
       "name": "Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:36.317455+00:00",
-      "eventCount": 47,
+      "lastScraped": "2026-03-01T19:25:05.911934+00:00",
+      "eventCount": 46,
       "error": null
     },
     {
@@ -5141,8 +5033,8 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:40.384352+00:00",
-      "eventCount": 43,
+      "lastScraped": "2026-03-01T19:25:08.179762+00:00",
+      "eventCount": 42,
       "error": null
     },
     {
@@ -5150,8 +5042,8 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:43.119267+00:00",
-      "eventCount": 55,
+      "lastScraped": "2026-03-01T19:25:08.832296+00:00",
+      "eventCount": 54,
       "error": null
     },
     {
@@ -5159,8 +5051,8 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:43.509526+00:00",
-      "eventCount": 45,
+      "lastScraped": "2026-03-01T19:25:18.093125+00:00",
+      "eventCount": 44,
       "error": null
     },
     {
@@ -5168,8 +5060,8 @@
       "id": "admiral",
       "url": "https://admiralomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:45.503693+00:00",
-      "eventCount": 14,
+      "lastScraped": "2026-03-01T19:25:19.992729+00:00",
+      "eventCount": 13,
       "error": null
     },
     {
@@ -5177,7 +5069,7 @@
       "id": "astrotheater",
       "url": "https://theastrotheater.com/#shows",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:56.765600+00:00",
+      "lastScraped": "2026-03-01T19:25:35.177883+00:00",
       "eventCount": 25,
       "error": null
     },
@@ -5186,7 +5078,7 @@
       "id": "steelhouse",
       "url": "https://steelhouseomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:19:57.028760+00:00",
+      "lastScraped": "2026-03-01T19:25:35.458446+00:00",
       "eventCount": 21,
       "error": null
     },
@@ -5195,8 +5087,8 @@
       "id": "other",
       "url": "https://omahaunderground.net/shows/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:20:06.957186+00:00",
-      "eventCount": 21,
+      "lastScraped": "2026-03-01T19:25:45.940909+00:00",
+      "eventCount": 19,
       "error": null
     },
     {
@@ -5204,7 +5096,7 @@
       "id": "holland",
       "url": "https://ticketomaha.com/events?themes%5B%5D=6",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:20:30.350178+00:00",
+      "lastScraped": "2026-03-01T19:26:08.882822+00:00",
       "eventCount": 12,
       "error": null
     },
@@ -5213,7 +5105,7 @@
       "id": "orpheum",
       "url": "https://ticketomaha.com/events?themes%5B%5D=6",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:20:52.607595+00:00",
+      "lastScraped": "2026-03-01T19:26:32.201450+00:00",
       "eventCount": 15,
       "error": null
     },
@@ -5222,7 +5114,7 @@
       "id": "barnato",
       "url": "https://barnato.bar/events/",
       "status": "ok",
-      "lastScraped": "2026-02-28T16:20:53.685542+00:00",
+      "lastScraped": "2026-03-01T19:26:37.939355+00:00",
       "eventCount": 21,
       "error": null
     }

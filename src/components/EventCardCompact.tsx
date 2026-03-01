@@ -78,7 +78,7 @@ export const EventCardCompact = memo(function EventCardCompact({
         <div className="relative">
           {isJustAdded && (
             <span className="absolute top-2 right-2 z-10 px-2 py-0.5 bg-green-500/90 text-white text-xs rounded-full font-medium shadow-lg">
-              Just Added
+              Recently Added
             </span>
           )}
           <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
@@ -139,7 +139,7 @@ export const EventCardCompact = memo(function EventCardCompact({
               Info
             </a>
           )}
-          {event.ticketUrl && (
+          {event.ticketUrl && event.ticketUrl !== event.eventUrl && (
             <a
               href={event.ticketUrl}
               target="_blank"
@@ -154,10 +154,10 @@ export const EventCardCompact = memo(function EventCardCompact({
 
       {/* Desktop Layout */}
       <div className="hidden md:flex gap-5 relative">
-        {/* Just Added badge - top right */}
+        {/* Recently Added badge - top right */}
         {isJustAdded && (
           <span className="absolute -top-2 -right-2 z-10 px-2 py-0.5 bg-green-500/90 text-white text-xs rounded-full font-medium shadow-lg">
-            Just Added
+            Recently Added
           </span>
         )}
         {/* Buttons - top right */}
@@ -172,7 +172,7 @@ export const EventCardCompact = memo(function EventCardCompact({
               Info
             </a>
           )}
-          {event.ticketUrl && (
+          {event.ticketUrl && event.ticketUrl !== event.eventUrl && (
             <a
               href={event.ticketUrl}
               target="_blank"

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://omahashows.com/sitemap.xml
