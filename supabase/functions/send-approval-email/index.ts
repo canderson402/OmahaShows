@@ -39,15 +39,14 @@ serve(async (req) => {
       )
     }
 
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
-      global: { headers: { Authorization: `Bearer ${accessToken}` } }
-    })
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!)
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken)
 
     if (authError || !user) {
+      console.error("Auth error:", authError)
       return new Response(
-        JSON.stringify({ error: "Invalid or expired token" }),
+        JSON.stringify({ error: "Invalid or expired token", details: authError?.message }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       )
     }
