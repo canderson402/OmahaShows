@@ -216,12 +216,23 @@ async function sendApprovalEmail(event: {
   venue_id: string
   submitter_email: string
 }) {
+  // Get current session to ensure we have auth
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session) {
+    console.error('No active session - cannot send email')
+    return
+  }
+
   const response = await supabase.functions.invoke('send-approval-email', {
     body: {
       title: event.title,
       date: event.date,
       venue: event.venue_id,
       submitterEmail: event.submitter_email,
+    },
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
     },
   })
 

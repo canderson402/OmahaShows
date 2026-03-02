@@ -79,8 +79,8 @@ export function SubmitShowForm() {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [customTime, setCustomTime] = useState("");
-  const [selectedHour, setSelectedHour] = useState<number | null>(null);
+  const [customTime, setCustomTime] = useState("19:00");
+  const [selectedHour, setSelectedHour] = useState<number | null>(7);
   const [selectedMinute, setSelectedMinute] = useState<string>("00");
   const [isPM, setIsPM] = useState(true);
   const [venueId, setVenueId] = useState("");
@@ -304,8 +304,8 @@ export function SubmitShowForm() {
       setTitle("");
       setDate("");
       setTime("");
-      setCustomTime("");
-      setSelectedHour(null);
+      setCustomTime("19:00");
+      setSelectedHour(7);
       setSelectedMinute("00");
       setIsPM(true);
       setVenueId("");
