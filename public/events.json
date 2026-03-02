@@ -1,26 +1,6 @@
 {
   "events": [
     {
-      "id": "reverblounge-2026-03-01-scattered-hamlet",
-      "title": "Scattered Hamlet",
-      "date": "2026-03-01",
-      "time": "19:00",
-      "venue": "Reverb Lounge",
-      "eventUrl": "https://reverblounge.com/event/scattered-hamlet/reverb-lounge/",
-      "ticketUrl": "https://www.etix.com/ticket/p/50289662/scattered-hamlet-omaha-reverb-lounge?partner_id=100",
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/01/scattered-hamlet.jfif",
-      "price": "$20 ADV / $25 DOS",
-      "ageRestriction": "ALL AGES",
-      "supportingArtists": [
-        "Molten",
-        "Fallen Reign",
-        "The Hooligan Gentlemen",
-        "The Dead Man's Band"
-      ],
-      "source": "reverblounge",
-      "addedAt": "2026-03-01T19:28:38.192087+00:00"
-    },
-    {
       "id": "reverblounge-2026-03-02-stateside",
       "title": "Stateside",
       "date": "2026-03-02",
@@ -688,7 +668,7 @@
       "eventUrl": "https://omahaunderground.net/shows/2026-03-13",
       "ticketUrl": null,
       "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/march_13_2.jpg",
-      "price": null,
+      "price": "Free",
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
@@ -3022,7 +3002,7 @@
       "venue": "Bourbon Theatre",
       "eventUrl": "https://www.bourbontheatre.com/tm-event/demon-hunter-there-was-a-light-here-tour/",
       "ticketUrl": "https://www.ticketweb.com/event/demon-hunter-there-bourbon-theatre-tickets/14093524?pl=bourbontheatre",
-      "imageUrl": "https://i.ticketweb.com/i/00/12/82/00/54_Original.jpg?v=8",
+      "imageUrl": "https://i.ticketweb.com/i/00/12/82/00/54_Original.jpg?v=9",
       "price": "$39.08 - $68.95",
       "ageRestriction": null,
       "supportingArtists": null,
@@ -3411,7 +3391,7 @@
       "eventUrl": "https://omahaunderground.net/shows/2026-05-03",
       "ticketUrl": null,
       "imageUrl": "https://omaha-underground.t3.storageapi.dev/static/showposters/battle-5-vert.jpg",
-      "price": null,
+      "price": "Free",
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "other",
@@ -5017,14 +4997,14 @@
       "addedAt": "2026-03-01T19:28:38.192087+00:00"
     }
   ],
-  "lastUpdated": "2026-03-01T19:26:37.939531+00:00",
+  "lastUpdated": "2026-03-02T09:38:52.638010+00:00",
   "sources": [
     {
       "name": "Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:25:05.911934+00:00",
+      "lastScraped": "2026-03-02T09:37:39.036302+00:00",
       "eventCount": 46,
       "error": null
     },
@@ -5033,7 +5013,7 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:25:08.179762+00:00",
+      "lastScraped": "2026-03-02T09:37:41.152732+00:00",
       "eventCount": 42,
       "error": null
     },
@@ -5042,8 +5022,8 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:25:08.832296+00:00",
-      "eventCount": 54,
+      "lastScraped": "2026-03-02T09:37:43.432064+00:00",
+      "eventCount": 53,
       "error": null
     },
     {
@@ -5051,7 +5031,7 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:25:18.093125+00:00",
+      "lastScraped": "2026-03-02T09:37:44.960370+00:00",
       "eventCount": 44,
       "error": null
     },
@@ -5060,7 +5040,7 @@
       "id": "admiral",
       "url": "https://admiralomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:25:19.992729+00:00",
+      "lastScraped": "2026-03-02T09:37:45.192842+00:00",
       "eventCount": 13,
       "error": null
     },
@@ -5069,7 +5049,7 @@
       "id": "astrotheater",
       "url": "https://theastrotheater.com/#shows",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:25:35.177883+00:00",
+      "lastScraped": "2026-03-02T09:37:56.022951+00:00",
       "eventCount": 25,
       "error": null
     },
@@ -5078,7 +5058,7 @@
       "id": "steelhouse",
       "url": "https://steelhouseomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:25:35.458446+00:00",
+      "lastScraped": "2026-03-02T09:37:59.001338+00:00",
       "eventCount": 21,
       "error": null
     },
@@ -5087,7 +5067,7 @@
       "id": "other",
       "url": "https://omahaunderground.net/shows/",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:25:45.940909+00:00",
+      "lastScraped": "2026-03-02T09:38:03.139429+00:00",
       "eventCount": 19,
       "error": null
     },
@@ -5096,7 +5076,7 @@
       "id": "holland",
       "url": "https://ticketomaha.com/events?themes%5B%5D=6",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:26:08.882822+00:00",
+      "lastScraped": "2026-03-02T09:38:25.844672+00:00",
       "eventCount": 12,
       "error": null
     },
@@ -5105,7 +5085,7 @@
       "id": "orpheum",
       "url": "https://ticketomaha.com/events?themes%5B%5D=6",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:26:32.201450+00:00",
+      "lastScraped": "2026-03-02T09:38:47.824145+00:00",
       "eventCount": 15,
       "error": null
     },
@@ -5114,7 +5094,7 @@
       "id": "barnato",
       "url": "https://barnato.bar/events/",
       "status": "ok",
-      "lastScraped": "2026-03-01T19:26:37.939355+00:00",
+      "lastScraped": "2026-03-02T09:38:52.637861+00:00",
       "eventCount": 21,
       "error": null
     }
