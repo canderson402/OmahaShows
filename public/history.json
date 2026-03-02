@@ -1,6 +1,62 @@
 {
   "shows": [
     {
+      "date": "2026-03-01",
+      "title": "Scattered Hamlet",
+      "venue": "Reverb Lounge",
+      "supportingArtists": [
+        "Molten",
+        "Fallen Reign",
+        "The Hooligan Gentlemen",
+        "The Dead Man's Band"
+      ]
+    },
+    {
+      "date": "2026-02-28",
+      "title": "Can't Feel My Face: 2010s Dance Party",
+      "venue": "The Slowdown",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-28",
+      "title": "Plack Blague Birthday Bash",
+      "venue": "Waiting Room Lounge",
+      "supportingArtists": [
+        "Vempire",
+        "Dead Poets"
+      ]
+    },
+    {
+      "date": "2026-02-28",
+      "title": "Ricky Chilton",
+      "venue": "Reverb Lounge",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-28",
+      "title": "Sky Cirque and Parkour: Early and Late Show",
+      "venue": "Bourbon Theatre",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-28",
+      "title": "Melodrama / Olio \u2013 Night Four",
+      "venue": "Admiral",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-28",
+      "title": "Glitterer, Graham Hunt, Prize Horse",
+      "venue": "American Legion Post #1",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-28",
+      "title": "CLUNT, Wood Haven, More Cheese",
+      "venue": "O'Leaver's",
+      "supportingArtists": null
+    },
+    {
       "date": "2026-02-27",
       "title": "Gannon Fremin & CCREV",
       "venue": "Slowdown",
@@ -25,7 +81,7 @@
     },
     {
       "date": "2026-02-27",
-      "title": "Melodrama / Olio – Night Three",
+      "title": "Melodrama / Olio \u2013 Night Three",
       "venue": "Admiral",
       "supportingArtists": null
     },
@@ -40,6 +96,14 @@
       "title": "BINGO LOCO",
       "venue": "Bourbon Theatre",
       "supportingArtists": null
+    },
+    {
+      "date": "2026-02-27",
+      "title": "Gannon Fremin & CCREV",
+      "venue": "The Slowdown",
+      "supportingArtists": [
+        "The Traynr Band"
+      ]
     },
     {
       "date": "2026-02-26",
@@ -63,6 +127,18 @@
       "date": "2026-02-26",
       "title": "Vitamin String Quartet",
       "venue": "Steelhouse",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-26",
+      "title": "Vitamin String Quartet",
+      "venue": "Steel House",
+      "supportingArtists": null
+    },
+    {
+      "date": "2026-02-01",
+      "title": "Pecos & the Rooftops, Mac Hankins & The Moonlighters",
+      "venue": "Bourbon Theatre",
       "supportingArtists": null
     }
   ],

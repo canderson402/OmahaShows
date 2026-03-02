@@ -44,14 +44,13 @@ jobs:
       - name: Copy to public
         run: |
           cp scraper/output/events.json public/events.json
-          cp scraper/output/history.json public/history.json
 
       - name: Commit changes
         id: commit
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git add public/events.json public/history.json
+          git add public/events.json
           if git diff --staged --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else

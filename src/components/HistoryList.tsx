@@ -174,17 +174,14 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
       });
   }, [visibleShows]);
 
-  // Collapse months that don't contain shows from the last 7 days
+  // Only expand current month by default
   const initialCollapsed = useMemo(() => {
     const now = new Date();
-    const weekAgo = new Date(now);
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const cutoff = `${weekAgo.getFullYear()}-${String(weekAgo.getMonth() + 1).padStart(2, "0")}-${String(weekAgo.getDate()).padStart(2, "0")}`;
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
     const collapsed = new Set<string>();
     for (const group of groupedByMonth) {
-      const hasRecent = group.shows.some((s) => s.date >= cutoff);
-      if (!hasRecent) collapsed.add(group.key);
+      if (group.key !== currentMonth) collapsed.add(group.key);
     }
     return collapsed;
   }, [groupedByMonth]);
