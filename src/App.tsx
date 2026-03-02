@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { Event, HistoricalShow, SourceStatus } from "./types";
 import { EventList } from "./components/EventList";
-import { Dashboard } from "./components/Dashboard";
 import { HistoryList } from "./components/HistoryList";
 import { FiltersDropdown, type HistoryTimeFilter } from "./components/FiltersDropdown";
 import { ContactModal } from "./components/ContactModal";
@@ -12,6 +11,9 @@ import { SubmitShow } from "./components/SubmitShow";
 import { useDebounce } from "./hooks/useDebounce";
 import { trackViewChange } from "./analytics";
 import { getEvents, getHistory, getSources, type HistoryFilter } from "./lib/supabase";
+import { useAuth } from "./hooks/useAuth";
+import { AdminLogin } from "./components/AdminLogin";
+import { AdminDashboard } from "./components/AdminDashboard";
 
 type View = "events" | "dashboard" | "history" | "calendar" | "submit";
 type Layout = "compact" | "full";
@@ -48,6 +50,8 @@ const getRecentlyAddedIds = (events: Event[]): Set<string> => {
 const EVENTS_PER_PAGE = 20;
 
 function App() {
+  const { isAuthenticated, logout } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [hasMoreEvents, setHasMoreEvents] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -55,7 +59,6 @@ function App() {
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [loadingMoreHistory, setLoadingMoreHistory] = useState(false);
   const [sources, setSources] = useState<SourceStatus[]>([]);
-  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
   const [view, setView] = useState<View>("events");
   const [layout] = useState<Layout>("compact");
   const [enabledVenues, setEnabledVenues] = useState<Set<string>>(new Set());
@@ -92,7 +95,6 @@ function App() {
       setHasMoreHistory(historyResult.hasMore);
       setSources(sourcesData);
       setEnabledVenues(new Set(sourcesData.map(s => s.id)));
-      setLastUpdated(new Date().toISOString());
       setDataLoaded(true);
       setError(null);
     } catch (err) {
@@ -184,7 +186,13 @@ function App() {
   const handleLogoClick = () => {
     const newCount = logoClicks + 1;
     if (newCount >= 5) {
-      setView(v => v === "dashboard" ? "events" : "dashboard");
+      if (isAuthenticated) {
+        // Toggle dashboard if logged in
+        setView(v => v === "dashboard" ? "events" : "dashboard");
+      } else {
+        // Show login modal if not logged in
+        setShowLogin(true);
+      }
       setLogoClicks(0);
       if (logoClickTimer.current) clearTimeout(logoClickTimer.current);
       return;
@@ -192,6 +200,16 @@ function App() {
     setLogoClicks(newCount);
     if (logoClickTimer.current) clearTimeout(logoClickTimer.current);
     logoClickTimer.current = setTimeout(() => setLogoClicks(0), 2000);
+  };
+
+  const handleLoginSuccess = () => {
+    setShowLogin(false);
+    setView("dashboard");
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setView("events");
   };
 
   // Memoize derived data (must be before early return to maintain hook order)
@@ -419,13 +437,8 @@ function App() {
               </>
             )}
 
-            {view === "dashboard" && (
-              <Dashboard
-                sources={sources}
-                lastUpdated={lastUpdated}
-                events={events}
-                historyShows={historyShows}
-              />
+            {view === "dashboard" && isAuthenticated && (
+              <AdminDashboard onLogout={handleLogout} />
             )}
 
             {view === "submit" && (
@@ -433,6 +446,12 @@ function App() {
             )}
 
             <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
+            {showLogin && (
+              <AdminLogin
+                onSuccess={handleLoginSuccess}
+                onClose={() => setShowLogin(false)}
+              />
+            )}
           </div>
         </div>
         <SeoStructuredData events={events} />
