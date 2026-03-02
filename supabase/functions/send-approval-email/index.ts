@@ -78,37 +78,37 @@ serve(async (req) => {
         to: submitterEmail,
         subject: "Your show has been approved!",
         html: `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #0a0a0a;">
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="margin: 0; font-size: 28px;">
-                <span style="background: linear-gradient(to right, #f59e0b, #f43f5e, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">OMAHA</span>
-                <span style="color: #ffffff;"> SHOWS</span>
+                <span style="color: #f59e0b;">OMAHA</span>
+                <span style="color: #333333;"> SHOWS</span>
               </h1>
             </div>
 
-            <div style="background: #1a1a1a; border-radius: 12px; padding: 24px; color: #e5e5e5;">
-              <p style="margin: 0 0 20px 0; font-size: 16px;">Hey! Great news 🎉</p>
+            <div style="border-radius: 12px; padding: 24px; color: #333333;">
+              <p style="margin: 0 0 20px 0; font-size: 16px;">Hey! Great news!</p>
 
               <p style="margin: 0 0 20px 0; font-size: 16px;">
                 Your show submission has been approved and is now live on Omaha Shows!
               </p>
 
-              <div style="background: #262626; border-radius: 8px; padding: 16px; margin: 20px 0;">
-                <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #ffffff;">🎤 ${title}</p>
-                <p style="margin: 0 0 4px 0; font-size: 14px; color: #a3a3a3;">📍 ${venue}</p>
-                <p style="margin: 0; font-size: 14px; color: #a3a3a3;">📅 ${formattedDate}</p>
+              <div style="background: #f5f5f5; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #111111;">${title}</p>
+                <p style="margin: 0 0 4px 0; font-size: 14px; color: #666666;">${venue}</p>
+                <p style="margin: 0; font-size: 14px; color: #666666;">${formattedDate}</p>
               </div>
 
               <a href="https://omahashows.com" style="display: inline-block; background: linear-gradient(to right, #f59e0b, #f43f5e); color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin-top: 10px;">
                 View on Omaha Shows
               </a>
 
-              <p style="margin: 30px 0 0 0; font-size: 14px; color: #737373;">
+              <p style="margin: 30px 0 0 0; font-size: 14px; color: #999999;">
                 Thanks for contributing to the local music scene!
               </p>
             </div>
 
-            <p style="text-align: center; margin-top: 20px; font-size: 12px; color: #525252;">
+            <p style="text-align: center; margin-top: 20px; font-size: 12px; color: #999999;">
               Omaha Shows • Live Music in Omaha, NE
             </p>
           </div>
