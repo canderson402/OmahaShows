@@ -1,11 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { AdminDashboard } from "../components/AdminDashboard";
+import { AdminDashboard, type AdminTab } from "../components/AdminDashboard";
 
 export function AdminPage() {
   const navigate = useNavigate();
   const { isAuthenticated, loading, logout } = useAuth();
+  const [tab, setTabState] = useState<AdminTab>("pending");
+
+  const setTab = (newTab: AdminTab) => {
+    setTabState(newTab);
+  };
 
   // Protected route - redirect to login if not authenticated
   useEffect(() => {
@@ -43,8 +48,8 @@ export function AdminPage() {
           </Link>
         </div>
 
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6">
-          <AdminDashboard onLogout={handleLogout} />
+        <div className="content-container border border-gray-800 rounded-xl p-6">
+          <AdminDashboard onLogout={handleLogout} tab={tab} setTab={setTab} />
         </div>
       </div>
     </div>

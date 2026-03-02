@@ -1,6 +1,5 @@
 # scraper/api.py
 import sys
-from pathlib import Path
 from datetime import datetime, timezone
 sys.path.insert(0, '/Users/codyanderson/Dev/ShowCal/scraper')
 
@@ -41,8 +40,6 @@ SCRAPERS = {
     "other": OtherVenuesScraper(),
 }
 
-OUTPUT_PATH = Path(__file__).parent / "output" / "events.json"
-
 
 class ScrapeResponse(BaseModel):
     success: bool
@@ -50,37 +47,11 @@ class ScrapeResponse(BaseModel):
     data: ScraperOutput | None = None
 
 
-def load_events() -> ScraperOutput:
-    """Load current events from JSON file."""
-    if OUTPUT_PATH.exists():
-        import json
-        data = json.loads(OUTPUT_PATH.read_text())
-        return ScraperOutput(**data)
-    return ScraperOutput(events=[], lastUpdated="", sources=[])
-
-
-def save_events(output: ScraperOutput) -> None:
-    """Save events to JSON file."""
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(output.model_dump_json(indent=2))
-
-
-@app.get("/api/events")
-def get_events() -> ScraperOutput:
-    """Get current events data."""
-    return load_events()
-
-
 @app.post("/api/scrape/all")
 def scrape_all() -> ScrapeResponse:
-    """Run all scrapers and update events."""
-    # Load existing events for merging
-    current = load_events()
-    existing_by_id = {e.id: e for e in current.events}
-
+    """Run all scrapers and return results (no file saving)."""
     sources: list[SourceStatus] = []
-
-    now = datetime.now(timezone.utc).isoformat()
+    all_events: list[Event] = []
 
     for scraper_id, scraper in SCRAPERS.items():
         status = "ok"
@@ -89,13 +60,7 @@ def scrape_all() -> ScrapeResponse:
 
         try:
             events = scraper.scrape()
-            # Merge: update existing or add new, preserving addedAt
-            for event in events:
-                if event.id not in existing_by_id:
-                    event.addedAt = now  # New event
-                else:
-                    event.addedAt = existing_by_id[event.id].addedAt  # Preserve original
-                existing_by_id[event.id] = event
+            all_events.extend(events)
         except Exception as e:
             status = "error"
             error = str(e)
@@ -110,7 +75,6 @@ def scrape_all() -> ScrapeResponse:
             error=error
         ))
 
-    all_events = list(existing_by_id.values())
     all_events.sort(key=lambda e: e.date)
 
     output = ScraperOutput(
@@ -119,12 +83,9 @@ def scrape_all() -> ScrapeResponse:
         sources=sources
     )
 
-    save_events(output)
-
-    total = len(all_events)
     return ScrapeResponse(
         success=True,
-        message=f"Scraped and merged events. Total: {total} events from {len(sources)} sources",
+        message=f"Scraped {len(all_events)} events from {len(sources)} sources",
         data=output
     )
 
@@ -158,63 +119,41 @@ def get_raw_venue(venue_id: str):
 
 @app.post("/api/scrape/{venue_id}")
 def scrape_venue(venue_id: str) -> ScrapeResponse:
-    """Run scraper for a single venue."""
+    """Run scraper for a single venue and return results (no file saving)."""
     if venue_id not in SCRAPERS:
         raise HTTPException(status_code=404, detail=f"Unknown venue: {venue_id}")
 
     scraper = SCRAPERS[venue_id]
 
-    # Load existing data
-    current = load_events()
-    existing_by_id = {e.id: e for e in current.events}
-    other_sources = [s for s in current.sources if s.id != venue_id]
-
-    # Scrape new events
     status = "ok"
     error = None
     events: list[Event] = []
-    scraped_count = 0
-
-    now = datetime.now(timezone.utc).isoformat()
 
     try:
         events = scraper.scrape()
-        scraped_count = len(events)
-        # Merge: update existing or add new, preserving addedAt
-        for event in events:
-            if event.id not in existing_by_id:
-                event.addedAt = now  # New event
-            else:
-                event.addedAt = existing_by_id[event.id].addedAt  # Preserve original
-            existing_by_id[event.id] = event
     except Exception as e:
         status = "error"
         error = str(e)
 
-    all_events = list(existing_by_id.values())
-    all_events.sort(key=lambda e: e.date)
-
-    sources = other_sources + [SourceStatus(
+    source = SourceStatus(
         name=scraper.name,
         id=scraper.id,
         url=scraper.url,
         status=status,
         lastScraped=datetime.now(timezone.utc).isoformat(),
-        eventCount=scraped_count,
+        eventCount=len(events),
         error=error
-    )]
-
-    output = ScraperOutput(
-        events=all_events,
-        lastUpdated=datetime.now(timezone.utc).isoformat(),
-        sources=sources
     )
 
-    save_events(output)
+    output = ScraperOutput(
+        events=events,
+        lastUpdated=datetime.now(timezone.utc).isoformat(),
+        sources=[source]
+    )
 
     return ScrapeResponse(
         success=status == "ok",
-        message=f"Scraped {scraped_count} events from {scraper.name}. Total: {len(all_events)} events" if status == "ok" else f"Error: {error}",
+        message=f"Scraped {len(events)} events from {scraper.name}" if status == "ok" else f"Error: {error}",
         data=output
     )
 

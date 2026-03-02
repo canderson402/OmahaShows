@@ -5,15 +5,15 @@ on:
     # Run twice daily: 9 AM and 6 PM UTC (3 AM and 12 PM Central)
     - cron: '0 9 * * *'
     - cron: '0 18 * * *'
-  workflow_dispatch:  # Manual trigger button
+  workflow_dispatch:
     inputs:
       scraper:
         description: 'Scraper to run (leave empty for all)'
         required: false
-        default: ''
+        default: 'all'
         type: choice
         options:
-          - ''
+          - all
           - theslowdown
           - waitingroom
           - reverblounge
@@ -53,63 +53,8 @@ jobs:
         continue-on-error: true
         run: |
           cd scraper
-          if [ -n "${{ inputs.scraper }}" ]; then
-            echo "Running single scraper: ${{ inputs.scraper }}"
-            python -c "
-import os, sys
-sys.path.insert(0, '.')
-from supabase import create_client
-from config import SCRAPERS
-from datetime import datetime, timezone
-
-supabase = create_client(os.environ['SUPABASE_URL'], os.environ['SUPABASE_SERVICE_KEY'])
-scraper = next((s for s in SCRAPERS if s.id == '${{ inputs.scraper }}'), None)
-if not scraper:
-    print('Unknown scraper: ${{ inputs.scraper }}')
-    sys.exit(1)
-
-print(f'Running {scraper.name}...')
-try:
-    events = scraper.scrape()
-    now = datetime.now(timezone.utc).isoformat()
-    for e in events:
-        data = {
-            'id': e.id, 'title': e.title, 'date': e.date, 'time': e.time,
-            'venue_id': scraper.id, 'event_url': e.eventUrl, 'ticket_url': e.ticketUrl,
-            'image_url': e.imageUrl, 'price': e.price, 'age_restriction': e.ageRestriction,
-            'supporting_artists': e.supportingArtists, 'source': scraper.id,
-            'status': 'approved', 'updated_at': now,
-        }
-        existing = supabase.table('events').select('added_at').eq('id', e.id).execute()
-        if existing.data:
-            data['added_at'] = existing.data[0]['added_at']
-            supabase.table('events').update(data).eq('id', e.id).execute()
-        else:
-            data['added_at'] = now
-            supabase.table('events').insert(data).execute()
-    supabase.table('scraper_runs').insert({
-        'scraper_id': scraper.id, 'scraper_name': scraper.name,
-        'status': 'success', 'event_count': len(events),
-        'started_at': now, 'finished_at': now
-    }).execute()
-    print(f'Success: {len(events)} events')
-except Exception as ex:
-    supabase.table('scraper_runs').insert({
-        'scraper_id': scraper.id, 'scraper_name': scraper.name,
-        'status': 'error', 'event_count': 0, 'error_message': str(ex),
-        'started_at': datetime.now(timezone.utc).isoformat(),
-        'finished_at': datetime.now(timezone.utc).isoformat()
-    }).execute()
-    print(f'Error: {ex}')
-    sys.exit(1)
-" 2>&1 | tee scrape_output.txt
-          else
-            echo "Running all scrapers..."
-            python run_scrape_supabase.py 2>&1 | tee scrape_output.txt
-          fi
-          exit_code=$?
-          echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
-          exit $exit_code
+          python run_scrape_supabase.py ${{ inputs.scraper || 'all' }} 2>&1 | tee scrape_output.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
 
       - name: Create job summary
         if: always()
@@ -117,15 +62,11 @@ except Exception as ex:
           echo "## Scraper Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ inputs.scraper }}" ]; then
-            echo "**Scraper:** ${{ inputs.scraper }}" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "**Scraper:** All" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "**Scraper:** ${{ inputs.scraper || 'all' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           cat scraper/scrape_output.txt >> $GITHUB_STEP_SUMMARY || echo "No output captured" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Check for failures
         if: steps.scrape.outputs.exit_code != '0'

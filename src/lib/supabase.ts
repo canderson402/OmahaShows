@@ -209,14 +209,58 @@ export async function getPendingEvents() {
   return data
 }
 
+// Send approval notification email via Edge Function
+async function sendApprovalEmail(event: {
+  title: string
+  date: string
+  venue_id: string
+  submitter_email: string
+}) {
+  const response = await supabase.functions.invoke('send-approval-email', {
+    body: {
+      title: event.title,
+      date: event.date,
+      venue: event.venue_id,
+      submitterEmail: event.submitter_email,
+    },
+  })
+
+  if (response.error) {
+    console.error('Failed to send email:', response.error)
+  }
+}
+
 // Helper to approve an event
 export async function approveEvent(id: string) {
+  // First get the event details for the email
+  const { data: event } = await supabase
+    .from('events')
+    .select('title, date, venue_id, submitter_email')
+    .eq('id', id)
+    .single()
+
+  // Update status
   const { error } = await supabase
     .from('events')
     .update({ status: 'approved' })
     .eq('id', id)
 
   if (error) throw error
+
+  // Send notification email if submitter provided email
+  if (event?.submitter_email) {
+    try {
+      await sendApprovalEmail(event as {
+        title: string
+        date: string
+        venue_id: string
+        submitter_email: string
+      })
+    } catch (err) {
+      console.error('Failed to send approval email:', err)
+      // Don't throw - event was approved, email is secondary
+    }
+  }
 }
 
 // Helper to reject an event
@@ -347,6 +391,7 @@ export interface SubmitEventData {
   price?: string
   ageRestriction?: string
   supportingArtists?: string[]
+  submitterEmail?: string
 }
 
 export async function submitEvent(data: SubmitEventData): Promise<void> {
@@ -368,6 +413,7 @@ export async function submitEvent(data: SubmitEventData): Promise<void> {
       price: data.price || null,
       age_restriction: data.ageRestriction || null,
       supporting_artists: data.supportingArtists?.length ? data.supportingArtists : null,
+      submitter_email: data.submitterEmail || null,
       source: 'manual',
       status: 'pending',
     })

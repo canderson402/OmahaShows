@@ -18,12 +18,26 @@ const VENUES = [
   { id: "other", name: "Other Venue" },
 ];
 
-const TIME_PRESETS = [
-  { label: "6 PM", value: "18:00" },
-  { label: "7 PM", value: "19:00" },
-  { label: "8 PM", value: "20:00" },
-  { label: "9 PM", value: "21:00" },
-  { label: "10 PM", value: "22:00" },
+const HOUR_PRESETS = [
+  { label: "1", value: 1 },
+  { label: "2", value: 2 },
+  { label: "3", value: 3 },
+  { label: "4", value: 4 },
+  { label: "5", value: 5 },
+  { label: "6", value: 6 },
+  { label: "7", value: 7 },
+  { label: "8", value: 8 },
+  { label: "9", value: 9 },
+  { label: "10", value: 10 },
+  { label: "11", value: 11 },
+  { label: "12", value: 12 },
+];
+
+const MINUTE_PRESETS = [
+  { label: "00", value: "00" },
+  { label: "15", value: "15" },
+  { label: "30", value: "30" },
+  { label: "45", value: "45" },
 ];
 
 type ImageMode = "url" | "upload";
@@ -36,16 +50,18 @@ interface ValidationErrors {
   eventUrl?: string;
   ticketUrl?: string;
   imageUrl?: string;
+  email?: string;
+}
+
+function isValidEmail(email: string): boolean {
+  if (!email) return true; // Optional field
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function isValidUrl(url: string): boolean {
   if (!url) return true;
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
+  // Accept anything that looks like a URL (has a dot and no spaces)
+  return url.includes('.') && !url.includes(' ');
 }
 
 function isValidDate(dateStr: string): { valid: boolean; error?: string } {
@@ -64,6 +80,9 @@ export function SubmitShowForm() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [customTime, setCustomTime] = useState("");
+  const [selectedHour, setSelectedHour] = useState<number | null>(null);
+  const [selectedMinute, setSelectedMinute] = useState<string>("00");
+  const [isPM, setIsPM] = useState(true);
   const [venueId, setVenueId] = useState("");
   const [customVenue, setCustomVenue] = useState("");
   const [eventUrl, setEventUrl] = useState("");
@@ -72,6 +91,7 @@ export function SubmitShowForm() {
   const [price, setPrice] = useState("");
   const [ageRestriction, setAgeRestriction] = useState("");
   const [supportingArtists, setSupportingArtists] = useState("");
+  const [submitterEmail, setSubmitterEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [recentSubmissions, setRecentSubmissions] = useState<string[]>([]);
@@ -124,8 +144,12 @@ export function SubmitShowForm() {
       errs.imageUrl = "Please enter a valid URL";
     }
 
+    if (touched.email && submitterEmail && !isValidEmail(submitterEmail)) {
+      errs.email = "Please enter a valid email address";
+    }
+
     return errs;
-  }, [title, date, venueId, customVenue, eventUrl, ticketUrl, imageUrl, imageMode, touched]);
+  }, [title, date, venueId, customVenue, eventUrl, ticketUrl, imageUrl, imageMode, submitterEmail, touched]);
 
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -267,6 +291,9 @@ export function SubmitShowForm() {
       if (supportingArtists.trim()) {
         data.supportingArtists = supportingArtists.split(",").map(s => s.trim()).filter(Boolean);
       }
+      if (submitterEmail && isValidEmail(submitterEmail)) {
+        data.submitterEmail = submitterEmail;
+      }
 
       await submitEvent(data);
 
@@ -278,6 +305,9 @@ export function SubmitShowForm() {
       setDate("");
       setTime("");
       setCustomTime("");
+      setSelectedHour(null);
+      setSelectedMinute("00");
+      setIsPM(true);
       setVenueId("");
       setCustomVenue("");
       setEventUrl("");
@@ -287,6 +317,7 @@ export function SubmitShowForm() {
       setPrice("");
       setAgeRestriction("");
       setSupportingArtists("");
+      setSubmitterEmail("");
       setTouched({});
     } catch (err) {
       console.error("Failed to submit:", err);
@@ -299,14 +330,33 @@ export function SubmitShowForm() {
     }
   };
 
-  const handleTimeSelect = (value: string) => {
-    setTime(value);
-    setCustomTime("");
+  // Convert hour/minute/AM-PM to 24-hour format
+  const updateTimeFromSelectors = (hour: number, minute: string, pm: boolean) => {
+    let h24 = hour;
+    if (pm && hour !== 12) h24 = hour + 12;
+    if (!pm && hour === 12) h24 = 0;
+    const timeStr = `${h24.toString().padStart(2, "0")}:${minute}`;
+    setTime("");
+    setCustomTime(timeStr);
   };
 
-  const handleCustomTimeChange = (value: string) => {
-    setCustomTime(value);
-    setTime("");
+  const handleHourSelect = (hour: number) => {
+    setSelectedHour(hour);
+    updateTimeFromSelectors(hour, selectedMinute, isPM);
+  };
+
+  const handleMinuteSelect = (minute: string) => {
+    setSelectedMinute(minute);
+    if (selectedHour !== null) {
+      updateTimeFromSelectors(selectedHour, minute, isPM);
+    }
+  };
+
+  const handleAmPmToggle = (pm: boolean) => {
+    setIsPM(pm);
+    if (selectedHour !== null) {
+      updateTimeFromSelectors(selectedHour, selectedMinute, pm);
+    }
   };
 
   const handleBlur = (field: string) => {
@@ -344,6 +394,33 @@ export function SubmitShowForm() {
           </button>
         </div>
       )}
+
+      {/* Preview on top */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          Preview
+        </h2>
+
+        {eventPreview ? (
+          <div className="border border-gray-800 rounded-xl overflow-hidden bg-[#0c0c0e] p-3">
+            <EventCardCompact
+              event={eventPreview}
+              venueColors={VENUE_COLORS}
+            />
+          </div>
+        ) : (
+          <div className="bg-gray-900/30 border border-gray-800/50 border-dashed rounded-xl p-8 text-center">
+            <svg className="w-12 h-12 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p className="text-gray-600 text-sm">Fill out the form to see a preview</p>
+          </div>
+        )}
+      </div>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Form */}
@@ -404,33 +481,84 @@ export function SubmitShowForm() {
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
               Time
             </label>
-            <div className="flex flex-wrap gap-2">
-              {TIME_PRESETS.map(preset => (
+            {/* Time Input */}
+            <input
+              type="time"
+              value={time || customTime}
+              onChange={e => {
+                setTime("");
+                setCustomTime(e.target.value);
+                // Clear quick selectors when manually typing
+                setSelectedHour(null);
+              }}
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all [color-scheme:dark] mb-3"
+            />
+            {/* AM/PM Toggle */}
+            <div className="mb-2">
+              <span className="text-xs text-gray-600 uppercase tracking-wider mb-1 block">AM / PM</span>
+              <div className="flex gap-1">
                 <button
-                  key={preset.value}
                   type="button"
-                  onClick={() => handleTimeSelect(preset.value)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    time === preset.value
+                  onClick={() => handleAmPmToggle(false)}
+                  className={`w-12 py-1.5 rounded text-xs font-medium transition-all ${
+                    !isPM
                       ? "bg-amber-500 text-white"
-                      : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+                      : "bg-gray-800 text-gray-500 hover:bg-gray-700 hover:text-white"
                   }`}
                 >
-                  {preset.label}
+                  AM
                 </button>
-              ))}
-              <div className="relative flex-1 min-w-[100px]">
-                <input
-                  type="time"
-                  value={customTime}
-                  onChange={e => handleCustomTimeChange(e.target.value)}
-                  placeholder="Other"
-                  className={`w-full px-3 py-2 rounded-lg text-sm transition-all [color-scheme:dark] ${
-                    customTime
+                <button
+                  type="button"
+                  onClick={() => handleAmPmToggle(true)}
+                  className={`w-12 py-1.5 rounded text-xs font-medium transition-all ${
+                    isPM
                       ? "bg-amber-500 text-white"
-                      : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-                  } focus:outline-none focus:ring-1 focus:ring-amber-500/20`}
-                />
+                      : "bg-gray-800 text-gray-500 hover:bg-gray-700 hover:text-white"
+                  }`}
+                >
+                  PM
+                </button>
+              </div>
+            </div>
+            {/* Quick Hour Select */}
+            <div className="mb-2">
+              <span className="text-xs text-gray-600 uppercase tracking-wider mb-1 block">Hour</span>
+              <div className="flex flex-wrap gap-1">
+                {HOUR_PRESETS.map(preset => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => handleHourSelect(preset.value)}
+                    className={`w-12 py-1.5 rounded text-xs font-medium transition-all ${
+                      selectedHour === preset.value
+                        ? "bg-amber-500 text-white"
+                        : "bg-gray-800 text-gray-500 hover:bg-gray-700 hover:text-white"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Minutes Select */}
+            <div>
+              <span className="text-xs text-gray-600 uppercase tracking-wider mb-1 block">Minutes</span>
+              <div className="flex gap-1">
+                {MINUTE_PRESETS.map(preset => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => handleMinuteSelect(preset.value)}
+                    className={`w-12 py-1.5 rounded text-xs font-medium transition-all ${
+                      selectedMinute === preset.value
+                        ? "bg-amber-500 text-white"
+                        : "bg-gray-800 text-gray-500 hover:bg-gray-700 hover:text-white"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -677,6 +805,31 @@ export function SubmitShowForm() {
             />
           </div>
 
+          {/* Email Notification */}
+          <div className="pt-2">
+            <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Get Notified (Optional)
+            </h3>
+            <input
+              type="email"
+              value={submitterEmail}
+              onChange={e => setSubmitterEmail(e.target.value)}
+              onBlur={() => handleBlur("email")}
+              placeholder="your@email.com - we'll notify you when approved"
+              className={`w-full px-4 py-2.5 bg-gray-900/50 border rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none transition-all ${
+                errors.email
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-gray-800 focus:border-gray-600"
+              }`}
+            />
+            {errors.email && (
+              <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+            )}
+          </div>
+
           {/* Submit Button */}
           <div className="pt-4">
             <button
@@ -708,54 +861,27 @@ export function SubmitShowForm() {
           </div>
         </div>
 
-        {/* Preview + Recent */}
-        <div>
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            Preview
-          </h2>
-
-          {eventPreview ? (
-            <div className="border border-gray-800 rounded-xl overflow-hidden bg-[#0c0c0e] -mx-2 px-2">
-              <EventCardCompact
-                event={eventPreview}
-                venueColors={VENUE_COLORS}
-              />
-            </div>
-          ) : (
-            <div className="bg-gray-900/30 border border-gray-800/50 border-dashed rounded-xl p-8 text-center">
-              <svg className="w-12 h-12 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        {/* Recent Submissions */}
+        {recentSubmissions.length > 0 && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-gray-600 text-sm">Fill out the form to see a preview</p>
+              Just Submitted
+            </h3>
+            <div className="space-y-2">
+              {recentSubmissions.map((title, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-400">{title}</span>
+                </div>
+              ))}
             </div>
-          )}
-
-          {/* Recent Submissions */}
-          {recentSubmissions.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-gray-800">
-              <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Just Submitted
-              </h3>
-              <div className="space-y-2">
-                {recentSubmissions.map((title, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-gray-400">{title}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   );

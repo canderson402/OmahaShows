@@ -163,6 +163,7 @@ interface ResultsModalProps {
 
 function ResultsModal({ scraper, result, loading, error, onClose }: ResultsModalProps) {
   const colors = VENUE_COLORS[scraper.id] || VENUE_COLORS.other;
+  const [viewMode, setViewMode] = useState<'cards' | 'json'>('cards');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" onClick={onClose}>
@@ -178,14 +179,36 @@ function ResultsModal({ scraper, result, loading, error, onClose }: ResultsModal
             </span>
             <h3 className="text-lg font-semibold text-white">{scraper.name}</h3>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            {result && !loading && (
+              <div className="flex gap-1 p-0.5 bg-gray-800 rounded-lg mr-2">
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`px-2 py-1 text-xs rounded transition-all ${
+                    viewMode === 'cards' ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  Cards
+                </button>
+                <button
+                  onClick={() => setViewMode('json')}
+                  className={`px-2 py-1 text-xs rounded transition-all ${
+                    viewMode === 'json' ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  JSON
+                </button>
+              </div>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -217,38 +240,45 @@ function ResultsModal({ scraper, result, loading, error, onClose }: ResultsModal
                 </div>
               )}
 
-              {/* Events List */}
-              {result.events.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-                    Events ({result.events.length})
-                  </h4>
-                  {result.events.map((event, i) => (
-                    <div
-                      key={event.id || i}
-                      className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg"
-                    >
-                      {event.imageUrl && (
-                        <img
-                          src={event.imageUrl}
-                          alt=""
-                          className="w-12 h-12 object-cover rounded"
-                          onError={(e) => (e.currentTarget.style.display = 'none')}
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium truncate">{event.title}</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <span>{new Date(event.date + 'T00:00').toLocaleDateString('en-US', {
-                            weekday: 'short', month: 'short', day: 'numeric'
-                          })}</span>
-                          {event.time && <span>{event.time}</span>}
-                          {event.price && <span>• {event.price}</span>}
+              {/* JSON View */}
+              {viewMode === 'json' ? (
+                <pre className="bg-gray-950 border border-gray-800 rounded-lg p-4 overflow-auto text-xs text-gray-300 font-mono">
+                  {JSON.stringify(result, null, 2)}
+                </pre>
+              ) : (
+                /* Cards View */
+                result.events.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+                      Events ({result.events.length})
+                    </h4>
+                    {result.events.map((event, i) => (
+                      <div
+                        key={event.id || i}
+                        className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg"
+                      >
+                        {event.imageUrl && (
+                          <img
+                            src={event.imageUrl}
+                            alt=""
+                            className="w-12 h-12 object-cover rounded"
+                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-medium truncate">{event.title}</p>
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <span>{new Date(event.date + 'T00:00').toLocaleDateString('en-US', {
+                              weekday: 'short', month: 'short', day: 'numeric'
+                            })}</span>
+                            {event.time && <span>{event.time}</span>}
+                            {event.price && <span>• {event.price}</span>}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )
               )}
 
               {result.events.length === 0 && !result.error && (
@@ -322,11 +352,11 @@ export function ScraperDashboard() {
     let runId: number | null = null;
 
     try {
-      // Create run record
+      // Create run record in Supabase
       const run = await createScraperRun(scraper.id, scraper.name);
       runId = run.id;
 
-      // Update local state
+      // Update local state to show running
       setLatestRuns(prev => ({
         ...prev,
         [scraper.id]: run
@@ -342,28 +372,49 @@ export function ScraperDashboard() {
       }
 
       const data = await response.json();
+      const eventCount = data.data?.sources?.find((s: { id: string }) => s.id === scraper.id)?.eventCount || 0;
 
-      // Update run record with success
+      // Update run record in Supabase
       await updateScraperRun(
         runId,
         data.success ? 'success' : 'error',
-        data.data?.sources?.find((s: { id: string }) => s.id === scraper.id)?.eventCount || 0,
+        eventCount,
         data.success ? undefined : data.message
       );
 
-      // Refresh runs
-      await fetchLatestRuns();
+      // Update local state with result
+      setLatestRuns(prev => ({
+        ...prev,
+        [scraper.id]: {
+          ...prev[scraper.id],
+          status: data.success ? 'success' as const : 'error' as const,
+          event_count: eventCount,
+          error_message: data.success ? null : data.message,
+          finished_at: new Date().toISOString(),
+        }
+      }));
 
     } catch (err) {
       console.error("Scraper failed:", err);
       const errorMsg = err instanceof Error ? err.message : "Unknown error";
       setApiError(`Failed to run ${scraper.name}: ${errorMsg}`);
 
-      // Update run record with error
+      // Update run record in Supabase if we have one
       if (runId) {
-        await updateScraperRun(runId, 'error', 0, errorMsg);
-        await fetchLatestRuns();
+        await updateScraperRun(runId, 'error', 0, errorMsg).catch(() => {});
       }
+
+      // Update local state with error
+      setLatestRuns(prev => ({
+        ...prev,
+        [scraper.id]: {
+          ...prev[scraper.id],
+          status: 'error' as const,
+          event_count: 0,
+          error_message: errorMsg,
+          finished_at: new Date().toISOString(),
+        }
+      }));
     }
   };
 

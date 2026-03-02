@@ -8,7 +8,7 @@ import { FiltersDropdown, type HistoryTimeFilter } from "./components/FiltersDro
 import { ContactModal } from "./components/ContactModal";
 import { CalendarView } from "./components/CalendarView";
 import { SeoStructuredData } from "./components/SeoStructuredData";
-import { SubmitShow } from "./components/SubmitShow";
+import { SubmitShowForm } from "./components/SubmitShowForm";
 import { useDebounce } from "./hooks/useDebounce";
 import { trackViewChange } from "./analytics";
 import { getEvents, getHistory, getSources, type HistoryFilter } from "./lib/supabase";
@@ -300,7 +300,7 @@ function HomePage() {
                 </>
               )}
 
-              {view === "submit" && <SubmitShow embedded />}
+              {view === "submit" && <SubmitShowForm />}
               <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
             </div>
           </div>

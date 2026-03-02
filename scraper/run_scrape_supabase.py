@@ -88,19 +88,29 @@ def log_scraper_run(scraper_id: str, scraper_name: str, status: str, event_count
     }).execute()
 
 
-def run():
+def run(scraper_filter: str = "all"):
     today = date.today().isoformat()
     failed_scrapers = []
     successful_scrapers = []
     total_events = 0
     total_new = 0
 
+    # Filter scrapers if specific one requested
+    if scraper_filter and scraper_filter != "all":
+        scrapers_to_run = [s for s in SCRAPERS if s.id == scraper_filter]
+        if not scrapers_to_run:
+            print(f"ERROR: Unknown scraper '{scraper_filter}'")
+            print(f"Available: {', '.join(s.id for s in SCRAPERS)}")
+            sys.exit(1)
+    else:
+        scrapers_to_run = SCRAPERS
+
     print(f"\n{'='*60}")
     print(f"SUPABASE SCRAPE - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
     print(f"{'='*60}\n")
 
-    # Run all scrapers
-    for scraper in SCRAPERS:
+    # Run scrapers
+    for scraper in scrapers_to_run:
         print(f"Scraping {scraper.name}...", end=" ", flush=True)
 
         events, error = run_scraper(scraper)
@@ -125,7 +135,7 @@ def run():
     print(f"{'='*60}")
     print(f"Total events processed: {total_events}")
     print(f"New events added: {total_new}")
-    print(f"Scrapers: {len(successful_scrapers)}/{len(SCRAPERS)} successful")
+    print(f"Scrapers: {len(successful_scrapers)}/{len(scrapers_to_run)} successful")
 
     if failed_scrapers:
         print(f"\n{'!'*60}")
@@ -140,4 +150,5 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    scraper_arg = sys.argv[1] if len(sys.argv) > 1 else "all"
+    run(scraper_arg)
