@@ -4,6 +4,9 @@ import { supabase, approveEvent, rejectEvent, getVenues } from "../lib/supabase"
 import { VENUE_COLORS } from "../App";
 import { ScraperDashboard } from "./ScraperDashboard";
 
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
 export type AdminTab = "pending" | "scrapers" | "events";
 
 const EVENTS_PER_PAGE = 50;
@@ -48,6 +51,47 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [editForm, setEditForm] = useState<Partial<DbEvent>>({});
   const [saving, setSaving] = useState(false);
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const testEmailFunction = async () => {
+    setTestingEmail(true);
+    setTestEmailResult(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setTestEmailResult({ success: false, message: "No active session" });
+        return;
+      }
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-approval-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+          "apikey": supabaseAnonKey,
+        },
+        body: JSON.stringify({
+          title: "Test Show - The Email Works!",
+          date: new Date().toISOString().split("T")[0],
+          venue: "The Slowdown",
+          submitterEmail: "canderson1192@gmail.com",
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTestEmailResult({ success: true, message: `Email sent! ID: ${data.id}` });
+      } else {
+        const error = await response.text();
+        setTestEmailResult({ success: false, message: `Error ${response.status}: ${error}` });
+      }
+    } catch (err) {
+      setTestEmailResult({ success: false, message: err instanceof Error ? err.message : "Unknown error" });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
 
   const fetchPending = useCallback(async () => {
     const { data, error } = await supabase
@@ -231,6 +275,13 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-white">Admin Dashboard</h2>
         <div className="flex items-center gap-3">
+          <button
+            onClick={testEmailFunction}
+            disabled={testingEmail}
+            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all disabled:opacity-50"
+          >
+            {testingEmail ? "Sending..." : "Test Email"}
+          </button>
           <Link
             to="/submission"
             className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
@@ -244,6 +295,11 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
             Logout
           </button>
         </div>
+        {testEmailResult && (
+          <div className={`mt-2 p-2 rounded text-sm ${testEmailResult.success ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+            {testEmailResult.message}
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
