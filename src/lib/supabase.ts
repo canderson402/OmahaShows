@@ -113,20 +113,62 @@ export async function getEvents(options?: { limit?: number; offset?: number }): 
   return { events, hasMore }
 }
 
-// Get history (past events)
-export async function getHistory(): Promise<HistoricalShow[]> {
-  const today = new Date().toISOString().split('T')[0]
+// Get history (past events) with filter-based loading
+export type HistoryFilter = '30days' | '90days' | 'year' | 'all'
+
+export async function getHistory(options?: {
+  filter?: HistoryFilter
+  limit?: number
+  offset?: number
+}): Promise<{ shows: HistoricalShow[]; hasMore: boolean }> {
+  const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
   const venues = await getVenues()
 
-  const { data, error } = await supabase
+  const filter = options?.filter || '30days'
+  const limit = options?.limit || 50
+  const offset = options?.offset || 0
+
+  // Calculate date range based on filter
+  let startDate: string | null = null
+  if (filter === '30days') {
+    const d = new Date(today)
+    d.setDate(d.getDate() - 30)
+    startDate = d.toISOString().split('T')[0]
+  } else if (filter === '90days') {
+    const d = new Date(today)
+    d.setDate(d.getDate() - 90)
+    startDate = d.toISOString().split('T')[0]
+  } else if (filter === 'year') {
+    const d = new Date(today)
+    d.setFullYear(d.getFullYear() - 1)
+    startDate = d.toISOString().split('T')[0]
+  }
+  // 'all' = no startDate filter
+
+  let query = supabase
     .from('events')
-    .select('*')
-    .lt('date', today)
+    .select('*', { count: 'exact' })
+    .lt('date', todayStr)
     .eq('status', 'approved')
     .order('date', { ascending: false })
 
+  // Apply date filter if not "all"
+  if (startDate) {
+    query = query.gte('date', startDate)
+  }
+
+  // Apply pagination
+  query = query.range(offset, offset + limit - 1)
+
+  const { data, error, count } = await query
+
   if (error) throw error
-  return (data || []).map(e => toHistoricalShow(e, venues))
+
+  const shows = (data || []).map(e => toHistoricalShow(e, venues))
+  const hasMore = count ? offset + shows.length < count : false
+
+  return { shows, hasMore }
 }
 
 // Get sources (venues as SourceStatus for compatibility)

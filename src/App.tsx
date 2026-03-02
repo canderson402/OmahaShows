@@ -11,7 +11,7 @@ import { SeoStructuredData } from "./components/SeoStructuredData";
 import { SubmitShow } from "./components/SubmitShow";
 import { useDebounce } from "./hooks/useDebounce";
 import { trackViewChange } from "./analytics";
-import { getEvents, getHistory, getSources } from "./lib/supabase";
+import { getEvents, getHistory, getSources, type HistoryFilter } from "./lib/supabase";
 
 type View = "events" | "dashboard" | "history" | "calendar" | "submit";
 type Layout = "compact" | "full";
@@ -52,6 +52,8 @@ function App() {
   const [hasMoreEvents, setHasMoreEvents] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [historyShows, setHistoryShows] = useState<HistoricalShow[]>([]);
+  const [hasMoreHistory, setHasMoreHistory] = useState(true);
+  const [loadingMoreHistory, setLoadingMoreHistory] = useState(false);
   const [sources, setSources] = useState<SourceStatus[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
   const [view, setView] = useState<View>("events");
@@ -78,15 +80,16 @@ function App() {
   const fetchData = useCallback(async () => {
     try {
       // Fetch from Supabase - initial load with pagination
-      const [eventsResult, historyData, sourcesData] = await Promise.all([
+      const [eventsResult, historyResult, sourcesData] = await Promise.all([
         getEvents({ limit: EVENTS_PER_PAGE, offset: 0 }),
-        getHistory(),
+        getHistory({ filter: historyTimeFilter as HistoryFilter, limit: 50, offset: 0 }),
         getSources(),
       ]);
 
       setEvents(eventsResult.events);
       setHasMoreEvents(eventsResult.hasMore);
-      setHistoryShows(historyData);
+      setHistoryShows(historyResult.shows);
+      setHasMoreHistory(historyResult.hasMore);
       setSources(sourcesData);
       setEnabledVenues(new Set(sourcesData.map(s => s.id)));
       setLastUpdated(new Date().toISOString());
@@ -96,7 +99,7 @@ function App() {
       console.error("Failed to fetch data:", err);
       setError("Failed to load events");
     }
-  }, []);
+  }, [historyTimeFilter]);
 
   const loadMoreEvents = useCallback(async () => {
     if (loadingMore || !hasMoreEvents) return;
@@ -112,6 +115,46 @@ function App() {
       setLoadingMore(false);
     }
   }, [loadingMore, hasMoreEvents, events.length]);
+
+  const loadMoreHistory = useCallback(async () => {
+    if (loadingMoreHistory || !hasMoreHistory) return;
+
+    setLoadingMoreHistory(true);
+    try {
+      const result = await getHistory({
+        filter: historyTimeFilter as HistoryFilter,
+        limit: 50,
+        offset: historyShows.length
+      });
+      setHistoryShows(prev => [...prev, ...result.shows]);
+      setHasMoreHistory(result.hasMore);
+    } catch (err) {
+      console.error("Failed to load more history:", err);
+    } finally {
+      setLoadingMoreHistory(false);
+    }
+  }, [loadingMoreHistory, hasMoreHistory, historyShows.length, historyTimeFilter]);
+
+  // Reload history when filter changes
+  useEffect(() => {
+    if (!dataLoaded) return;
+
+    const reloadHistory = async () => {
+      try {
+        const result = await getHistory({
+          filter: historyTimeFilter as HistoryFilter,
+          limit: 50,
+          offset: 0
+        });
+        setHistoryShows(result.shows);
+        setHasMoreHistory(result.hasMore);
+      } catch (err) {
+        console.error("Failed to reload history:", err);
+      }
+    };
+
+    reloadHistory();
+  }, [historyTimeFilter, dataLoaded]);
 
   useEffect(() => {
     fetchData();
@@ -362,6 +405,9 @@ function App() {
                     searchQuery={debouncedHistorySearch}
                     venueColors={VENUE_COLORS}
                     timeFilter={historyTimeFilter}
+                    hasMore={hasMoreHistory}
+                    loadingMore={loadingMoreHistory}
+                    onLoadMore={loadMoreHistory}
                   />
                 ) : (
                   <CalendarView
