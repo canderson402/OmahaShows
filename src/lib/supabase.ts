@@ -224,20 +224,27 @@ async function sendApprovalEmail(event: {
     return
   }
 
-  const response = await supabase.functions.invoke('send-approval-email', {
-    body: {
+  // Call the Edge Function with explicit auth headers
+  const functionUrl = `${supabaseUrl}/functions/v1/send-approval-email`
+
+  const response = await fetch(functionUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+      'apikey': supabaseAnonKey,
+    },
+    body: JSON.stringify({
       title: event.title,
       date: event.date,
       venue: event.venue_id,
       submitterEmail: event.submitter_email,
-    },
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-    },
+    }),
   })
 
-  if (response.error) {
-    console.error('Failed to send email:', response.error)
+  if (!response.ok) {
+    const error = await response.text()
+    console.error('Failed to send email:', error)
   }
 }
 
