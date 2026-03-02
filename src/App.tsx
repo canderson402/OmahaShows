@@ -45,8 +45,12 @@ const getRecentlyAddedIds = (events: Event[]): Set<string> => {
   return new Set(recent.slice(0, 10).map(e => e.id));
 };
 
+const EVENTS_PER_PAGE = 20;
+
 function App() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [hasMoreEvents, setHasMoreEvents] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [historyShows, setHistoryShows] = useState<HistoricalShow[]>([]);
   const [sources, setSources] = useState<SourceStatus[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
@@ -73,14 +77,15 @@ function App() {
 
   const fetchData = useCallback(async () => {
     try {
-      // Fetch from Supabase
-      const [eventsData, historyData, sourcesData] = await Promise.all([
-        getEvents(),
+      // Fetch from Supabase - initial load with pagination
+      const [eventsResult, historyData, sourcesData] = await Promise.all([
+        getEvents({ limit: EVENTS_PER_PAGE, offset: 0 }),
         getHistory(),
         getSources(),
       ]);
 
-      setEvents(eventsData);
+      setEvents(eventsResult.events);
+      setHasMoreEvents(eventsResult.hasMore);
       setHistoryShows(historyData);
       setSources(sourcesData);
       setEnabledVenues(new Set(sourcesData.map(s => s.id)));
@@ -92,6 +97,21 @@ function App() {
       setError("Failed to load events");
     }
   }, []);
+
+  const loadMoreEvents = useCallback(async () => {
+    if (loadingMore || !hasMoreEvents) return;
+
+    setLoadingMore(true);
+    try {
+      const result = await getEvents({ limit: EVENTS_PER_PAGE, offset: events.length });
+      setEvents(prev => [...prev, ...result.events]);
+      setHasMoreEvents(result.hasMore);
+    } catch (err) {
+      console.error("Failed to load more events:", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasMoreEvents, events.length]);
 
   useEffect(() => {
     fetchData();
@@ -331,6 +351,9 @@ function App() {
                     filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }}
                     venueColors={VENUE_COLORS}
                     isJustAdded={isJustAdded}
+                    hasMore={hasMoreEvents}
+                    loadingMore={loadingMore}
+                    onLoadMore={loadMoreEvents}
                   />
                 ) : view === "history" ? (
                   <HistoryList

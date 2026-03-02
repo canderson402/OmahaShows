@@ -91,20 +91,26 @@ function toHistoricalShow(dbEvent: DbEvent, venues: DbVenue[]): HistoricalShow {
   }
 }
 
-// Get upcoming events (date >= today)
-export async function getEvents(): Promise<Event[]> {
+// Get upcoming events (date >= today) with pagination
+export async function getEvents(options?: { limit?: number; offset?: number }): Promise<{ events: Event[]; hasMore: boolean }> {
   const today = new Date().toISOString().split('T')[0]
   const venues = await getVenues()
+  const limit = options?.limit || 20
+  const offset = options?.offset || 0
 
-  const { data, error } = await supabase
+  const { data, error, count } = await supabase
     .from('events')
-    .select('*')
+    .select('*', { count: 'exact' })
     .gte('date', today)
     .eq('status', 'approved')
     .order('date', { ascending: true })
+    .range(offset, offset + limit - 1)
 
   if (error) throw error
-  return (data || []).map(e => toAppEvent(e, venues))
+  const events = (data || []).map(e => toAppEvent(e, venues))
+  const hasMore = count ? offset + events.length < count : false
+
+  return { events, hasMore }
 }
 
 // Get history (past events)
