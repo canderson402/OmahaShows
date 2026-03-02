@@ -87,10 +87,8 @@ serve(async (req) => {
             </div>
 
             <div style="border-radius: 12px; padding: 24px; color: #333333;">
-              <p style="margin: 0 0 20px 0; font-size: 16px;">Hey! Great news!</p>
-
               <p style="margin: 0 0 20px 0; font-size: 16px;">
-                Your show submission has been approved and is now live on Omaha Shows!
+                Your show submission has been approved and is now live on Omaha Shows.
               </p>
 
               <div style="background: #f5f5f5; border-radius: 8px; padding: 16px; margin: 20px 0;">
