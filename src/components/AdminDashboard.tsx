@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { supabase, approveEvent, rejectEvent } from "../lib/supabase";
 import { VENUE_COLORS } from "../App";
+import { ScraperDashboard } from "./ScraperDashboard";
 
 type AdminTab = "pending" | "scrapers" | "events";
 
@@ -103,12 +105,20 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-white">Admin Dashboard</h2>
-        <button
-          onClick={onLogout}
-          className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
-        >
-          Logout
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/submission"
+            className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
+          >
+            + Add Show
+          </Link>
+          <button
+            onClick={onLogout}
+            className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -254,14 +264,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           )}
 
           {/* Scrapers Tab */}
-          {tab === "scrapers" && (
-            <div className="text-center py-12">
-              <p className="text-gray-400">Scraper dashboard coming soon</p>
-              <p className="text-gray-500 text-sm mt-2">
-                Will show scraper status, run history, and controls.
-              </p>
-            </div>
-          )}
+          {tab === "scrapers" && <ScraperDashboard />}
         </>
       )}
     </div>

@@ -229,18 +229,6 @@ export async function rejectEvent(id: string) {
   if (error) throw error
 }
 
-// Helper to get recent scraper runs
-export async function getScraperRuns(limit = 20) {
-  const { data, error } = await supabase
-    .from('scraper_runs')
-    .select('*')
-    .order('started_at', { ascending: false })
-    .limit(limit)
-
-  if (error) throw error
-  return data
-}
-
 // Auth helpers
 export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -260,4 +248,129 @@ export async function signOut() {
 export async function getSession() {
   const { data: { session } } = await supabase.auth.getSession()
   return session
+}
+
+// Scraper run types
+export interface ScraperRun {
+  id: number
+  scraper_id: string
+  scraper_name: string
+  status: 'running' | 'success' | 'error'
+  event_count: number
+  error_message: string | null
+  events_data?: DbEvent[] | null
+  started_at: string
+  finished_at: string | null
+}
+
+// Get recent scraper runs
+export async function getScraperRuns(scraperId?: string, limit = 10): Promise<ScraperRun[]> {
+  let query = supabase
+    .from('scraper_runs')
+    .select('*')
+    .order('started_at', { ascending: false })
+    .limit(limit)
+
+  if (scraperId) {
+    query = query.eq('scraper_id', scraperId)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data || []
+}
+
+// Get latest run for each scraper
+export async function getLatestScraperRuns(): Promise<Record<string, ScraperRun>> {
+  const { data, error } = await supabase
+    .from('scraper_runs')
+    .select('*')
+    .order('started_at', { ascending: false })
+
+  if (error) throw error
+
+  const latest: Record<string, ScraperRun> = {}
+  for (const run of data || []) {
+    if (!latest[run.scraper_id]) {
+      latest[run.scraper_id] = run
+    }
+  }
+  return latest
+}
+
+// Create a new scraper run (marks it as running)
+export async function createScraperRun(scraperId: string, scraperName: string): Promise<ScraperRun> {
+  const { data, error } = await supabase
+    .from('scraper_runs')
+    .insert({
+      scraper_id: scraperId,
+      scraper_name: scraperName,
+      status: 'running',
+      event_count: 0,
+    })
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// Update a scraper run with results
+export async function updateScraperRun(
+  runId: number,
+  status: 'success' | 'error',
+  eventCount: number,
+  errorMessage?: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('scraper_runs')
+    .update({
+      status,
+      event_count: eventCount,
+      error_message: errorMessage || null,
+      finished_at: new Date().toISOString(),
+    })
+    .eq('id', runId)
+
+  if (error) throw error
+}
+
+// Submit a new event (goes to pending status)
+export interface SubmitEventData {
+  title: string
+  date: string
+  time?: string
+  venueId: string
+  eventUrl?: string
+  ticketUrl?: string
+  imageUrl?: string
+  price?: string
+  ageRestriction?: string
+  supportingArtists?: string[]
+}
+
+export async function submitEvent(data: SubmitEventData): Promise<void> {
+  // Generate ID: manual-YYYY-MM-DD-slug
+  const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40)
+  const id = `manual-${data.date}-${slug}`
+
+  const { error } = await supabase
+    .from('events')
+    .insert({
+      id,
+      title: data.title,
+      date: data.date,
+      time: data.time || null,
+      venue_id: data.venueId,
+      event_url: data.eventUrl || null,
+      ticket_url: data.ticketUrl || null,
+      image_url: data.imageUrl || null,
+      price: data.price || null,
+      age_restriction: data.ageRestriction || null,
+      supporting_artists: data.supportingArtists?.length ? data.supportingArtists : null,
+      source: 'manual',
+      status: 'pending',
+    })
+
+  if (error) throw error
 }
