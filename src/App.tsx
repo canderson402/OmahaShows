@@ -1,6 +1,6 @@
 // web/src/App.tsx
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import type { EventsData, ShowHistory, Event } from "./types";
+import type { Event, HistoricalShow, SourceStatus } from "./types";
 import { EventList } from "./components/EventList";
 import { Dashboard } from "./components/Dashboard";
 import { HistoryList } from "./components/HistoryList";
@@ -8,14 +8,14 @@ import { FiltersDropdown, type HistoryTimeFilter } from "./components/FiltersDro
 import { ContactModal } from "./components/ContactModal";
 import { CalendarView } from "./components/CalendarView";
 import { SeoStructuredData } from "./components/SeoStructuredData";
+import { SubmitShow } from "./components/SubmitShow";
 import { useDebounce } from "./hooks/useDebounce";
 import { trackViewChange } from "./analytics";
+import { getEvents, getHistory, getSources } from "./lib/supabase";
 
-type View = "events" | "dashboard" | "history" | "calendar";
+type View = "events" | "dashboard" | "history" | "calendar" | "submit";
 type Layout = "compact" | "full";
 type TimeFilter = "all" | "today" | "week" | "just-added";
-
-const API_BASE = "http://localhost:8000";
 
 // Venue colors - matching the OMAHA gradient (amber -> rose -> purple)
 export const VENUE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -46,8 +46,10 @@ const getRecentlyAddedIds = (events: Event[]): Set<string> => {
 };
 
 function App() {
-  const [data, setData] = useState<EventsData | null>(null);
-  const [history, setHistory] = useState<ShowHistory | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [historyShows, setHistoryShows] = useState<HistoricalShow[]>([]);
+  const [sources, setSources] = useState<SourceStatus[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
   const [view, setView] = useState<View>("events");
   const [layout] = useState<Layout>("compact");
   const [enabledVenues, setEnabledVenues] = useState<Set<string>>(new Set());
@@ -59,6 +61,7 @@ function App() {
   const [showContact, setShowContact] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   // Debounce search inputs for better performance
   const debouncedEventSearch = useDebounce(eventSearch, 300);
@@ -68,43 +71,39 @@ function App() {
   const [logoClicks, setLogoClicks] = useState(0);
   const logoClickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchEvents = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      // In dev, try local API first; in production, go straight to static file
-      let response: Response | null = null;
-      if (import.meta.env.DEV) {
-        response = await fetch(`${API_BASE}/api/events`).catch(() => null);
-      }
-      if (!response?.ok) {
-        response = await fetch(`${import.meta.env.BASE_URL}events.json`);
-      }
-      const json = await response.json();
-      setData(json);
-      setEnabledVenues(new Set(json.sources.map((s: { id: string }) => s.id)));
-      setError(null);
+      // Fetch from Supabase
+      const [eventsData, historyData, sourcesData] = await Promise.all([
+        getEvents(),
+        getHistory(),
+        getSources(),
+      ]);
 
-      const historyResponse = await fetch(`${import.meta.env.BASE_URL}history.json`).catch(() => null);
-      if (historyResponse?.ok) {
-        const historyJson = await historyResponse.json();
-        setHistory(historyJson);
-      }
+      setEvents(eventsData);
+      setHistoryShows(historyData);
+      setSources(sourcesData);
+      setEnabledVenues(new Set(sourcesData.map(s => s.id)));
+      setLastUpdated(new Date().toISOString());
+      setDataLoaded(true);
+      setError(null);
     } catch (err) {
-      console.error("Failed to fetch events:", err);
+      console.error("Failed to fetch data:", err);
       setError("Failed to load events");
     }
   }, []);
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    fetchData();
+  }, [fetchData]);
 
   // Fade out loading screen once data arrives
   useEffect(() => {
-    if (data && !ready) {
+    if (dataLoaded && !ready) {
       const timer = setTimeout(() => setReady(true), 300);
       return () => clearTimeout(timer);
     }
-  }, [data, ready]);
+  }, [dataLoaded, ready]);
 
   // Dynamic document title based on current view
   useEffect(() => {
@@ -113,6 +112,7 @@ function App() {
       calendar: "Calendar | Omaha Shows",
       history: "Past Shows | Omaha Shows",
       dashboard: "Dashboard | Omaha Shows",
+      submit: "Submit Show | Omaha Shows",
     };
     document.title = titles[view];
   }, [view]);
@@ -133,14 +133,14 @@ function App() {
 
   // Memoize derived data (must be before early return to maintain hook order)
   const venues = useMemo(() => {
-    const list = data?.sources.map((s) => ({ id: s.id, name: s.name })) ?? [];
+    const list = sources.map((s) => ({ id: s.id, name: s.name }));
     return list.sort((a, b) => {
       if (a.id === "other") return 1;
       if (b.id === "other") return -1;
       return 0;
     });
-  }, [data?.sources]);
-  const justAddedIds = useMemo(() => data ? getRecentlyAddedIds(data.events) : new Set<string>(), [data?.events]);
+  }, [sources]);
+  const justAddedIds = useMemo(() => getRecentlyAddedIds(events), [events]);
   const isJustAdded = useCallback((event: Event) => justAddedIds.has(event.id), [justAddedIds]);
   const justAddedCount = justAddedIds.size;
 
@@ -162,7 +162,7 @@ function App() {
       {!ready && (
         <div
           className="fixed inset-0 z-50 bg-[#0d0d0f] flex flex-col items-center justify-center gap-6 transition-opacity duration-500"
-          style={{ opacity: data ? 0 : 1, pointerEvents: data ? "none" : "auto" }}
+          style={{ opacity: dataLoaded ? 0 : 1, pointerEvents: dataLoaded ? "none" : "auto" }}
         >
           {error ? (
             <div className="text-red-400 bg-red-900/30 border border-red-700 rounded-lg px-6 py-3">{error}</div>
@@ -187,7 +187,7 @@ function App() {
           )}
         </div>
       )}
-      {data && <main className="md:py-8">
+      {dataLoaded && <main className="md:py-8">
         <div className={`mx-auto md:px-4 ${layout === "compact" ? "max-w-4xl" : "max-w-xl"}`}>
           <div className="content-container md:rounded-2xl p-6">
             {/* Logo */}
@@ -239,6 +239,16 @@ function App() {
                     }`}
                   >
                     History
+                  </button>
+                  <button
+                    onClick={() => { setView("submit"); trackViewChange("submit"); }}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      view === "submit"
+                        ? "bg-gradient-to-r from-amber-500/20 to-rose-500/20 text-amber-400 border border-amber-500/30"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    + Submit
                   </button>
                 </div>
               )}
@@ -316,7 +326,7 @@ function App() {
                 {/* Content */}
                 {view === "events" ? (
                   <EventList
-                    events={data.events}
+                    events={events}
                     layout={layout}
                     filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }}
                     venueColors={VENUE_COLORS}
@@ -324,7 +334,7 @@ function App() {
                   />
                 ) : view === "history" ? (
                   <HistoryList
-                    shows={history?.shows || []}
+                    shows={historyShows}
                     enabledVenues={enabledVenues}
                     searchQuery={debouncedHistorySearch}
                     venueColors={VENUE_COLORS}
@@ -332,7 +342,7 @@ function App() {
                   />
                 ) : (
                   <CalendarView
-                    events={data.events}
+                    events={events}
                     venueColors={VENUE_COLORS}
                     enabledVenues={enabledVenues}
                   />
@@ -342,17 +352,21 @@ function App() {
 
             {view === "dashboard" && (
               <Dashboard
-                sources={data.sources}
-                lastUpdated={data.lastUpdated}
-                events={data.events}
-                historyShows={history?.shows}
+                sources={sources}
+                lastUpdated={lastUpdated}
+                events={events}
+                historyShows={historyShows}
               />
+            )}
+
+            {view === "submit" && (
+              <SubmitShow embedded />
             )}
 
             <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
           </div>
         </div>
-        <SeoStructuredData events={data.events} />
+        <SeoStructuredData events={events} />
       </main>}
 
       {/* Floating Pills - both mobile and desktop */}

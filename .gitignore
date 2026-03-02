@@ -29,3 +29,6 @@ __pycache__
 scraper/venv
 .venv
 *.egg-info
+
+# Claude Code
+.claude/
