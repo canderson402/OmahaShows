@@ -224,14 +224,16 @@ async function sendApprovalEmail(event: {
     return
   }
 
-  // Call the Edge Function with explicit auth headers
+  // Call the Edge Function
+  // Pass anon key in Authorization header (gateway accepts HS256)
+  // Pass user's access token in body (function verifies ES256 inside)
   const functionUrl = `${supabaseUrl}/functions/v1/send-approval-email`
 
   const response = await fetch(functionUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
       'apikey': supabaseAnonKey,
     },
     body: JSON.stringify({
@@ -239,6 +241,7 @@ async function sendApprovalEmail(event: {
       date: event.date,
       venue: event.venue_id,
       submitterEmail: event.submitter_email,
+      accessToken: session.access_token,
     }),
   })
 

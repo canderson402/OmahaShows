@@ -64,11 +64,13 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         return;
       }
 
+      // Pass anon key in Authorization header (gateway accepts HS256)
+      // Pass user's access token in body (function verifies ES256 inside)
       const response = await fetch(`${supabaseUrl}/functions/v1/send-approval-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.access_token}`,
+          "Authorization": `Bearer ${supabaseAnonKey}`,
           "apikey": supabaseAnonKey,
         },
         body: JSON.stringify({
@@ -76,6 +78,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           date: new Date().toISOString().split("T")[0],
           venue: "The Slowdown",
           submitterEmail: "canderson1192@gmail.com",
+          accessToken: session.access_token,
         }),
       });
 

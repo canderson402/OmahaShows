@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,6 +15,7 @@ interface EmailRequest {
   date: string
   venue: string
   submitterEmail: string
+  accessToken: string  // User's access token for verification
 }
 
 serve(async (req) => {
@@ -25,7 +29,28 @@ serve(async (req) => {
       throw new Error("RESEND_API_KEY not configured")
     }
 
-    const { title, date, venue, submitterEmail }: EmailRequest = await req.json()
+    const { title, date, venue, submitterEmail, accessToken }: EmailRequest = await req.json()
+
+    // Verify the user is authenticated using the token from body
+    if (!accessToken) {
+      return new Response(
+        JSON.stringify({ error: "Missing access token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
+
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+      global: { headers: { Authorization: `Bearer ${accessToken}` } }
+    })
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Invalid or expired token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      )
+    }
 
     if (!submitterEmail) {
       return new Response(
