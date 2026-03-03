@@ -298,6 +298,12 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
             {testingEmail ? "Sending..." : "Test Email"}
           </button>
           <Link
+            to="/"
+            className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+          >
+            Back to Site
+          </Link>
+          <Link
             to="/submission"
             className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
           >

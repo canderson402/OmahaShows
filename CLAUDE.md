@@ -4,8 +4,10 @@ A local music event aggregator that scrapes venue websites and displays upcoming
 
 ## Workflow Rules
 
-- **NEVER commit until the user has tested the changes first.** Always wait for explicit approval before committing.
-- Run `npm run build` to verify changes compile, but let the user run `npm run dev` and test before committing.
+- **NEVER commit without explicit user permission.** Wait for "commit" or similar approval.
+- **NEVER deploy to production without explicit user permission.** Wait for "deploy" or similar approval.
+- Run `npm run build` to verify changes compile, but let the user run `npm run dev` and test.
+- Always confirm before taking destructive or irreversible actions.
 
 **Live Site:** https://omahashows.com (hosted on Vercel)
 
@@ -23,9 +25,10 @@ A local music event aggregator that scrapes venue websites and displays upcoming
 - Row Level Security (RLS) for access control
 
 ### Scrapers (GitHub Actions)
-- Python scrapers run via GitHub Actions cron (3 AM & 12 PM Central)
+- Python scrapers run via GitHub Actions cron (3 AM Central daily)
 - Can also be triggered manually from admin dashboard
 - Results written directly to Supabase
+- Tracks new/changed events per run
 
 ## Project Structure
 
