@@ -3,9 +3,21 @@ import { Link } from "react-router-dom";
 import { supabase, approveEvent, rejectEvent, getVenues } from "../lib/supabase";
 import { VENUE_COLORS } from "../App";
 import { ScraperDashboard } from "./ScraperDashboard";
+import { Toast } from "./Toast";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+function normalizeUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  url = url.trim();
+  if (!url) return null;
+  // If no protocol, add https://
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return `https://${url}`;
+  }
+  return url;
+}
 
 export type AdminTab = "pending" | "scrapers" | "events";
 
@@ -222,8 +234,8 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           date: editForm.date,
           time: editForm.time || null,
           venue_id: editForm.venue_id,
-          event_url: editForm.event_url || null,
-          ticket_url: editForm.ticket_url || null,
+          event_url: normalizeUrl(editForm.event_url),
+          ticket_url: normalizeUrl(editForm.ticket_url),
           price: editForm.price || null,
           age_restriction: editForm.age_restriction || null,
           supporting_artists: editForm.supporting_artists?.length ? editForm.supporting_artists : null,
@@ -298,11 +310,6 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
             Logout
           </button>
         </div>
-        {testEmailResult && (
-          <div className={`mt-2 p-2 rounded text-sm ${testEmailResult.success ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
-            {testEmailResult.message}
-          </div>
-        )}
       </div>
 
       {/* Tabs */}
@@ -370,49 +377,117 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {pendingEvents.map((event) => {
                     const colors = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other;
+                    const venueName = venues.find(v => v.id === event.venue_id)?.name || event.venue_id;
+                    const formatTime12 = (timeStr?: string | null) => {
+                      if (!timeStr) return null;
+                      const [hours, minutes] = timeStr.split(":");
+                      const hour = parseInt(hours);
+                      const ampm = hour >= 12 ? "PM" : "AM";
+                      const hour12 = hour % 12 || 12;
+                      return `${hour12}:${minutes} ${ampm}`;
+                    };
                     return (
                       <div
                         key={event.id}
-                        className="bg-gray-800/50 border border-gray-700 rounded-lg p-4"
+                        className="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden"
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`text-xs px-2 py-0.5 rounded ${colors.bg} ${colors.text}`}>
-                                {event.venue_id}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {formatDate(event.date)}
-                                {event.time && ` • ${event.time.slice(0, 5)}`}
-                              </span>
+                        {/* Preview Section - mimics EventCardCompact */}
+                        <div className="p-4 border-b border-gray-700/50">
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">Preview</p>
+                          <div className="flex gap-4">
+                            {/* Image placeholder */}
+                            <div className="w-[140px] flex-shrink-0">
+                              <div className="bg-slate-900 py-1 px-2 rounded-t-lg">
+                                <p className="text-white font-semibold text-center text-xs">
+                                  {formatDate(event.date)}
+                                </p>
+                              </div>
+                              <div className="relative bg-gray-900 rounded-b-lg overflow-hidden aspect-square flex items-center justify-center">
+                                {event.image_url ? (
+                                  <img
+                                    src={event.image_url}
+                                    alt=""
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <span className="text-gray-600 text-3xl">&#9834;</span>
+                                )}
+                              </div>
                             </div>
-                            <h3 className="text-white font-medium">{event.title}</h3>
-                            {event.supporting_artists && event.supporting_artists.length > 0 && (
-                              <p className="text-sm text-gray-500 mt-1">
-                                with {event.supporting_artists.join(", ")}
+                            {/* Content */}
+                            <div className="flex-1 pt-1">
+                              <h3 className="text-lg font-bold text-white">{event.title}</h3>
+                              {event.supporting_artists && event.supporting_artists.length > 0 && (
+                                <p className="text-gray-400 text-sm mt-1">
+                                  with {event.supporting_artists.join(", ")}
+                                </p>
+                              )}
+                              <p className="text-gray-400 text-sm mt-2">
+                                {formatTime12(event.time) && <>{formatTime12(event.time)} · </>}
+                                <span className={colors.text}>{venueName}</span>
                               </p>
-                            )}
-                            {event.price && (
-                              <p className="text-sm text-gray-400 mt-1">{event.price}</p>
-                            )}
+                              {event.price && (
+                                <p className="text-gray-500 text-xs mt-1">{event.price}</p>
+                              )}
+                              {event.age_restriction && (
+                                <p className="text-gray-500 text-xs">{event.age_restriction}</p>
+                              )}
+                            </div>
                           </div>
+                          {/* URLs */}
+                          {(event.event_url || event.ticket_url) && (
+                            <div className="mt-3 flex gap-3 text-xs">
+                              {event.event_url && (
+                                <a
+                                  href={event.event_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-400 hover:text-blue-300 truncate max-w-[200px]"
+                                >
+                                  Event URL ↗
+                                </a>
+                              )}
+                              {event.ticket_url && event.ticket_url !== event.event_url && (
+                                <a
+                                  href={event.ticket_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-400 hover:text-blue-300 truncate max-w-[200px]"
+                                >
+                                  Ticket URL ↗
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        {/* Actions */}
+                        <div className="p-4 flex items-center justify-between bg-gray-900/50">
+                          <span className="text-xs text-gray-500">
+                            Submitted {new Date(event.created_at).toLocaleDateString()}
+                          </span>
                           <div className="flex gap-2">
                             <button
-                              onClick={() => handleApprove(event.id)}
-                              disabled={actionLoading === event.id}
-                              className="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 transition-colors"
+                              onClick={() => openEditModal(event)}
+                              className="px-3 py-1.5 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
                             >
-                              {actionLoading === event.id ? "..." : "Approve"}
+                              Edit
                             </button>
                             <button
                               onClick={() => handleReject(event.id)}
                               disabled={actionLoading === event.id}
-                              className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50 transition-colors"
+                              className="px-3 py-1.5 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
                             >
                               Reject
+                            </button>
+                            <button
+                              onClick={() => handleApprove(event.id)}
+                              disabled={actionLoading === event.id}
+                              className="px-4 py-1.5 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                              {actionLoading === event.id ? "..." : "Approve"}
                             </button>
                           </div>
                         </div>
@@ -662,14 +737,37 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 <button
                   onClick={handleSaveEdit}
                   disabled={saving}
-                  className="px-4 py-2 text-sm bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg hover:from-amber-400 hover:to-rose-400 disabled:opacity-50 transition-all"
+                  className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50 transition-colors"
                 >
-                  {saving ? "Saving..." : "Save Changes"}
+                  {saving ? "Saving..." : "Save"}
                 </button>
+                {editingEvent.status === "pending" && (
+                  <button
+                    onClick={async () => {
+                      await handleSaveEdit();
+                      if (editingEvent) {
+                        await handleApprove(editingEvent.id);
+                        setEditingEvent(null);
+                      }
+                    }}
+                    disabled={saving}
+                    className="px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                  >
+                    {saving ? "..." : "Save & Approve"}
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {testEmailResult && (
+        <Toast
+          message={testEmailResult.message}
+          type={testEmailResult.success ? "success" : "error"}
+          onClose={() => setTestEmailResult(null)}
+        />
       )}
     </div>
   );

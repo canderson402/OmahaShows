@@ -77,9 +77,16 @@ serve(async (req) => {
         to: submitterEmail,
         subject: "Your show has been approved!",
         html: `
-          <p>Your show submission has been approved and is now live on Omaha Shows.</p>
-          <p><strong>${title}</strong><br>${venue}<br>${formattedDate}</p>
-          <p><a href="https://omahashows.com">View on Omaha Shows</a></p>
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; padding: 16px;">
+            <h1 style="margin: 0 0 16px 0; font-size: 24px; color: #111;">OMAHA SHOWS</h1>
+            <p style="margin: 0 0 16px 0; font-size: 15px; color: #333;">Your show has been approved and is now live.</p>
+            <div style="background: #f5f5f5; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+              <strong style="font-size: 16px; color: #111;">${title}</strong><br>
+              <span style="font-size: 14px; color: #666;">${venue} · ${formattedDate}</span>
+            </div>
+            <a href="https://omahashows.com" style="display: inline-block; background: #f59e0b; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600;">View on Omaha Shows</a>
+            <p style="margin: 20px 0 0 0; font-size: 13px; color: #666;">Thanks for contributing to the Omaha music scene!</p>
+          </div>
         `,
       }),
     })

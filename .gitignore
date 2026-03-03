@@ -32,3 +32,4 @@ scraper/venv
 
 # Claude Code
 .claude/
+.vercel

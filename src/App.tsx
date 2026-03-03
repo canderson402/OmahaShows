@@ -11,7 +11,7 @@ import { SeoStructuredData } from "./components/SeoStructuredData";
 import { SubmitShowForm } from "./components/SubmitShowForm";
 import { useDebounce } from "./hooks/useDebounce";
 import { trackViewChange } from "./analytics";
-import { getEvents, getHistory, getSources, type HistoryFilter } from "./lib/supabase";
+import { getEvents, getHistory, getSources, getEventById, type HistoryFilter } from "./lib/supabase";
 import { LoginPage } from "./pages/LoginPage";
 import { AdminPage } from "./pages/AdminPage";
 import { SubmissionPage } from "./pages/SubmissionPage";
@@ -71,6 +71,30 @@ function HomePage() {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   const debouncedEventSearch = useDebounce(eventSearch, 300);
+
+  // Read URL hash on mount and on hash change - prefill search
+  useEffect(() => {
+    const handleHash = async () => {
+      const hash = window.location.hash.slice(1); // Remove the #
+      if (hash) {
+        setView("events"); // Switch to events view
+        // Fetch the specific event and search for it directly
+        const event = await getEventById(hash);
+        if (event) {
+          setEventSearch(event.title);
+          // Search directly, don't wait for debounce
+          const result = await getEvents({ limit: EVENTS_PER_PAGE, offset: 0, search: event.title });
+          setEvents(result.events);
+          setHasMoreEvents(result.hasMore);
+        }
+        // Clear the hash from URL
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
   const debouncedHistorySearch = useDebounce(historySearch, 300);
 
   const fetchData = useCallback(async () => {
@@ -99,7 +123,7 @@ function HomePage() {
     if (loadingMore || !hasMoreEvents) return;
     setLoadingMore(true);
     try {
-      const result = await getEvents({ limit: EVENTS_PER_PAGE, offset: events.length });
+      const result = await getEvents({ limit: EVENTS_PER_PAGE, offset: events.length, search: debouncedEventSearch || undefined });
       setEvents(prev => [...prev, ...result.events]);
       setHasMoreEvents(result.hasMore);
     } catch (err) {
@@ -107,7 +131,22 @@ function HomePage() {
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMoreEvents, events.length]);
+  }, [loadingMore, hasMoreEvents, events.length, debouncedEventSearch]);
+
+  // Refetch events when search changes
+  useEffect(() => {
+    if (!dataLoaded) return;
+    const searchEvents = async () => {
+      try {
+        const result = await getEvents({ limit: EVENTS_PER_PAGE, offset: 0, search: debouncedEventSearch || undefined });
+        setEvents(result.events);
+        setHasMoreEvents(result.hasMore);
+      } catch (err) {
+        console.error("Failed to search events:", err);
+      }
+    };
+    searchEvents();
+  }, [debouncedEventSearch, dataLoaded]);
 
   const loadMoreHistory = useCallback(async () => {
     if (loadingMoreHistory || !hasMoreHistory) return;
@@ -241,7 +280,7 @@ function HomePage() {
                           : "text-gray-500 hover:text-gray-300"
                       }`}
                     >
-                      {v === "events" ? "Shows" : v === "submit" ? "+ Submit" : v.charAt(0).toUpperCase() + v.slice(1)}
+                      {v === "events" ? "Shows" : v === "submit" ? "Submit" : v.charAt(0).toUpperCase() + v.slice(1)}
                     </button>
                   ))}
                 </div>
@@ -265,8 +304,18 @@ function HomePage() {
                             placeholder="Search..."
                             value={view === "events" ? eventSearch : historySearch}
                             onChange={(e) => view === "events" ? setEventSearch(e.target.value) : setHistorySearch(e.target.value)}
-                            className="w-28 sm:w-40 pl-8 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                            className="w-44 sm:w-56 pl-8 pr-8 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
                           />
+                          {(view === "events" ? eventSearch : historySearch) && (
+                            <button
+                              onClick={() => view === "events" ? setEventSearch("") : setHistorySearch("")}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-500 hover:text-white transition-colors"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       )}
                       {view === "history" ? (

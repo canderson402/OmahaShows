@@ -22,9 +22,10 @@ interface EventListProps {
   hasMore?: boolean;  // more events available from database
   loadingMore?: boolean;  // currently loading more from database
   onLoadMore?: () => void;  // callback to load more from database
+  highlightedEventId?: string | null;  // event to highlight and scroll to
 }
 
-export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore }: EventListProps) {
+export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const today = useMemo(() => {
@@ -36,6 +37,7 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
   useEffect(() => {
     setVisibleCount(EVENTS_PER_PAGE);
   }, [filter?.enabledVenues?.size, filter?.showPast, filter?.timeFilter, filter?.searchQuery]);
+
 
   // Memoize filtered and sorted events
   const filtered = useMemo(() => {
@@ -129,6 +131,26 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
   const visibleEvents = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
   const hasMore = visibleCount < filtered.length || hasMoreFromDb;
 
+  // Scroll to highlighted event - keep loading if not found yet
+  useEffect(() => {
+    if (!highlightedEventId) return;
+
+    const eventInVisible = visibleEvents.some(e => e.id === highlightedEventId);
+
+    if (eventInVisible) {
+      // Event is visible, scroll to it
+      setTimeout(() => {
+        const element = document.getElementById(highlightedEventId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 200);
+    } else if (hasMore && onLoadMore && !loadingMore) {
+      // Event not found yet, load more
+      loadMore();
+    }
+  }, [highlightedEventId, visibleEvents, hasMore, onLoadMore, loadingMore, loadMore]);
+
   if (filtered.length === 0) {
     return (
       <div className="text-center py-12">
@@ -148,6 +170,7 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
               event={event}
               venueColors={venueColors}
               isJustAdded={isJustAdded?.(event)}
+              isHighlighted={event.id === highlightedEventId}
             />
           ))}
         </div>
