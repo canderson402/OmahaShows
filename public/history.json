@@ -1,6 +1,14 @@
 {
   "shows": [
     {
+      "date": "2026-03-02",
+      "title": "Stateside",
+      "venue": "Reverb Lounge",
+      "supportingArtists": [
+        "Firestarter"
+      ]
+    },
+    {
       "date": "2026-03-01",
       "title": "Scattered Hamlet",
       "venue": "Reverb Lounge",
@@ -40,7 +48,7 @@
     },
     {
       "date": "2026-02-28",
-      "title": "Melodrama / Olio \u2013 Night Four",
+      "title": "Melodrama / Olio – Night Four",
       "venue": "Admiral",
       "supportingArtists": null
     },
@@ -81,7 +89,7 @@
     },
     {
       "date": "2026-02-27",
-      "title": "Melodrama / Olio \u2013 Night Three",
+      "title": "Melodrama / Olio – Night Three",
       "venue": "Admiral",
       "supportingArtists": null
     },
@@ -142,5 +150,5 @@
       "supportingArtists": null
     }
   ],
-  "lastUpdated": "2026-03-02T09:38:52.637983+00:00"
+  "lastUpdated": "2026-03-03T03:20:42.293128+00:00"
 }

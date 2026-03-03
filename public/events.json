@@ -1,43 +1,6 @@
 {
   "events": [
     {
-      "id": "reverblounge-2026-03-01-scattered-hamlet",
-      "title": "Scattered Hamlet",
-      "date": "2026-03-01",
-      "time": "19:00",
-      "venue": "Reverb Lounge",
-      "eventUrl": "https://reverblounge.com/event/scattered-hamlet/reverb-lounge/",
-      "ticketUrl": "https://www.etix.com/ticket/p/50289662/scattered-hamlet-omaha-reverb-lounge?partner_id=100",
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/01/scattered-hamlet.jfif",
-      "price": "$20 ADV / $25 DOS",
-      "ageRestriction": "ALL AGES",
-      "supportingArtists": [
-        "Molten",
-        "Fallen Reign",
-        "The Hooligan Gentlemen",
-        "The Dead Man's Band"
-      ],
-      "source": "reverblounge",
-      "addedAt": "2026-03-01T19:28:38.192087+00:00"
-    },
-    {
-      "id": "reverblounge-2026-03-02-stateside",
-      "title": "Stateside",
-      "date": "2026-03-02",
-      "time": "19:00",
-      "venue": "Reverb Lounge",
-      "eventUrl": "https://reverblounge.com/event/stateside/reverb-lounge/",
-      "ticketUrl": "https://www.etix.com/ticket/p/48002350/stateside-omaha-reverb-lounge?partner_id=100",
-      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/01/stateside.jfif",
-      "price": "$18 ADV / $20 DOS",
-      "ageRestriction": "ALL AGES",
-      "supportingArtists": [
-        "Firestarter"
-      ],
-      "source": "reverblounge",
-      "addedAt": "2026-03-01T19:28:38.192087+00:00"
-    },
-    {
       "id": "theslowdown-2026-03-03-all-them-witches",
       "title": "All Them Witches",
       "date": "2026-03-03",
@@ -5124,7 +5087,7 @@
       "addedAt": "2026-03-01T19:28:38.192087+00:00"
     }
   ],
-  "lastUpdated": "2026-03-02T17:12:47.953335+00:00",
+  "lastUpdated": "2026-03-03T03:20:42.293128+00:00",
   "sources": [
     {
       "name": "Slowdown",
