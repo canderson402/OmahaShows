@@ -6,4 +6,10 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: '/',  // Custom domain: omahashows.com
+  server: {
+    watch: {
+      // Ignore scraper directory to prevent reload when scrapers write output
+      ignored: ['**/scraper/**'],
+    },
+  },
 })

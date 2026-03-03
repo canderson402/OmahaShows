@@ -9,6 +9,7 @@ interface EventCardCompactProps {
   event: Event;
   venueColors?: VenueColors;
   isJustAdded?: boolean;
+  isHighlighted?: boolean;
 }
 
 // Image component with error fallback
@@ -51,6 +52,7 @@ export const EventCardCompact = memo(function EventCardCompact({
   event,
   venueColors,
   isJustAdded,
+  isHighlighted,
 }: EventCardCompactProps) {
   const formatDateOverlay = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
@@ -72,7 +74,10 @@ export const EventCardCompact = memo(function EventCardCompact({
   const listingUrl = event.eventUrl || event.ticketUrl;
 
   return (
-    <div className="py-6">
+    <div
+      id={event.id}
+      className={`py-6 transition-all duration-500 ${isHighlighted ? "bg-amber-500/10 -mx-4 px-4 rounded-xl" : ""}`}
+    >
       {/* Mobile Layout */}
       <div className="md:hidden flex flex-col gap-4">
         {/* Image with date header - not clickable on mobile to prevent accidental taps */}

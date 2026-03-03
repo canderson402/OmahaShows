@@ -19,9 +19,13 @@ interface EventListProps {
   };
   venueColors?: VenueColors;
   isJustAdded?: (event: Event) => boolean;  // function to check if event is just added
+  hasMore?: boolean;  // more events available from database
+  loadingMore?: boolean;  // currently loading more from database
+  onLoadMore?: () => void;  // callback to load more from database
+  highlightedEventId?: string | null;  // event to highlight and scroll to
 }
 
-export function EventList({ events, layout, filter, venueColors, isJustAdded }: EventListProps) {
+export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const today = useMemo(() => {
@@ -33,6 +37,7 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
   useEffect(() => {
     setVisibleCount(EVENTS_PER_PAGE);
   }, [filter?.enabledVenues?.size, filter?.showPast, filter?.timeFilter, filter?.searchQuery]);
+
 
   // Memoize filtered and sorted events
   const filtered = useMemo(() => {
@@ -91,8 +96,14 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
 
   // Infinite scroll with IntersectionObserver
   const loadMore = useCallback(() => {
-    setVisibleCount(v => Math.min(v + EVENTS_PER_PAGE, filtered.length));
-  }, [filtered.length]);
+    const newCount = Math.min(visibleCount + EVENTS_PER_PAGE, filtered.length);
+    setVisibleCount(newCount);
+
+    // If we've shown all filtered events and there's more in database, load more
+    if (newCount >= filtered.length && hasMoreFromDb && onLoadMore && !loadingMore) {
+      onLoadMore();
+    }
+  }, [filtered.length, visibleCount, hasMoreFromDb, onLoadMore, loadingMore]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -118,7 +129,27 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
 
   // Only show events up to visibleCount
   const visibleEvents = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
-  const hasMore = visibleCount < filtered.length;
+  const hasMore = visibleCount < filtered.length || hasMoreFromDb;
+
+  // Scroll to highlighted event - keep loading if not found yet
+  useEffect(() => {
+    if (!highlightedEventId) return;
+
+    const eventInVisible = visibleEvents.some(e => e.id === highlightedEventId);
+
+    if (eventInVisible) {
+      // Event is visible, scroll to it
+      setTimeout(() => {
+        const element = document.getElementById(highlightedEventId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 200);
+    } else if (hasMore && onLoadMore && !loadingMore) {
+      // Event not found yet, load more
+      loadMore();
+    }
+  }, [highlightedEventId, visibleEvents, hasMore, onLoadMore, loadingMore, loadMore]);
 
   if (filtered.length === 0) {
     return (
@@ -139,11 +170,12 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
               event={event}
               venueColors={venueColors}
               isJustAdded={isJustAdded?.(event)}
+              isHighlighted={event.id === highlightedEventId}
             />
           ))}
         </div>
         {/* Invisible sentinel for infinite scroll */}
-        {hasMore && (
+        {(hasMore || loadingMore) && (
           <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
             <div className="w-6 h-6 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
           </div>
@@ -160,7 +192,7 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded }: 
         ))}
       </div>
       {/* Invisible sentinel for infinite scroll */}
-      {hasMore && (
+      {(hasMore || loadingMore) && (
         <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
           <div className="w-6 h-6 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
         </div>

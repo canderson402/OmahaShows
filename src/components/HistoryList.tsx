@@ -11,6 +11,9 @@ interface HistoryListProps {
   searchQuery: string;
   venueColors: VenueColors;
   timeFilter?: HistoryTimeFilter;
+  hasMore?: boolean;  // more shows available from database
+  loadingMore?: boolean;  // currently loading more from database
+  onLoadMore?: () => void;  // callback to load more from database
 }
 
 const SHOWS_PER_PAGE = 25;
@@ -31,7 +34,7 @@ const venueNameToId: Record<string, string> = {
   "Barnato": "barnato",
 };
 
-export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, timeFilter = "all" }: HistoryListProps) {
+export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, timeFilter = "all", hasMore: hasMoreFromDb, loadingMore, onLoadMore }: HistoryListProps) {
   const [visibleCount, setVisibleCount] = useState(SHOWS_PER_PAGE);
   const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(new Set());
   const [collapsedDays, setCollapsedDays] = useState<Set<string>>(new Set());
@@ -42,37 +45,9 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
     setVisibleCount(SHOWS_PER_PAGE);
   }, [enabledVenues.size, searchQuery, timeFilter]);
 
-  // Filter shows
+  // Filter shows (time filtering done by database, only venue/search here)
   const filtered = useMemo(() => {
     let result = shows;
-
-    // Filter by time period
-    if (timeFilter !== "all") {
-      const now = new Date();
-      const toLocalDateStr = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      const today = toLocalDateStr(now);
-      let cutoffDate: string;
-
-      if (timeFilter === "30days") {
-        const d = new Date(now);
-        d.setDate(d.getDate() - 30);
-        cutoffDate = toLocalDateStr(d);
-      } else if (timeFilter === "90days") {
-        const d = new Date(now);
-        d.setDate(d.getDate() - 90);
-        cutoffDate = toLocalDateStr(d);
-      } else if (timeFilter === "year") {
-        const d = new Date(now);
-        d.setFullYear(d.getFullYear() - 1);
-        cutoffDate = toLocalDateStr(d);
-      } else if (timeFilter === "this-year") {
-        cutoffDate = `${now.getFullYear()}-01-01`;
-      } else {
-        cutoffDate = "1900-01-01";
-      }
-
-      result = result.filter((show) => show.date >= cutoffDate && show.date < today);
-    }
 
     // Filter by venue
     if (enabledVenues.size > 0) {
@@ -92,12 +67,18 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
     }
 
     return result;
-  }, [shows, enabledVenues, searchQuery, timeFilter]);
+  }, [shows, enabledVenues, searchQuery]);
 
   // Infinite scroll with IntersectionObserver
   const loadMore = useCallback(() => {
-    setVisibleCount(v => Math.min(v + SHOWS_PER_PAGE, filtered.length));
-  }, [filtered.length]);
+    const newCount = Math.min(visibleCount + SHOWS_PER_PAGE, filtered.length);
+    setVisibleCount(newCount);
+
+    // If we've shown all filtered shows and there's more in database, load more
+    if (newCount >= filtered.length && hasMoreFromDb && onLoadMore && !loadingMore) {
+      onLoadMore();
+    }
+  }, [filtered.length, visibleCount, hasMoreFromDb, onLoadMore, loadingMore]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -122,7 +103,7 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
   }, [loadMore]);
 
   const visibleShows = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
-  const hasMore = visibleCount < filtered.length;
+  const hasMore = visibleCount < filtered.length || hasMoreFromDb;
 
   const getVenueId = (venueName: string) => venueNameToId[venueName] || "other";
 
@@ -296,7 +277,7 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
       })}
 
       {/* Infinite scroll sentinel */}
-      {hasMore && (
+      {(hasMore || loadingMore) && (
         <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
           <div className="w-6 h-6 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
         </div>

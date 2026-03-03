@@ -1,0 +1,57 @@
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { AdminDashboard, type AdminTab } from "../components/AdminDashboard";
+
+export function AdminPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated, loading, logout } = useAuth();
+  const [tab, setTabState] = useState<AdminTab>("pending");
+
+  const setTab = (newTab: AdminTab) => {
+    setTabState(newTab);
+  };
+
+  // Protected route - redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, loading, navigate]);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-texture flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-texture">
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-block">
+            <h1 className="text-4xl font-black tracking-tight">
+              <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-purple-500 bg-clip-text text-transparent">OMAHA</span>
+              <span className="text-white ml-2">SHOWS</span>
+            </h1>
+          </Link>
+        </div>
+
+        <div className="content-container border border-gray-800 rounded-xl p-6">
+          <AdminDashboard onLogout={handleLogout} tab={tab} setTab={setTab} />
+        </div>
+      </div>
+    </div>
+  );
+}
