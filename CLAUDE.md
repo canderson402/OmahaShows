@@ -6,378 +6,199 @@ A local music event aggregator that scrapes venue websites and displays upcoming
 
 - **NEVER commit until the user has tested the changes first.** Always wait for explicit approval before committing.
 - Run `npm run build` to verify changes compile, but let the user run `npm run dev` and test before committing.
-- **NEVER modify external URLs in events.json.** Only the scraper should set image URLs. External URLs (http/https) must never be changed - we don't control those files. Only local paths like `/images/astro/` can be modified.
-- Before committing events.json changes, run `npm run validate` to check for issues.
-- **Do not include `Co-Authored-By` in commit messages** unless the user explicitly asks for it.
-- **Always use `run_scrape.py` for scraping** - never use inline scrape scripts. `run_scrape.py` handles archiving past events to `history.json`, tracking new/changed/removed events, and `addedAt` timestamps. After running, copy both output files (only written if changes detected):
-  ```bash
-  cd scraper
-  PYTHONIOENCODING=utf-8 python3 run_scrape.py
-  cp output/events.json ../public/events.json
-  cp output/history.json ../public/history.json
-  ```
-- **Windows encoding**: Always use `encoding="utf-8"` when reading/writing JSON files in Python on Windows. The default `cp1252` codec will fail on special characters.
 
-**Live Site:** https://omahashows.com/ (custom domain, GitHub Pages with auto HTTPS)
+**Live Site:** https://omahashows.com (hosted on Vercel)
+
+## Architecture
+
+### Frontend (Vercel)
+- React + Vite + Tailwind
+- Hosted on Vercel with custom domain
+- Fetches data from Supabase
+
+### Backend (Supabase)
+- PostgreSQL database for events, venues, scraper runs
+- Storage bucket `uploads` for user-uploaded event images
+- Edge Functions for email notifications (Resend API)
+- Row Level Security (RLS) for access control
+
+### Scrapers (GitHub Actions)
+- Python scrapers run via GitHub Actions cron (3 AM & 12 PM Central)
+- Can also be triggered manually from admin dashboard
+- Results written directly to Supabase
 
 ## Project Structure
 
 ```
-omaha_shows/
-├── src/                        # React + Vite + Tailwind frontend
-│   ├── App.tsx                 # Main app with venue filters, layout, views
-│   ├── components/
-│   │   ├── EventCard.tsx        # Full-size event card
-│   │   ├── EventCardCompact.tsx # Compact event card (primary view)
-│   │   ├── EventList.tsx        # Event list with pagination
-│   │   ├── HistoryList.tsx      # Past shows with collapsible months
-│   │   ├── CalendarView.tsx     # Calendar grid view
-│   │   ├── DayEventsSheet.tsx   # Side panel for calendar day details
-│   │   ├── FiltersDropdown.tsx  # Venue/time filter dropdowns
-│   │   ├── ContactModal.tsx     # Contact form modal
-│   │   ├── SeoStructuredData.tsx # Dynamic JSON-LD MusicEvent schema injection
-│   │   └── Dashboard.tsx        # Scraper dashboard (dev only)
-│   ├── index.css               # Global styles, backgrounds
-│   └── types.ts                # TypeScript types
-├── public/
-│   ├── events.json             # Scraped event data (upcoming)
-│   ├── history.json            # Archived past events
-│   ├── images/astro/           # Downloaded Astro Theater images
-│   ├── favicon.svg             # Gradient "O" favicon
-│   ├── og-image.png            # 1200x630 Open Graph image for social sharing
-│   ├── robots.txt              # Search engine crawl rules + sitemap reference
-│   ├── sitemap.xml             # Sitemap for Google Search Console
-│   └── 404.html                # Branded 404 page (GitHub Pages serves this)
-├── scraper/                    # Python scrapers
-│   ├── scrapers/
-│   │   ├── base.py             # BaseScraper class
-│   │   ├── theslowdown.py      # Slowdown (BeautifulSoup)
-│   │   ├── waitingroom.py      # Waiting Room (BeautifulSoup, RHP)
-│   │   ├── reverblounge.py     # Reverb Lounge (BeautifulSoup, RHP)
-│   │   ├── admiral.py          # Admiral (BeautifulSoup, RHP)
-│   │   ├── bourbontheatre.py   # Bourbon Theatre (BeautifulSoup, TicketWeb)
-│   │   ├── astrotheater.py     # The Astro (Playwright + image downloads)
-│   │   ├── steelhouse.py       # Steelhouse (BeautifulSoup)
-│   │   ├── opa.py              # Holland Center & Orpheum (ticketomaha.com, shared cache)
-│   │   ├── ticketweb.py        # Barnato (TicketWeb widget)
-│   │   └── omahaunderground.py # Other venues via omahaunderground.net
-│   ├── models.py               # Pydantic models (Event, SourceStatus, HistoricalShow, etc.)
-│   ├── config.py               # Scraper registry
-│   ├── api.py                  # FastAPI for local dev scraping
-│   ├── run_scrape.py           # Main scrape script (archives history, tracks changes)
-│   └── output/
-│       ├── events.json         # Scraper output (upcoming events)
-│       └── history.json        # Archived past events
+ShowCal/
+├── web/                    # React + Vite + Tailwind frontend
+│   ├── src/
+│   │   ├── App.tsx         # Main app with venue filters, layout
+│   │   ├── components/
+│   │   │   ├── EventCardCompact.tsx # Compact event card (primary view)
+│   │   │   ├── EventList.tsx        # Event list with infinite scroll
+│   │   │   ├── AdminDashboard.tsx   # Admin panel (pending events, scrapers)
+│   │   │   ├── ScraperDashboard.tsx # Scraper status and controls
+│   │   │   ├── SubmitShowForm.tsx   # Public show submission form
+│   │   │   └── Toast.tsx            # Toast notifications
+│   │   ├── lib/
+│   │   │   └── supabase.ts  # Supabase client and data fetching
+│   │   ├── pages/
+│   │   │   ├── AdminPage.tsx
+│   │   │   ├── LoginPage.tsx
+│   │   │   └── SubmissionPage.tsx
+│   │   └── hooks/
+│   │       └── useAuth.ts   # Authentication hook
+│   ├── public/
+│   │   └── images/astro/    # Downloaded Astro Theater images
+│   └── vercel.json          # Vercel config with SPA rewrites
+│
+├── scraper/                # Python scrapers
+│   ├── scrapers/           # Individual venue scrapers
+│   ├── run_scrape_supabase.py  # Main scraper script for GitHub Actions
+│   └── api.py              # FastAPI for local dev
+│
+├── supabase/
+│   ├── functions/
+│   │   └── send-approval-email/  # Edge function for notifications
+│   └── schema.sql          # Database schema
+│
 └── .github/workflows/
-    ├── deploy.yml              # GitHub Pages deployment (on push to main)
-    └── scrape.yml              # Daily automated scrape (9 AM UTC / 3 AM Central)
+    └── scrape-supabase.yml # Scheduled scraper workflow
 ```
 
-## Current Venues (11)
+## Environment Variables
 
-| Venue | Scraper ID | Scraper Type | Notes |
-|-------|-----------|--------------|-------|
-| Slowdown | theslowdown | BeautifulSoup | seetickets listings, prices from hidden `.price` element |
-| Waiting Room | waitingroom | BeautifulSoup | RHP system |
-| Reverb Lounge | reverblounge | BeautifulSoup | RHP system |
-| Admiral | admiral | BeautifulSoup | RHP system |
-| Bourbon Theatre | bourbontheatre | BeautifulSoup | TicketWeb `.tw-cal-event-popup` containers |
-| The Astro | astrotheater | Playwright | JS-rendered, downloads images locally |
-| Steelhouse | steelhouse | BeautifulSoup | steelhouseomaha.com |
-| Holland Center | holland | BeautifulSoup (OPA) | ticketomaha.com, fetches detail pages for prices |
-| Orpheum Theater | orpheum | BeautifulSoup (OPA) | ticketomaha.com, shares cache with Holland |
-| Barnato | barnato | BeautifulSoup | TicketWeb widget via barnato.bar |
-| Other | other | BeautifulSoup | omahaunderground.net, skips known venues |
+### Vercel (web project)
+```
+VITE_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_ANON_KEY=xxx
+VITE_GITHUB_OWNER=canderson402
+VITE_GITHUB_REPO=OmahaShows
+VITE_GITHUB_TOKEN=xxx  # For triggering scraper workflows
+```
 
-## Price Scraping
+### GitHub Actions (repository secrets)
+```
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_SERVICE_KEY=xxx  # Service role key for elevated access
+```
 
-- **Slowdown**: Prices exist in hidden `.price` elements on the listing page (not visible to users). Extracted as "From $X" using the low end of the range. `$0.00` becomes "Free".
-- **Holland Center / Orpheum**: No prices on listing page. Each event's detail page on ticketomaha.com is fetched (with 0.5s delay between requests) to extract "Tickets start at $X" → "From $X". Uses class-level `_price_cache` shared between both venue instances.
-- **Slowdown detail pages** (eventim.us) return 403 due to bot protection - cannot be scraped with requests.
+### Supabase Edge Functions
+```
+RESEND_API_KEY=xxx  # For sending approval emails
+```
 
-## History System
+## Key Features
 
-Past events are automatically archived to `history.json` by `run_scrape.py`:
-- When a scrape runs, any event with a date before today is moved from `events.json` to `history.json`
-- Deduplication by `(date, title, venue)` tuple
-- The history tab in the frontend shows collapsible month sections, with only the last 7 days expanded by default
-- The GitHub Actions scrape workflow commits both `events.json` and `history.json`
-- Unknown venues in history (from "other" scraper) fall back to `"other"` venue ID for filtering/colors
+### Public Features
+- **Show Listings**: Browse upcoming shows with filters by venue, time, search
+- **History**: View past shows with date range filters
+- **Submit Shows**: Public form to submit shows for admin approval
+- **Shareable Links**: Share events via URL hash (e.g., omahashows.com#event-id)
 
-## Scraper Change Detection
+### Admin Features (`/admin`)
+- **Pending Events**: Preview and edit submitted shows before approving
+- **Event Management**: Edit/delete any event
+- **Scraper Dashboard**:
+  - View scraper status and last run times
+  - Trigger scrapers via GitHub Actions
+  - Shows "Pending" spinner while workflows run
 
-`run_scrape.py` tracks four types of changes:
-- **Added** — new events not seen before (sets `addedAt` timestamp)
-- **Changed** — existing events with updated title, date, time, price, image, or URLs
-- **Removed** — events that disappeared from a successful scraper (cancelled/delisted). Failed scrapers don't trigger removals.
-- **Archived** — past events moved to history
+### Supabase Storage
+- Bucket: `uploads` (public)
+- RLS Policies required for both `anon` and `authenticated` roles:
+  ```sql
+  -- INSERT policy
+  CREATE POLICY "allow-uploads" ON storage.objects
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (bucket_id = 'uploads');
 
-If no changes are detected (added=0, changed=0, removed=0, archived=0), output files are **not written**, preventing unnecessary git commits and deploys.
+  -- SELECT policy
+  CREATE POLICY "allow-read" ON storage.objects
+  FOR SELECT TO anon, authenticated
+  USING (bucket_id = 'uploads');
+  ```
 
-## SEO
+## Current Venues
 
-- **Meta tags**: title, description, canonical, theme-color, Open Graph, Twitter Card in `index.html`
-- **Structured data**: Static `WebSite` JSON-LD in `index.html`; dynamic `MusicEvent` `ItemList` JSON-LD injected by `SeoStructuredData.tsx` with venue addresses
-- **Dynamic document title**: Changes per view (Shows/Calendar/History)
-- **Static files**: `robots.txt`, `sitemap.xml`, `404.html`, `og-image.png` in `public/`
-- **Domain**: `omahashows.com` with HTTPS via GitHub Pages (free Let's Encrypt cert)
-- Submit sitemap at Google Search Console after deploying
+| Venue | Scraper Type | Notes |
+|-------|--------------|-------|
+| The Slowdown | BeautifulSoup | Standard HTML |
+| Waiting Room | BeautifulSoup | RHP system |
+| Reverb Lounge | BeautifulSoup | RHP system |
+| Admiral | BeautifulSoup | RHP system |
+| Bourbon Theatre | Playwright | JS-rendered |
+| The Astro | Playwright | Downloads images locally |
+| Steelhouse Omaha | BeautifulSoup | |
 
-## Adding New Venues
+## Common Tasks
 
-### Step 1: Analyze the Site
-
+### Deploy to Production
 ```bash
-# Check if it needs Playwright (JS-rendered)
-curl -s "https://venue-url.com/events" | head -100
-
-# If you see actual event data, use BeautifulSoup
-# If you see empty containers or JS loading, use Playwright
+cd web
+npx vercel --prod --yes
 ```
 
-### Step 2: Create the Scraper
+### Trigger Scrapers Manually
+1. Go to admin dashboard → Scrapers tab
+2. Click "Run All Scrapers" or individual scraper buttons
+3. Watch for "Pending" spinners, results appear in ~60s
 
-For **static HTML sites** (BeautifulSoup):
-```python
-# scraper/scrapers/newvenue.py
-import re
-import sys
-from datetime import datetime
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from scrapers.base import BaseScraper
-from models import Event
-
-class NewVenueScraper(BaseScraper):
-    name = "Venue Name"
-    id = "venueid"  # lowercase, no spaces
-    url = "https://venue-url.com/events"
-
-    def parse_events(self, html: str) -> list[Event]:
-        soup = self.get_soup(html)
-        events = []
-        # ... parse logic
-        return events
+### Add Supabase Storage Policy
+```sql
+CREATE POLICY "policy-name"
+ON storage.objects
+FOR INSERT  -- or SELECT, UPDATE, DELETE
+TO anon     -- or authenticated, or both
+WITH CHECK (bucket_id = 'uploads');
 ```
 
-For **JS-rendered sites** (Playwright):
-```python
-from playwright.sync_api import sync_playwright
-
-class NewVenueScraper(BaseScraper):
-    name = "Venue Name"
-    id = "venueid"
-    url = "https://venue-url.com/events"
-
-    def scrape(self) -> list[Event]:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
-            page.goto(self.url, wait_until="networkidle", timeout=30000)
-            page.wait_for_timeout(3000)  # Wait for JS
-            events = self._extract_events(page)
-            browser.close()
-            return events
-```
-
-### Step 3: Register the Scraper
-
-Add to `scraper/config.py`:
-```python
-from scrapers.newvenue import NewVenueScraper
-SCRAPERS = [
-    # ... existing scrapers
-    NewVenueScraper(),
-]
-```
-
-Add to `scraper/api.py`:
-```python
-from scrapers.newvenue import NewVenueScraper
-SCRAPERS = {
-    # ... existing scrapers
-    "venueid": NewVenueScraper(),
-}
-```
-
-### Step 4: Add Venue Color
-
-In `src/App.tsx`, add to `VENUE_COLORS`:
-```typescript
-export const VENUE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  // ... existing venues
-  venueid: { bg: "bg-teal-500/20", text: "text-teal-400", border: "border-teal-500" },
-};
-```
-
-Also add to `src/components/HistoryList.tsx` `venueNameToId` map:
-```typescript
-"Venue Name": "venueid",
-```
-
-### Step 5: Test & Deploy
-
+### Check Scraper Logs
 ```bash
-# Test scraper
-cd scraper
-python3 -c "from scrapers.newvenue import NewVenueScraper; s = NewVenueScraper(); print(len(s.scrape()))"
-
-# Run full scrape (archives past events to history automatically)
-PYTHONIOENCODING=utf-8 python3 run_scrape.py
-
-# Copy to public
-cp output/events.json ../public/events.json
-cp output/history.json ../public/history.json
+gh run list --repo canderson402/OmahaShows --limit 5
+gh run view RUN_ID --repo canderson402/OmahaShows --log
 ```
 
-## Tips & Tricks Discovered
+## Tips & Gotchas
 
-### Scraping
+### Timezone Issue
+- Use `getLocalDateString()` helper (not `toISOString()`) to get local date
+- Otherwise events disappear in evening when UTC advances to next day
 
-1. **Bot Protection**: Some sites (like Astro Theater, Slowdown detail pages on eventim.us) have Cloudflare/bot protection. Use Playwright for JS-rendered sites, or fall back to listing page data.
+### Supabase Storage RLS
+- Must have policies for BOTH `anon` AND `authenticated` roles
+- Testing while logged in uses `authenticated`, logged out uses `anon`
+- Check policies with: `SELECT * FROM pg_policies WHERE schemaname = 'storage';`
 
-2. **Hotlink Protection**: Astro Theater blocks image hotlinking. Solution: Download images during scraping to `public/images/astro/` and reference locally.
+### URL Normalization
+- URLs without `http://` or `https://` are auto-prefixed with `https://`
+- Handled in `SubmitShowForm.tsx` and `AdminDashboard.tsx`
 
-3. **Image Path for GitHub Pages**: Local images must use the base path:
-   ```python
-   return f"/OmahaShows/images/astro/{filename}"  # NOT /images/astro/
-   ```
+### Vercel Environment Variables
+- Must be prefixed with `VITE_` to be exposed to frontend
+- Changes require redeploy to take effect
+- Make sure variables are enabled for "Production" environment
 
-4. **RHP System**: Waiting Room, Reverb, and Admiral all use the same "Red House Press" event system with similar HTML structure.
+### GitHub Actions Mode
+- "View" button only works in local dev mode (fetches from localhost API)
+- In production, view event counts and status from scraper_runs table
 
-5. **TicketWeb Widget**: Bourbon Theatre and Barnato use `.tw-cal-event-popup` containers with `.tw-image`, `.tw-name`, `.tw-date` classes.
+## Database Schema (key tables)
 
-6. **OPA Shared Cache**: Holland Center and Orpheum share a class-level `_cache` so the paginated ticketomaha.com site is only fetched once when both scrapers run. Price fetches also share `_price_cache`.
+### events
+- id, title, date, time, venue_id
+- event_url, ticket_url, image_url
+- price, age_restriction, supporting_artists
+- status (pending/approved/rejected)
+- submitter_email, source, added_at
 
-7. **Detail Page Price Fetching**: When listing pages don't have prices, fetch individual event detail pages with a polite delay (0.5s). Use `requests.Session` for connection reuse.
+### venues
+- id, name, description, address, city, state
+- website_url, color_bg, color_text, color_border
+- active (boolean)
 
-### Frontend
-
-1. **GitHub Pages Base URL**: Set in `vite.config.ts`:
-   ```typescript
-   export default defineConfig({
-     base: '/OmahaShows/',
-   })
-   ```
-
-2. **Fetching events.json**: Use `import.meta.env.BASE_URL` for the path:
-   ```typescript
-   fetch(`${import.meta.env.BASE_URL}events.json`)
-   ```
-
-3. **Mobile Background Issues**: `background-attachment: fixed` breaks on iOS/Android. Use media query:
-   ```css
-   @media (max-width: 768px) {
-     .bg-texture {
-       background-attachment: scroll;
-     }
-   }
-   ```
-
-4. **Responsive Layout**: Use `md:` prefix for desktop-only styles. Mobile is full-width, desktop has padding/rounded corners.
-
-5. **Image Aspect Ratios**: Use blurred background fill technique for varying aspect ratios:
-   ```tsx
-   <div className="relative">
-     <img src={url} className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60" />
-     <img src={url} className="relative w-full aspect-square object-contain" />
-   </div>
-   ```
-
-6. **Prevent White Flash on Mobile**: Set dark background on html/body as fallback:
-   ```css
-   html, body {
-     background-color: #0d0d0f;
-   }
-   ```
-
-### Deployment
-
-1. **TypeScript Strict Mode**: Build fails on unused variables. Remove them or use `_varName` prefix.
-
-2. **GitHub Pages Setup**:
-   - Go to repo Settings → Pages
-   - Set Source to "GitHub Actions"
-   - Workflow deploys automatically on push to main
-
-3. **Daily Scrape**: GitHub Actions runs `scrape.yml` daily at 9 AM UTC (3 AM Central). It:
-   - Runs `run_scrape.py` which scrapes all venues, archives past events to history
-   - `run_scrape.py` only writes files if changes detected (new/changed/removed/archived events)
-   - Copies both `events.json` and `history.json` to `public/`
-   - Commits and pushes only if files actually changed (git diff check)
-   - Triggers `deploy.yml` to rebuild and deploy the site
-
-4. **Check Workflow Status**:
-   ```bash
-   gh run list --repo canderson402/OmahaShows --limit 1
-   gh run view RUN_ID --repo canderson402/OmahaShows --log-failed
-   ```
-
-## Data Models
-
-```typescript
-// Upcoming event
-interface Event {
-  id: string;           // "venueid-YYYY-MM-DD-slug"
-  title: string;
-  date: string;         // "YYYY-MM-DD"
-  time: string | null;  // "HH:MM" (24-hour)
-  venue: string;        // Display name
-  eventUrl: string | null;   // Event detail page
-  ticketUrl: string | null;  // Ticket purchase link
-  imageUrl: string | null;
-  price: string | null;       // "From $25", "Free", or null
-  ageRestriction: string | null;
-  supportingArtists: string[] | null;
-  source: string;       // Scraper ID
-  addedAt: string | null; // ISO timestamp when first seen
-}
-
-// Archived past event
-interface HistoricalShow {
-  date: string;         // "YYYY-MM-DD"
-  title: string;
-  venue: string;
-  supportingArtists: string[] | null;
-}
-```
-
-## Local Development
-
-```bash
-# Start web dev server
-npm run dev
-
-# Start API (for live scraping in browser)
-cd scraper
-python3 api.py
-
-# Run full scrape (preferred method - archives history)
-cd scraper
-PYTHONIOENCODING=utf-8 python3 run_scrape.py
-cp output/events.json ../public/events.json
-cp output/history.json ../public/history.json
-
-# Test a single scraper
-python3 -c "from scrapers.theslowdown import SlowdownScraper; s = SlowdownScraper(); print(len(s.scrape()))"
-```
-
-## Recently Added System
-
-- Events get an `addedAt` ISO timestamp when first scraped. Existing events without `addedAt` get backfilled on next scrape.
-- The "Recently Added" badge shows on up to 10 events that have a **newer** `addedAt` than the oldest event. If all events share the same timestamp, no badges are shown.
-- The "Recently Added" filter in FiltersDropdown uses the same logic.
-
-## UI Notes
-
-- When `eventUrl` and `ticketUrl` are the same, only the "Info" button is shown (avoids duplicate buttons, e.g. Slowdown).
-- History day rows have a subtle `bg-gray-800/30` background to visually separate them from show entries.
-- The site uses system fonts (no custom font imports) with `font-black tracking-tight` on the header.
-- Header gradient colors: `from-amber-400` (#fbbf24) `via-rose-400` (#fb7185) `to-purple-500` (#a855f7).
-
-## Future Ideas
-
-- Add more Omaha venues (Sokol Auditorium, The Sydney, Harney Street Tavern, etc.)
-- Search/filter by artist name
-- Email/push notifications for favorite artists
-- Spotify integration to highlight artists you follow
+### scraper_runs
+- scraper_id, scraper_name, status
+- event_count, error_message
+- started_at, finished_at
