@@ -54,12 +54,15 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
         # Check if event exists and get all fields for comparison
         existing = supabase.table("events").select("*").eq("id", event.id).execute()
 
+        # For "other" scraper, use the event's venue name, not "other"
+        venue_id = event.venue if scraper_id == 'other' else scraper_id
+
         event_data = {
             "id": event.id,
             "title": event.title,
             "date": event.date,
             "time": event.time,
-            "venue_id": scraper_id,
+            "venue_id": venue_id,
             "event_url": event.eventUrl,
             "ticket_url": event.ticketUrl,
             "image_url": event.imageUrl,

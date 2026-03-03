@@ -34,12 +34,17 @@ def main():
 
         new_ids, changed_ids = [], []
         for e in future_events:
+            existing = supabase.table('events').select('*').eq('id', e.id).execute()
+
+            # For "other" scraper, use the event's venue name, not "other"
+            venue_id = e.venue if scraper.id == 'other' else scraper.id
+
             data = {
                 'id': e.id,
                 'title': e.title,
                 'date': e.date,
                 'time': e.time,
-                'venue_id': scraper.id,
+                'venue_id': venue_id,
                 'event_url': e.eventUrl,
                 'ticket_url': e.ticketUrl,
                 'image_url': e.imageUrl,
@@ -50,7 +55,6 @@ def main():
                 'status': 'approved',
             }
 
-            existing = supabase.table('events').select('*').eq('id', e.id).execute()
             if existing.data:
                 old = existing.data[0]
                 has_changes = any(old.get(f) != data.get(f) for f in COMPARE_FIELDS)
