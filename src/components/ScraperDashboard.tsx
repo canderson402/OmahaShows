@@ -62,7 +62,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, onRun, onView
       return { text: "Running", color: "text-amber-400", bg: "bg-amber-500/20" };
     }
     if (isTriggered) {
-      return { text: "Triggered", color: "text-blue-400", bg: "bg-blue-500/20" };
+      return { text: "Pending", color: "text-amber-400", bg: "bg-amber-500/20" };
     }
     if (!latestRun) {
       return { text: "Never run", color: "text-gray-500", bg: "bg-gray-500/20" };
@@ -124,10 +124,8 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, onRun, onView
               </>
             ) : isTriggered ? (
               <>
-                <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Triggered
+                <div className="w-3 h-3 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+                Pending
               </>
             ) : (
               <>
@@ -470,11 +468,15 @@ export function ScraperDashboard() {
       // Trigger all scrapers via single GitHub workflow
       try {
         await triggerGitHubWorkflow(); // No scraper ID = run all
-        setRunAllStatus('done');
+        // Mark all scrapers as triggered/pending
+        setGithubTriggered(new Set(SCRAPERS.map(s => s.id)));
+        setRunAllStatus('running');
+        // Clear the triggered state after 60 seconds
         setTimeout(() => {
+          setGithubTriggered(new Set());
           setRunAllStatus('idle');
           fetchLatestRuns();
-        }, 30000);
+        }, 60000);
       } catch (err) {
         console.error("GitHub trigger failed:", err);
         const errorMsg = err instanceof Error ? err.message : "Unknown error";
