@@ -50,11 +50,12 @@ interface ScraperCardProps {
   latestRun?: ScraperRun;
   isRunning: boolean;
   isTriggered: boolean;
+  isGitHubMode: boolean;
   onRun: () => void;
   onViewResults: () => void;
 }
 
-function ScraperCard({ scraper, latestRun, isRunning, isTriggered, onRun, onViewResults }: ScraperCardProps) {
+function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode, onRun, onViewResults }: ScraperCardProps) {
   const colors = VENUE_COLORS[scraper.id] || VENUE_COLORS.other;
 
   const getStatusDisplay = () => {
@@ -137,7 +138,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, onRun, onView
               </>
             )}
           </button>
-          {latestRun && latestRun.status !== "running" && (
+          {latestRun && latestRun.status !== "running" && !isGitHubMode && (
             <button
               onClick={onViewResults}
               className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 rounded-lg transition-colors"
@@ -680,6 +681,7 @@ export function ScraperDashboard() {
             latestRun={latestRuns[scraper.id]}
             isRunning={runningScrapers.has(scraper.id)}
             isTriggered={githubTriggered.has(scraper.id)}
+            isGitHubMode={useGitHub}
             onRun={() => runScraper(scraper)}
             onViewResults={() => viewResults(scraper)}
           />
