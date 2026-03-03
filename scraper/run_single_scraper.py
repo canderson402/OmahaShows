@@ -36,15 +36,13 @@ def main():
         for e in future_events:
             existing = supabase.table('events').select('*').eq('id', e.id).execute()
 
-            # For "other" scraper, use the event's venue name, not "other"
-            venue_id = e.venue if scraper.id == 'other' else scraper.id
-
             data = {
                 'id': e.id,
                 'title': e.title,
                 'date': e.date,
                 'time': e.time,
-                'venue_id': venue_id,
+                'venue_id': scraper.id,
+                'venue_name': e.venue if scraper.id == 'other' else None,
                 'event_url': e.eventUrl,
                 'ticket_url': e.ticketUrl,
                 'image_url': e.imageUrl,
