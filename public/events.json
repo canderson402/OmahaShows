@@ -461,7 +461,9 @@
       "price": "$12 ADV / $15 DOS",
       "ageRestriction": "ALL AGES",
       "supportingArtists": [
-        "The Light That Blinds"
+        "Orialus",
+        "The Light That Blinds",
+        "Hatricide"
       ],
       "source": "reverblounge",
       "addedAt": "2026-03-01T19:28:38.192087+00:00"
@@ -1886,6 +1888,21 @@
       "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
     {
+      "id": "waitingroom-2026-04-03-damones",
+      "title": "Damones",
+      "date": "2026-04-03",
+      "time": "20:00",
+      "venue": "Waiting Room Lounge",
+      "eventUrl": "https://waitingroomlounge.com/event/damones-4/waiting-room-lounge/omaha-nebraska/",
+      "ticketUrl": "https://www.etix.com/ticket/p/35103949/damones-omaha-the-waiting-room?partner_id=100",
+      "imageUrl": "https://waitingroomlounge.com/wp-content/uploads/2026/03/damones.jfif",
+      "price": "$20.04",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "waitingroom",
+      "addedAt": "2026-03-03T09:31:30.350598+00:00"
+    },
+    {
       "id": "theslowdown-2026-04-04-devil-in-the-details",
       "title": "Devil in the Details",
       "date": "2026-04-04",
@@ -2207,7 +2224,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": "2026-03-02T17:11:39.915328+00:00"
+      "addedAt": "2026-03-03T09:31:30.350598+00:00"
     },
     {
       "id": "theslowdown-2026-04-11-anchondo-plays-sublime",
@@ -3772,11 +3789,11 @@
       "eventUrl": "https://reverblounge.com/event/ovtlier/reverb-lounge/",
       "ticketUrl": "https://www.etix.com/ticket/p/58995056/ovtlier-omaha-reverb-lounge?partner_id=100",
       "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/03/ovtlier.jfif",
-      "price": "$20.04 / Day Of : $26.21",
-      "ageRestriction": "All Ages",
+      "price": "$15 ADV / $20 DOS",
+      "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": "2026-03-02T17:11:39.915328+00:00"
+      "addedAt": "2026-03-02T21:15:33.587701+00:00"
     },
     {
       "id": "reverblounge-2026-05-14-snake-lucci-s-my-darkest-tour",
@@ -3798,6 +3815,27 @@
       ],
       "source": "reverblounge",
       "addedAt": "2026-03-01T19:28:38.192087+00:00"
+    },
+    {
+      "id": "reverblounge-2026-05-14-snake-lucci",
+      "title": "Snake Lucci",
+      "date": "2026-05-14",
+      "time": "20:00",
+      "venue": "Reverb Lounge",
+      "eventUrl": "https://reverblounge.com/event/snake-luccis-my-darkest-tour/reverb-lounge/",
+      "ticketUrl": "https://www.etix.com/ticket/p/50161364/snake-luccis-my-darkest-tour-omaha-reverb-lounge?partner_id=100",
+      "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/02/snake-luccis-my-darkest-tour.jfif",
+      "price": "$15 ADV / $20 DOS",
+      "ageRestriction": "ALL AGES",
+      "supportingArtists": [
+        "Kxng Frxst",
+        "Cody Moon",
+        "KNR",
+        "Xeno Zeus",
+        "CityboyyDon & Dei Moreno"
+      ],
+      "source": "reverblounge",
+      "addedAt": "2026-03-02T21:15:33.587701+00:00"
     },
     {
       "id": "reverblounge-2026-05-15-tyler-richton-the-high-bank-boys",
@@ -3939,7 +3977,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": "2026-03-02T17:11:39.915328+00:00"
+      "addedAt": "2026-03-02T21:10:57.266902+00:00"
     },
     {
       "id": "theslowdown-2026-05-19-the-casualties",
@@ -4100,7 +4138,7 @@
       "ageRestriction": "ALL AGES",
       "supportingArtists": null,
       "source": "reverblounge",
-      "addedAt": "2026-03-02T17:11:39.915328+00:00"
+      "addedAt": "2026-03-02T21:15:33.587701+00:00"
     },
     {
       "id": "barnato-2026-05-24-anberlin-never-take-friendship-personal-tour-20th-anniversary",
@@ -4261,7 +4299,7 @@
       "ageRestriction": null,
       "supportingArtists": null,
       "source": "bourbontheatre",
-      "addedAt": "2026-03-02T17:11:39.915328+00:00"
+      "addedAt": "2026-03-03T09:31:30.350598+00:00"
     },
     {
       "id": "theslowdown-2026-06-03-troy-doherty",
@@ -4324,7 +4362,7 @@
       "ageRestriction": "All Ages",
       "supportingArtists": null,
       "source": "waitingroom",
-      "addedAt": "2026-03-02T17:11:39.915328+00:00"
+      "addedAt": "2026-03-02T21:10:57.266902+00:00"
     },
     {
       "id": "bourbontheatre-2026-06-06-citizen-soldier-secret-songs-tour-ii",
@@ -4654,13 +4692,13 @@
       "eventUrl": "https://reverblounge.com/event/dustbowlchampion/reverb-lounge/",
       "ticketUrl": "https://www.etix.com/ticket/p/57069452/dustbowlchampion-omaha-reverb-lounge?partner_id=100",
       "imageUrl": "https://reverblounge.com/wp-content/uploads/2026/03/dustbowlchampion.jfif",
-      "price": null,
-      "ageRestriction": "All Ages",
+      "price": "$15 ADV / $20 DOS",
+      "ageRestriction": "ALL AGES",
       "supportingArtists": [
         "Computer Kill"
       ],
       "source": "reverblounge",
-      "addedAt": "2026-03-02T17:11:39.915328+00:00"
+      "addedAt": "2026-03-02T21:15:33.587701+00:00"
     },
     {
       "id": "bourbontheatre-2026-07-15-juvenile-s-boiling-point-album-release-tour-w-the-400-",
@@ -4703,7 +4741,9 @@
       "imageUrl": "/images/astro/b69fca26e934.webp",
       "price": "$46.25",
       "ageRestriction": "All Ages",
-      "supportingArtists": null,
+      "supportingArtists": [
+        "Big Wreck"
+      ],
       "source": "astrotheater",
       "addedAt": "2026-03-01T19:28:38.192087+00:00"
     },
@@ -4853,6 +4893,21 @@
       ],
       "source": "astrotheater",
       "addedAt": "2026-03-01T19:28:38.192087+00:00"
+    },
+    {
+      "id": "astrotheater-2026-08-14-tucker-wetmore",
+      "title": "Tucker Wetmore - The Brunette World Tour",
+      "date": "2026-08-14",
+      "time": "18:30",
+      "venue": "The Astro Theater",
+      "eventUrl": "https://theastrotheater.com/event/tucker-wetmore/",
+      "ticketUrl": null,
+      "imageUrl": "/images/astro/dc078103999c.png",
+      "price": "$58.10",
+      "ageRestriction": "All Ages",
+      "supportingArtists": null,
+      "source": "astrotheater",
+      "addedAt": "2026-03-03T09:31:30.350598+00:00"
     },
     {
       "id": "orpheum-2026-08-18-tori-amos",
@@ -5087,14 +5142,14 @@
       "addedAt": "2026-03-01T19:28:38.192087+00:00"
     }
   ],
-  "lastUpdated": "2026-03-03T03:20:42.293128+00:00",
+  "lastUpdated": "2026-03-03T09:31:52.529549+00:00",
   "sources": [
     {
       "name": "Slowdown",
       "id": "theslowdown",
       "url": "https://theslowdown.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-02T17:11:40.326741+00:00",
+      "lastScraped": "2026-03-03T09:31:30.851687+00:00",
       "eventCount": 46,
       "error": null
     },
@@ -5103,8 +5158,8 @@
       "id": "waitingroom",
       "url": "https://waitingroomlounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-02T17:11:42.584700+00:00",
-      "eventCount": 44,
+      "lastScraped": "2026-03-03T09:31:32.584440+00:00",
+      "eventCount": 45,
       "error": null
     },
     {
@@ -5112,8 +5167,8 @@
       "id": "reverblounge",
       "url": "https://reverblounge.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-02T17:11:44.999848+00:00",
-      "eventCount": 55,
+      "lastScraped": "2026-03-03T09:31:34.311256+00:00",
+      "eventCount": 54,
       "error": null
     },
     {
@@ -5121,7 +5176,7 @@
       "id": "bourbontheatre",
       "url": "https://www.bourbontheatre.com/calendar/",
       "status": "ok",
-      "lastScraped": "2026-03-02T17:11:46.656914+00:00",
+      "lastScraped": "2026-03-03T09:31:36.658387+00:00",
       "eventCount": 46,
       "error": null
     },
@@ -5130,7 +5185,7 @@
       "id": "admiral",
       "url": "https://admiralomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-02T17:11:47.061671+00:00",
+      "lastScraped": "2026-03-03T09:31:38.261120+00:00",
       "eventCount": 13,
       "error": null
     },
@@ -5139,8 +5194,8 @@
       "id": "astrotheater",
       "url": "https://theastrotheater.com/#shows",
       "status": "ok",
-      "lastScraped": "2026-03-02T17:11:56.467823+00:00",
-      "eventCount": 25,
+      "lastScraped": "2026-03-03T09:31:48.569232+00:00",
+      "eventCount": 26,
       "error": null
     },
     {
@@ -5148,7 +5203,7 @@
       "id": "steelhouse",
       "url": "https://steelhouseomaha.com/events/",
       "status": "ok",
-      "lastScraped": "2026-03-02T17:11:56.592532+00:00",
+      "lastScraped": "2026-03-03T09:31:49.580115+00:00",
       "eventCount": 21,
       "error": null
     },
@@ -5157,35 +5212,8 @@
       "id": "other",
       "url": "https://omahaunderground.net/shows/",
       "status": "ok",
-      "lastScraped": "2026-03-02T17:12:05.442439+00:00",
+      "lastScraped": "2026-03-03T09:31:52.528950+00:00",
       "eventCount": 19,
-      "error": null
-    },
-    {
-      "name": "Holland Center",
-      "id": "holland",
-      "url": "https://ticketomaha.com/events?themes%5B%5D=6",
-      "status": "ok",
-      "lastScraped": "2026-03-02T17:12:24.869414+00:00",
-      "eventCount": 12,
-      "error": null
-    },
-    {
-      "name": "Orpheum Theater",
-      "id": "orpheum",
-      "url": "https://ticketomaha.com/events?themes%5B%5D=6",
-      "status": "ok",
-      "lastScraped": "2026-03-02T17:12:44.132346+00:00",
-      "eventCount": 15,
-      "error": null
-    },
-    {
-      "name": "Barnato",
-      "id": "barnato",
-      "url": "https://barnato.bar/events/",
-      "status": "ok",
-      "lastScraped": "2026-03-02T17:12:47.952929+00:00",
-      "eventCount": 21,
       "error": null
     }
   ]
