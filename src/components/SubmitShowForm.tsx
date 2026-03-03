@@ -3,6 +3,7 @@ import type { Event } from "../types";
 import { VENUE_COLORS } from "../App";
 import { EventCardCompact } from "./EventCardCompact";
 import { submitEvent, supabase, type SubmitEventData } from "../lib/supabase";
+import { Toast } from "./Toast";
 
 const VENUES = [
   { id: "theslowdown", name: "The Slowdown" },
@@ -62,6 +63,16 @@ function isValidUrl(url: string): boolean {
   if (!url) return true;
   // Accept anything that looks like a URL (has a dot and no spaces)
   return url.includes('.') && !url.includes(' ');
+}
+
+function normalizeUrl(url: string): string {
+  if (!url) return url;
+  url = url.trim();
+  // If no protocol, add https://
+  if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+    return `https://${url}`;
+  }
+  return url;
 }
 
 function isValidDate(dateStr: string): { valid: boolean; error?: string } {
@@ -204,7 +215,7 @@ export function SubmitShowForm() {
       const path = `event-images/${filename}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("public")
+        .from("uploads")
         .upload(path, file, {
           cacheControl: "3600",
           upsert: false,
@@ -213,7 +224,7 @@ export function SubmitShowForm() {
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from("public")
+        .from("uploads")
         .getPublicUrl(path);
 
       setUploadedImage(publicUrl);
@@ -283,9 +294,9 @@ export function SubmitShowForm() {
       };
 
       if (effectiveTime) data.time = effectiveTime;
-      if (eventUrl && isValidUrl(eventUrl)) data.eventUrl = eventUrl;
-      if (ticketUrl && isValidUrl(ticketUrl)) data.ticketUrl = ticketUrl;
-      if (effectiveImageUrl) data.imageUrl = effectiveImageUrl;
+      if (eventUrl && isValidUrl(eventUrl)) data.eventUrl = normalizeUrl(eventUrl);
+      if (ticketUrl && isValidUrl(ticketUrl)) data.ticketUrl = normalizeUrl(ticketUrl);
+      if (effectiveImageUrl) data.imageUrl = normalizeUrl(effectiveImageUrl);
       if (price) data.price = price;
       if (ageRestriction) data.ageRestriction = ageRestriction;
       if (supportingArtists.trim()) {
@@ -367,34 +378,6 @@ export function SubmitShowForm() {
 
   return (
     <>
-      {/* Status Banner */}
-      {submitStatus && (
-        <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-          submitStatus.type === "success"
-            ? "bg-green-500/20 border border-green-500/30 text-green-400"
-            : "bg-red-500/20 border border-red-500/30 text-red-400"
-        }`}>
-          {submitStatus.type === "success" ? (
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          )}
-          <span>{submitStatus.message}</span>
-          <button
-            onClick={() => setSubmitStatus(null)}
-            className="ml-auto p-1 hover:bg-white/10 rounded"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      )}
-
       {/* Preview on top */}
       <div className="mb-8">
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -847,12 +830,7 @@ export function SubmitShowForm() {
                   Submitting...
                 </>
               ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Submit Show
-                </>
+                "Submit Show"
               )}
             </button>
             <p className="text-xs text-gray-600 text-center mt-2">
@@ -883,6 +861,14 @@ export function SubmitShowForm() {
           </div>
         )}
       </div>
+
+      {submitStatus && (
+        <Toast
+          message={submitStatus.message}
+          type={submitStatus.type}
+          onClose={() => setSubmitStatus(null)}
+        />
+      )}
     </>
   );
 }
