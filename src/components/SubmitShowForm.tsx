@@ -444,7 +444,7 @@ export function SubmitShowForm() {
               value={title}
               onChange={e => setTitle(e.target.value)}
               onBlur={() => handleBlur("title")}
-              placeholder="e.g. The National, Local Band Showcase"
+              placeholder="e.g. Artist Name, Event Title"
               className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white placeholder-gray-600 focus:outline-none transition-all ${
                 errors.title
                   ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20"

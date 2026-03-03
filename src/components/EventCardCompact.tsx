@@ -2,6 +2,7 @@
 import { memo, useState } from "react";
 import type { Event } from "../types";
 import { outboundClickProps } from "../analytics";
+import { ShareButton } from "./ShareButton";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
 
@@ -82,11 +83,14 @@ export const EventCardCompact = memo(function EventCardCompact({
       <div className="md:hidden flex flex-col gap-4">
         {/* Image with date header - not clickable on mobile to prevent accidental taps */}
         <div className="relative">
-          {isJustAdded && (
-            <span className="absolute top-2 right-2 z-10 px-2 py-0.5 bg-green-500/90 text-white text-xs rounded-full font-medium shadow-lg">
-              Recently Added
-            </span>
-          )}
+          <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+            {isJustAdded && (
+              <span className="px-2 py-0.5 bg-green-500/90 text-white text-xs rounded-full font-medium shadow-lg">
+                Recently Added
+              </span>
+            )}
+            <ShareButton eventId={event.id} />
+          </div>
           <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
             <p className="text-white font-semibold text-center text-sm">
               {formatDateOverlay(event.date)}
@@ -174,12 +178,15 @@ export const EventCardCompact = memo(function EventCardCompact({
 
       {/* Desktop Layout */}
       <div className="hidden md:flex gap-5 relative">
-        {/* Recently Added badge - top right */}
-        {isJustAdded && (
-          <span className="absolute -top-2 -right-2 z-10 px-2 py-0.5 bg-green-500/90 text-white text-xs rounded-full font-medium shadow-lg">
-            Recently Added
-          </span>
-        )}
+        {/* Recently Added badge and Share button - top right */}
+        <div className="absolute -top-2 -right-2 z-10 flex items-center gap-2">
+          {isJustAdded && (
+            <span className="px-2 py-0.5 bg-green-500/90 text-white text-xs rounded-full font-medium shadow-lg">
+              Recently Added
+            </span>
+          )}
+          <ShareButton eventId={event.id} />
+        </div>
         {/* Buttons - top right */}
         <div className="absolute top-0 right-0 flex gap-3 mt-6">
           {event.eventUrl && (
