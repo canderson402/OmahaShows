@@ -133,7 +133,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
             {latestRun?.event_count !== undefined && latestRun.status === "success" && (
               <span>
                 {latestRun.event_count} events
-                {hasNewOrChanged && (
+                {hasNewOrChanged ? (
                   <button
                     onClick={toggleExpanded}
                     className="ml-1 hover:underline"
@@ -156,6 +156,8 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
+                ) : (
+                  <span className="ml-1 text-gray-500">(no changes)</span>
                 )}
               </span>
             )}
