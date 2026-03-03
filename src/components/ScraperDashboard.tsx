@@ -3,6 +3,7 @@ import {
   getLatestScraperRuns,
   createScraperRun,
   updateScraperRun,
+  getEventsByIds,
   type ScraperRun
 } from "../lib/supabase";
 import { VENUE_COLORS } from "../App";
@@ -57,6 +58,31 @@ interface ScraperCardProps {
 
 function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode, onRun, onViewResults }: ScraperCardProps) {
   const colors = VENUE_COLORS[scraper.id] || VENUE_COLORS.other;
+  const [expanded, setExpanded] = useState(false);
+  const [newEvents, setNewEvents] = useState<{ id: string; title: string; date: string }[]>([]);
+  const [changedEvents, setChangedEvents] = useState<{ id: string; title: string; date: string }[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+
+  const hasNewOrChanged = latestRun && (latestRun.new_count > 0 || latestRun.changed_count > 0);
+
+  const toggleExpanded = async () => {
+    if (!expanded && hasNewOrChanged) {
+      setLoadingEvents(true);
+      try {
+        const [newData, changedData] = await Promise.all([
+          latestRun.new_event_ids?.length ? getEventsByIds(latestRun.new_event_ids) : Promise.resolve([]),
+          latestRun.changed_event_ids?.length ? getEventsByIds(latestRun.changed_event_ids) : Promise.resolve([]),
+        ]);
+        setNewEvents(newData);
+        setChangedEvents(changedData);
+      } catch (err) {
+        console.error("Failed to fetch event details:", err);
+      } finally {
+        setLoadingEvents(false);
+      }
+    }
+    setExpanded(!expanded);
+  };
 
   const getStatusDisplay = () => {
     if (isRunning) {
@@ -82,6 +108,12 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
     ? new Date(latestRun.started_at).toLocaleString()
     : "Never";
 
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr + 'T00:00').toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric'
+    });
+  };
+
   return (
     <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
       <div className="flex items-start justify-between gap-4">
@@ -99,7 +131,33 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
           <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
             <span>Last run: {lastRunTime}</span>
             {latestRun?.event_count !== undefined && latestRun.status === "success" && (
-              <span>{latestRun.event_count} events</span>
+              <span>
+                {latestRun.event_count} events
+                {hasNewOrChanged && (
+                  <button
+                    onClick={toggleExpanded}
+                    className="ml-1 hover:underline"
+                  >
+                    (
+                    {latestRun.new_count > 0 && (
+                      <span className="text-green-400">{latestRun.new_count} new</span>
+                    )}
+                    {latestRun.new_count > 0 && latestRun.changed_count > 0 && ", "}
+                    {latestRun.changed_count > 0 && (
+                      <span className="text-amber-400">{latestRun.changed_count} changed</span>
+                    )}
+                    )
+                    <svg
+                      className={`inline-block w-3 h-3 ml-1 transition-transform ${expanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                )}
+              </span>
             )}
           </div>
           {latestRun?.error_message && (
@@ -148,6 +206,47 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
           )}
         </div>
       </div>
+
+      {/* Expanded new/changed events list */}
+      {expanded && hasNewOrChanged && (
+        <div className="mt-3 pt-3 border-t border-gray-700">
+          {loadingEvents ? (
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="w-3 h-3 border-2 border-gray-500/30 border-t-gray-500 rounded-full animate-spin" />
+              Loading events...
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {newEvents.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-green-400 mb-1">New Events:</p>
+                  <ul className="space-y-1">
+                    {newEvents.map(e => (
+                      <li key={e.id} className="text-xs text-gray-300 flex items-center gap-2">
+                        <span className="text-gray-500">{formatDate(e.date)}</span>
+                        <span>{e.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {changedEvents.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-amber-400 mb-1">Changed Events:</p>
+                  <ul className="space-y-1">
+                    {changedEvents.map(e => (
+                      <li key={e.id} className="text-xs text-gray-300 flex items-center gap-2">
+                        <span className="text-gray-500">{formatDate(e.date)}</span>
+                        <span>{e.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

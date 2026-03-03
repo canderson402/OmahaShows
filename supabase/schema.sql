@@ -58,6 +58,10 @@ CREATE TABLE scraper_runs (
   scraper_name TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('running', 'success', 'error')),
   event_count INTEGER DEFAULT 0,
+  new_count INTEGER DEFAULT 0,
+  changed_count INTEGER DEFAULT 0,
+  new_event_ids TEXT[],
+  changed_event_ids TEXT[],
   error_message TEXT,
   started_at TIMESTAMPTZ DEFAULT NOW(),
   finished_at TIMESTAMPTZ

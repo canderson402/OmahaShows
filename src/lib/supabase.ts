@@ -336,8 +336,11 @@ export interface ScraperRun {
   scraper_name: string
   status: 'running' | 'success' | 'error'
   event_count: number
+  new_count: number
+  changed_count: number
+  new_event_ids: string[] | null
+  changed_event_ids: string[] | null
   error_message: string | null
-  events_data?: DbEvent[] | null
   started_at: string
   finished_at: string | null
 }
@@ -412,6 +415,20 @@ export async function updateScraperRun(
     .eq('id', runId)
 
   if (error) throw error
+}
+
+// Get events by IDs (for scraper dashboard)
+export async function getEventsByIds(ids: string[]): Promise<{ id: string; title: string; date: string }[]> {
+  if (!ids.length) return []
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, title, date')
+    .in('id', ids)
+    .order('date', { ascending: true })
+
+  if (error) throw error
+  return data || []
 }
 
 // Minimal event type for calendar (no image loading)

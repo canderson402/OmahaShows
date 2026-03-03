@@ -35,16 +35,18 @@ export const VENUE_COLORS: Record<string, { bg: string; text: string; border: st
   barnato: { bg: "bg-lime-500/20", text: "text-lime-400", border: "border-lime-500" },
 };
 
-// Build a set of the 10 most recently added event IDs
+// Build a set of recently added event IDs (within last 7 days, after launch date)
 const getRecentlyAddedIds = (events: Event[]): Set<string> => {
-  const withAddedAt = events.filter(e => e.addedAt);
-  if (withAddedAt.length === 0) return new Set();
-  withAddedAt.sort((a, b) => new Date(b.addedAt!).getTime() - new Date(a.addedAt!).getTime());
-  const newest = new Date(withAddedAt[0].addedAt!).getTime();
-  const oldest = new Date(withAddedAt[withAddedAt.length - 1].addedAt!).getTime();
-  if (newest === oldest) return new Set();
-  const recent = withAddedAt.filter(e => new Date(e.addedAt!).getTime() > oldest);
-  return new Set(recent.slice(0, 10).map(e => e.id));
+  // Launch date - don't show "New" for events seeded before this date
+  const LAUNCH_DATE = new Date('2026-03-03T00:00:00Z').getTime();
+  const SEVEN_DAYS_AGO = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const cutoff = Math.max(LAUNCH_DATE, SEVEN_DAYS_AGO);
+
+  const recentIds = events
+    .filter(e => e.addedAt && new Date(e.addedAt).getTime() > cutoff)
+    .map(e => e.id);
+
+  return new Set(recentIds);
 };
 
 const EVENTS_PER_PAGE = 20;
