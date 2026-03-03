@@ -6,16 +6,16 @@ import { submitEvent, supabase, type SubmitEventData } from "../lib/supabase";
 import { Toast } from "./Toast";
 
 const VENUES = [
-  { id: "theslowdown", name: "The Slowdown" },
-  { id: "waitingroom", name: "Waiting Room Lounge" },
-  { id: "reverblounge", name: "Reverb Lounge" },
-  { id: "bourbontheatre", name: "Bourbon Theatre" },
-  { id: "admiral", name: "Admiral" },
-  { id: "astrotheater", name: "The Astro" },
-  { id: "steelhouse", name: "Steelhouse Omaha" },
-  { id: "holland", name: "Holland Center" },
-  { id: "orpheum", name: "Orpheum Theater" },
-  { id: "barnato", name: "Barnato" },
+  { id: "theslowdown", name: "The Slowdown", url: "https://theslowdown.com" },
+  { id: "waitingroom", name: "Waiting Room Lounge", url: "https://waitingroomlounge.com" },
+  { id: "reverblounge", name: "Reverb Lounge", url: "https://reverblounge.com/" },
+  { id: "bourbontheatre", name: "Bourbon Theatre", url: "https://bourbontheatre.com" },
+  { id: "admiral", name: "Admiral", url: "https://admiralomaha.com" },
+  { id: "astrotheater", name: "The Astro", url: "https://theastrotheater.com/" },
+  { id: "steelhouse", name: "Steelhouse Omaha", url: "https://steelhouseomaha.com" },
+  { id: "holland", name: "Holland Center", url: "https://o-pa.org/visit-our-venues/holland/" },
+  { id: "orpheum", name: "Orpheum Theater", url: "https://o-pa.org/visit-our-venues/orpheum/" },
+  { id: "barnato", name: "Barnato", url: "https://barnatoomaha.com" },
   { id: "other", name: "Other Venue" },
 ];
 
@@ -96,6 +96,8 @@ export function SubmitShowForm() {
   const [isPM, setIsPM] = useState(true);
   const [venueId, setVenueId] = useState("");
   const [customVenue, setCustomVenue] = useState("");
+  const [otherVenueWebsite, setOtherVenueWebsite] = useState("");
+  const [otherVenueAddress, setOtherVenueAddress] = useState("");
   const [eventUrl, setEventUrl] = useState("");
   const [ticketUrl, setTicketUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -173,11 +175,17 @@ export function SubmitShowForm() {
   const eventPreview: Event | null = useMemo(() => {
     if (!title || !date || !venueId) return null;
 
+    // Get venue URL - for "other" venues use the entered website, otherwise use static list
+    const venueUrl = venueId === "other"
+      ? (otherVenueWebsite && isValidUrl(otherVenueWebsite) ? normalizeUrl(otherVenueWebsite) : undefined)
+      : selectedVenue?.url;
+
     const event: Event = {
       id: generateId(),
       title: title.trim(),
       date,
       venue: venueName,
+      venueUrl,
       source: venueId === "other" ? "other" : venueId,
     };
 
@@ -192,7 +200,7 @@ export function SubmitShowForm() {
     }
 
     return event;
-  }, [title, date, effectiveTime, venueId, venueName, eventUrl, ticketUrl, effectiveImageUrl, price, ageRestriction, supportingArtists]);
+  }, [title, date, effectiveTime, venueId, venueName, selectedVenue, otherVenueWebsite, eventUrl, ticketUrl, effectiveImageUrl, price, ageRestriction, supportingArtists]);
 
   // Image upload handler
   const handleImageUpload = useCallback(async (file: File) => {
@@ -294,6 +302,15 @@ export function SubmitShowForm() {
       };
 
       if (effectiveTime) data.time = effectiveTime;
+      if (venueId === "other" && customVenue.trim()) {
+        data.venueName = customVenue.trim();
+        if (otherVenueWebsite && isValidUrl(otherVenueWebsite)) {
+          data.otherVenueWebsite = normalizeUrl(otherVenueWebsite);
+        }
+        if (otherVenueAddress.trim()) {
+          data.otherVenueAddress = otherVenueAddress.trim();
+        }
+      }
       if (eventUrl && isValidUrl(eventUrl)) data.eventUrl = normalizeUrl(eventUrl);
       if (ticketUrl && isValidUrl(ticketUrl)) data.ticketUrl = normalizeUrl(ticketUrl);
       if (effectiveImageUrl) data.imageUrl = normalizeUrl(effectiveImageUrl);
@@ -321,6 +338,8 @@ export function SubmitShowForm() {
       setIsPM(true);
       setVenueId("");
       setCustomVenue("");
+      setOtherVenueWebsite("");
+      setOtherVenueAddress("");
       setEventUrl("");
       setTicketUrl("");
       setImageUrl("");
@@ -574,26 +593,52 @@ export function SubmitShowForm() {
 
           {/* Custom Venue Name */}
           {venueId === "other" && (
-            <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                Custom Venue Name <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="text"
-                value={customVenue}
-                onChange={e => setCustomVenue(e.target.value)}
-                onBlur={() => handleBlur("customVenue")}
-                placeholder="e.g. O'Leaver's, The Sydney"
-                className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white placeholder-gray-600 focus:outline-none transition-all ${
-                  errors.customVenue
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20"
-                    : "border-gray-700 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20"
-                }`}
-              />
-              {errors.customVenue && (
-                <p className="text-red-400 text-xs mt-1">{errors.customVenue}</p>
-              )}
-            </div>
+            <>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                  Custom Venue Name <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={customVenue}
+                  onChange={e => setCustomVenue(e.target.value)}
+                  onBlur={() => handleBlur("customVenue")}
+                  placeholder="e.g. O'Leaver's, The Sydney"
+                  className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white placeholder-gray-600 focus:outline-none transition-all ${
+                    errors.customVenue
+                      ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20"
+                      : "border-gray-700 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20"
+                  }`}
+                />
+                {errors.customVenue && (
+                  <p className="text-red-400 text-xs mt-1">{errors.customVenue}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                  Venue Website
+                </label>
+                <input
+                  type="url"
+                  value={otherVenueWebsite}
+                  onChange={e => setOtherVenueWebsite(e.target.value)}
+                  placeholder="e.g. olearvers.com"
+                  className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                  Venue Address
+                </label>
+                <input
+                  type="text"
+                  value={otherVenueAddress}
+                  onChange={e => setOtherVenueAddress(e.target.value)}
+                  placeholder="e.g. 1322 S Saddle Creek Rd, Omaha, NE"
+                  className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+                />
+              </div>
+            </>
           )}
 
           {/* Image Upload/URL */}

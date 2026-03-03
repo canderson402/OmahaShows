@@ -5,6 +5,7 @@ export interface Event {
   date: string;
   time?: string;
   venue: string;
+  venueUrl?: string;  // Venue website URL (for clicking venue name)
   eventUrl?: string;  // Event detail page on venue's site
   ticketUrl?: string;  // Ticket purchase page (etix, etc.)
   imageUrl?: string;

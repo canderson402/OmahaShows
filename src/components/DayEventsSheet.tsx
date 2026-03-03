@@ -154,7 +154,18 @@ export function DayEventsSheet({
                         </p>
                       )}
                       <p className="text-sm text-gray-400 mt-1">
-                        <span className={colors.text}>{event.venue}</span>
+                        {event.venueUrl ? (
+                          <a
+                            href={event.venueUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`${colors.text} hover:underline`}
+                          >
+                            {event.venue}
+                          </a>
+                        ) : (
+                          <span className={colors.text}>{event.venue}</span>
+                        )}
                         <span className="text-gray-600"> · </span>
                         {formatTime(event.time)}
                         {event.price && (

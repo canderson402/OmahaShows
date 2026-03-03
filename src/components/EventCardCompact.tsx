@@ -125,9 +125,20 @@ export const EventCardCompact = memo(function EventCardCompact({
           )}
           <p className="text-gray-400 mt-2">
             {formatTime(event.time) && <>{formatTime(event.time)} · </>}
-            <span className={venueColors?.[event.source]?.text || "text-gray-400"}>
-              {event.venue}
-            </span>
+            {event.venueUrl ? (
+              <a
+                href={event.venueUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${venueColors?.[event.source]?.text || "text-gray-400"} hover:underline`}
+              >
+                {event.venue}
+              </a>
+            ) : (
+              <span className={venueColors?.[event.source]?.text || "text-gray-400"}>
+                {event.venue}
+              </span>
+            )}
           </p>
           {event.price && (
             <p className="text-gray-500 text-sm mt-1">{event.price}</p>
@@ -241,9 +252,20 @@ export const EventCardCompact = memo(function EventCardCompact({
           )}
           <p className="text-gray-400 mt-3">
             {formatTime(event.time) && <>{formatTime(event.time)} · </>}
-            <span className={venueColors?.[event.source]?.text || "text-gray-400"}>
-              {event.venue}
-            </span>
+            {event.venueUrl ? (
+              <a
+                href={event.venueUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${venueColors?.[event.source]?.text || "text-gray-400"} hover:underline`}
+              >
+                {event.venue}
+              </a>
+            ) : (
+              <span className={venueColors?.[event.source]?.text || "text-gray-400"}>
+                {event.venue}
+              </span>
+            )}
           </p>
           {event.price && (
             <p className="text-gray-500 text-sm mt-1">{event.price}</p>

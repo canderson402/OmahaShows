@@ -18,6 +18,8 @@ interface DbEvent {
   time: string | null
   venue_id: string
   venue_name: string | null
+  other_venue_website: string | null
+  other_venue_address: string | null
   event_url: string | null
   ticket_url: string | null
   image_url: string | null
@@ -68,12 +70,17 @@ function toAppEvent(dbEvent: DbEvent, venues: DbVenue[]): Event {
   const venueName = dbEvent.venue_id === 'other'
     ? (dbEvent.venue_name || '')  // empty if not set - don't show "Other"
     : (venue?.name || dbEvent.venue_id)
+  // For "other" events, use other_venue_website; otherwise use venue's website_url
+  const venueUrl = dbEvent.venue_id === 'other'
+    ? (dbEvent.other_venue_website || undefined)
+    : (venue?.website_url || undefined)
   return {
     id: dbEvent.id,
     title: dbEvent.title,
     date: dbEvent.date,
     time: dbEvent.time || undefined,
     venue: venueName,
+    venueUrl,
     eventUrl: dbEvent.event_url || undefined,
     ticketUrl: dbEvent.ticket_url || undefined,
     imageUrl: dbEvent.image_url || undefined,
@@ -119,9 +126,20 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
     .eq('status', 'approved')
     .order('date', { ascending: true })
 
-  // Add search filter if provided
+  // Add search filter if provided - search both title and venue_name
   if (options?.search?.trim()) {
-    query = query.ilike('title', `%${options.search.trim()}%`)
+    const searchTerm = options.search.trim()
+    // Check if search matches a known venue name
+    const matchingVenue = venues.find(v =>
+      v.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    if (matchingVenue) {
+      // Search by title OR venue_id OR venue_name (for "other" venues)
+      query = query.or(`title.ilike.%${searchTerm}%,venue_id.eq.${matchingVenue.id},venue_name.ilike.%${searchTerm}%`)
+    } else {
+      // Search by title OR venue_name (for "other" venues)
+      query = query.or(`title.ilike.%${searchTerm}%,venue_name.ilike.%${searchTerm}%`)
+    }
   }
 
   query = query.range(offset, offset + limit - 1)
@@ -446,6 +464,7 @@ export interface CalendarEvent {
   date: string
   time: string | undefined
   venue: string
+  venueUrl: string | undefined
   source: string
   eventUrl: string | undefined
   ticketUrl: string | undefined
@@ -465,7 +484,7 @@ export async function getEventsForMonth(year: number, month: number): Promise<Ca
 
   const { data, error } = await supabase
     .from('events')
-    .select('id, title, date, time, venue_id, event_url, ticket_url, price, supporting_artists')
+    .select('id, title, date, time, venue_id, venue_name, other_venue_website, event_url, ticket_url, price, supporting_artists')
     .gte('date', startDate)
     .lt('date', endDate)
     .eq('status', 'approved')
@@ -475,12 +494,19 @@ export async function getEventsForMonth(year: number, month: number): Promise<Ca
 
   return (data || []).map(e => {
     const venue = venues.find(v => v.id === e.venue_id)
+    const venueName = e.venue_id === 'other'
+      ? (e.venue_name || '')
+      : (venue?.name || e.venue_id)
+    const venueUrl = e.venue_id === 'other'
+      ? (e.other_venue_website || undefined)
+      : (venue?.website_url || undefined)
     return {
       id: e.id,
       title: e.title,
       date: e.date,
       time: e.time || undefined,
-      venue: venue?.name || e.venue_id,
+      venue: venueName,
+      venueUrl,
       source: e.venue_id,
       eventUrl: e.event_url || undefined,
       ticketUrl: e.ticket_url || undefined,
@@ -511,6 +537,9 @@ export interface SubmitEventData {
   date: string
   time?: string
   venueId: string
+  venueName?: string  // For "other" venues
+  otherVenueWebsite?: string  // For "other" venues
+  otherVenueAddress?: string  // For "other" venues
   eventUrl?: string
   ticketUrl?: string
   imageUrl?: string
@@ -533,6 +562,9 @@ export async function submitEvent(data: SubmitEventData): Promise<void> {
       date: data.date,
       time: data.time || null,
       venue_id: data.venueId,
+      venue_name: data.venueName || null,
+      other_venue_website: data.otherVenueWebsite || null,
+      other_venue_address: data.otherVenueAddress || null,
       event_url: data.eventUrl || null,
       ticket_url: data.ticketUrl || null,
       image_url: data.imageUrl || null,

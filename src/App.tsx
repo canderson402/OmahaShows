@@ -216,6 +216,14 @@ function HomePage() {
     });
   }, [sources]);
 
+  const venueUrls = useMemo(() => {
+    const urls: Record<string, string> = {};
+    for (const s of sources) {
+      if (s.url) urls[s.id] = s.url;
+    }
+    return urls;
+  }, [sources]);
+
   const justAddedIds = useMemo(() => getRecentlyAddedIds(events), [events]);
   const isJustAdded = useCallback((event: Event) => justAddedIds.has(event.id), [justAddedIds]);
   const justAddedCount = justAddedIds.size;
@@ -344,7 +352,7 @@ function HomePage() {
                   {view === "events" ? (
                     <EventList events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={VENUE_COLORS} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} />
                   ) : view === "history" ? (
-                    <HistoryList shows={historyShows} enabledVenues={enabledVenues} searchQuery={debouncedHistorySearch} venueColors={VENUE_COLORS} timeFilter={historyTimeFilter} hasMore={hasMoreHistory} loadingMore={loadingMoreHistory} onLoadMore={loadMoreHistory} />
+                    <HistoryList shows={historyShows} enabledVenues={enabledVenues} searchQuery={debouncedHistorySearch} venueColors={VENUE_COLORS} venueUrls={venueUrls} timeFilter={historyTimeFilter} hasMore={hasMoreHistory} loadingMore={loadingMoreHistory} onLoadMore={loadMoreHistory} />
                   ) : (
                     <CalendarView venueColors={VENUE_COLORS} enabledVenues={enabledVenues} />
                   )}

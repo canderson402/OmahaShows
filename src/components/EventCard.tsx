@@ -79,7 +79,18 @@ export function EventCard({ event, venueColors }: EventCardProps) {
         <div className="flex items-center gap-2 text-gray-400 flex-wrap">
           <span>{formatTime(event.time) || "TBA"}</span>
           <span className="text-gray-600">·</span>
-          <span className={venueColors?.[event.source]?.text || "text-gray-400"}>{event.venue}</span>
+          {event.venueUrl ? (
+            <a
+              href={event.venueUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${venueColors?.[event.source]?.text || "text-gray-400"} hover:underline`}
+            >
+              {event.venue}
+            </a>
+          ) : (
+            <span className={venueColors?.[event.source]?.text || "text-gray-400"}>{event.venue}</span>
+          )}
           {event.price && (
             <>
               <span className="text-gray-600">·</span>

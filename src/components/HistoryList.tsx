@@ -4,12 +4,14 @@ import type { HistoricalShow } from "../types";
 import type { HistoryTimeFilter } from "./FiltersDropdown";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+type VenueUrls = Record<string, string>;
 
 interface HistoryListProps {
   shows: HistoricalShow[];
   enabledVenues: Set<string>;
   searchQuery: string;
   venueColors: VenueColors;
+  venueUrls?: VenueUrls;
   timeFilter?: HistoryTimeFilter;
   hasMore?: boolean;  // more shows available from database
   loadingMore?: boolean;  // currently loading more from database
@@ -42,7 +44,7 @@ const venueNameToId: Record<string, string> = {
   "Barnato": "barnato",
 };
 
-export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, timeFilter = "all", hasMore: hasMoreFromDb, loadingMore, onLoadMore }: HistoryListProps) {
+export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, venueUrls, timeFilter = "all", hasMore: hasMoreFromDb, loadingMore, onLoadMore }: HistoryListProps) {
   const [visibleCount, setVisibleCount] = useState(SHOWS_PER_PAGE);
   const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(new Set());
   const [collapsedDays, setCollapsedDays] = useState<Set<string>>(new Set());
@@ -255,6 +257,7 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
                       {!isDayCollapsed && day.shows.map((show, idx) => {
                         const venueId = getVenueId(show.venue);
                         const colors = venueColors[venueId] || { text: "text-gray-400" };
+                        const venueUrl = venueUrls?.[venueId];
                         const isLast = idx === day.shows.length - 1;
                         return (
                           <div
@@ -263,9 +266,20 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ti
                           >
                             <div className="flex items-center gap-3">
                               <span className="text-white flex-1 truncate">{show.title}</span>
-                              <span className={`text-xs ${colors.text} flex-shrink-0`}>
-                                {show.venue}
-                              </span>
+                              {venueUrl ? (
+                                <a
+                                  href={venueUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`text-xs ${colors.text} flex-shrink-0 hover:underline`}
+                                >
+                                  {show.venue}
+                                </a>
+                              ) : (
+                                <span className={`text-xs ${colors.text} flex-shrink-0`}>
+                                  {show.venue}
+                                </span>
+                              )}
                             </div>
                             {show.supportingArtists && show.supportingArtists.length > 0 && (
                               <div className="mt-1 text-xs text-gray-500 truncate">
