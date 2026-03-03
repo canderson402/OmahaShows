@@ -91,9 +91,15 @@ function toHistoricalShow(dbEvent: DbEvent, venues: DbVenue[]): HistoricalShow {
   }
 }
 
+// Get local date string (not UTC) to prevent timezone issues
+function getLocalDateString(): string {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+
 // Get upcoming events (date >= today) with pagination and search
 export async function getEvents(options?: { limit?: number; offset?: number; search?: string }): Promise<{ events: Event[]; hasMore: boolean }> {
-  const today = new Date().toISOString().split('T')[0]
+  const today = getLocalDateString()
   const venues = await getVenues()
   const limit = options?.limit || 20
   const offset = options?.offset || 0
@@ -130,7 +136,7 @@ export async function getHistory(options?: {
   offset?: number
 }): Promise<{ shows: HistoricalShow[]; hasMore: boolean }> {
   const today = new Date()
-  const todayStr = today.toISOString().split('T')[0]
+  const todayStr = getLocalDateString()
   const venues = await getVenues()
 
   const filter = options?.filter || '30days'
@@ -187,7 +193,7 @@ export async function getSources(): Promise<SourceStatus[]> {
   const { data: counts } = await supabase
     .from('events')
     .select('venue_id')
-    .gte('date', new Date().toISOString().split('T')[0])
+    .gte('date', getLocalDateString())
     .eq('status', 'approved')
 
   const countMap: Record<string, number> = {}
