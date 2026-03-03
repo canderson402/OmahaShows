@@ -64,8 +64,10 @@ export async function getVenues(): Promise<DbVenue[]> {
 // Transform DB event to app Event type
 function toAppEvent(dbEvent: DbEvent, venues: DbVenue[]): Event {
   const venue = venues.find(v => v.id === dbEvent.venue_id)
-  // Try venue lookup first, then venue_name (for "other" events), then fallback to venue_id
-  const venueName = venue?.name || dbEvent.venue_name || dbEvent.venue_id
+  // For "other" events, use venue_name field; otherwise use venue lookup
+  const venueName = dbEvent.venue_id === 'other'
+    ? (dbEvent.venue_name || '')  // empty if not set - don't show "Other"
+    : (venue?.name || dbEvent.venue_id)
   return {
     id: dbEvent.id,
     title: dbEvent.title,
@@ -86,11 +88,13 @@ function toAppEvent(dbEvent: DbEvent, venues: DbVenue[]): Event {
 // Transform DB event to HistoricalShow type
 function toHistoricalShow(dbEvent: DbEvent, venues: DbVenue[]): HistoricalShow {
   const venue = venues.find(v => v.id === dbEvent.venue_id)
-  const venueName = venue?.name || dbEvent.venue_name || dbEvent.venue_id
+  const venueName = dbEvent.venue_id === 'other'
+    ? dbEvent.venue_name
+    : (venue?.name || dbEvent.venue_id)
   return {
     date: dbEvent.date,
     title: dbEvent.title,
-    venue: venueName,
+    venue: venueName || '',
     supportingArtists: dbEvent.supporting_artists || undefined,
   }
 }
