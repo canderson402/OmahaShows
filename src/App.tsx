@@ -344,7 +344,7 @@ function HomePage() {
                   ) : view === "history" ? (
                     <HistoryList shows={historyShows} enabledVenues={enabledVenues} searchQuery={debouncedHistorySearch} venueColors={VENUE_COLORS} timeFilter={historyTimeFilter} hasMore={hasMoreHistory} loadingMore={loadingMoreHistory} onLoadMore={loadMoreHistory} />
                   ) : (
-                    <CalendarView events={events} venueColors={VENUE_COLORS} enabledVenues={enabledVenues} />
+                    <CalendarView venueColors={VENUE_COLORS} enabledVenues={enabledVenues} />
                   )}
                 </>
               )}

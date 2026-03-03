@@ -21,16 +21,24 @@ const SHOWS_PER_PAGE = 25;
 // Map venue display names to source IDs
 const venueNameToId: Record<string, string> = {
   "Slowdown": "theslowdown",
+  "The Slowdown": "theslowdown",
   "Waiting Room": "waitingroom",
+  "The Waiting Room": "waitingroom",
   "Reverb Lounge": "reverblounge",
+  "Reverb": "reverblounge",
   "Bourbon Theatre": "bourbontheatre",
+  "The Bourbon Theatre": "bourbontheatre",
   "Admiral": "admiral",
+  "The Admiral": "admiral",
   "The Astro": "astrotheater",
   "Astro Theater": "astrotheater",
+  "Astro": "astrotheater",
   "Steelhouse Omaha": "steelhouse",
   "Steelhouse": "steelhouse",
   "Holland Center": "holland",
+  "Holland Performing Arts Center": "holland",
   "Orpheum Theater": "orpheum",
+  "Orpheum": "orpheum",
   "Barnato": "barnato",
 };
 

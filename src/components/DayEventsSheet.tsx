@@ -1,6 +1,6 @@
 // web/src/components/DayEventsSheet.tsx
 import { useState, useEffect } from "react";
-import type { Event } from "../types";
+import type { CalendarEvent } from "../lib/supabase";
 import { outboundClickProps } from "../analytics";
 
 type VenueColors = Record<string, { bg: string; text: string; border: string }>;
@@ -9,7 +9,7 @@ interface DayEventsSheetProps {
   isOpen: boolean;
   onClose: () => void;
   date: string; // YYYY-MM-DD
-  events: Event[];
+  events: CalendarEvent[];
   venueColors: VenueColors;
   onPrevDay?: () => void;
   onNextDay?: () => void;

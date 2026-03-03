@@ -414,6 +414,57 @@ export async function updateScraperRun(
   if (error) throw error
 }
 
+// Minimal event type for calendar (no image loading)
+export interface CalendarEvent {
+  id: string
+  title: string
+  date: string
+  time: string | undefined
+  venue: string
+  source: string
+  eventUrl: string | undefined
+  ticketUrl: string | undefined
+  price: string | undefined
+  supportingArtists: string[] | undefined
+}
+
+// Get events for a specific month (lightweight, for calendar view)
+export async function getEventsForMonth(year: number, month: number): Promise<CalendarEvent[]> {
+  const venues = await getVenues()
+
+  // Build date range for the month
+  const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
+  const endDate = month === 11
+    ? `${year + 1}-01-01`
+    : `${year}-${String(month + 2).padStart(2, '0')}-01`
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, title, date, time, venue_id, event_url, ticket_url, price, supporting_artists')
+    .gte('date', startDate)
+    .lt('date', endDate)
+    .eq('status', 'approved')
+    .order('date', { ascending: true })
+
+  if (error) throw error
+
+  return (data || []).map(e => {
+    const venue = venues.find(v => v.id === e.venue_id)
+    return {
+      id: e.id,
+      title: e.title,
+      date: e.date,
+      time: e.time || undefined,
+      venue: venue?.name || e.venue_id,
+      source: e.venue_id,
+      eventUrl: e.event_url || undefined,
+      ticketUrl: e.ticket_url || undefined,
+      price: e.price || undefined,
+      supportingArtists: e.supporting_artists || undefined,
+    }
+  })
+}
+
 // Get a single event by ID
 export async function getEventById(id: string): Promise<Event | null> {
   const venues = await getVenues()
