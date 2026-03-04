@@ -25,7 +25,6 @@ from scrapers.astrotheater import AstroTheaterScraper
 from scrapers.steelhouse import SteelHouseScraper
 from scrapers.omahaunderground import OtherVenuesScraper
 from scrapers.ohmyomaha import OhMyOmahaScraper
-from scrapers.tickets import enrich_from_url
 
 app = FastAPI(title="ShowCal Scraper API")
 
@@ -56,18 +55,6 @@ class ScrapeResponse(BaseModel):
     success: bool
     message: str
     data: ScraperOutput | None = None
-
-
-class EnrichRequest(BaseModel):
-    ticket_url: str
-
-
-class EnrichResponse(BaseModel):
-    success: bool
-    source: str | None = None
-    data: dict | None = None
-    error: str | None = None
-    domain: str | None = None
 
 
 @app.post("/api/scrape/all")
@@ -345,16 +332,6 @@ def scrape_venue(venue_id: str) -> ScrapeResponse:
         message=f"Scraped {len(events)} events from {scraper.name}" if status == "ok" else f"Error: {error}",
         data=output
     )
-
-
-@app.post("/api/enrich")
-def enrich_event(request: EnrichRequest) -> EnrichResponse:
-    """
-    Enrich an event by scraping its ticket URL.
-    Extracts time, price, image, and supporting artists.
-    """
-    result = enrich_from_url(request.ticket_url)
-    return EnrichResponse(**result)
 
 
 if __name__ == "__main__":
