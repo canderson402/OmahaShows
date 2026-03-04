@@ -61,15 +61,34 @@ def run():
             # Also check for similar events (same date, similar title) to avoid duplicates
             similar = supabase.table("events").select("id, title").eq("date", event.date).execute()
             is_duplicate = False
-            title_lower = event.title.lower()
+
+            # Normalize title for comparison (lowercase, remove special chars)
+            def normalize(s):
+                return re.sub(r'[^a-z0-9\s]', '', s.lower()).strip()
+
+            title_normalized = normalize(event.title)
+            title_words = set(title_normalized.split())
 
             for existing in similar.data:
-                existing_title = existing["title"].lower()
-                # Simple fuzzy match - if titles share significant words
-                title_words = set(title_lower.split())
-                existing_words = set(existing_title.split())
+                existing_normalized = normalize(existing["title"])
+                existing_words = set(existing_normalized.split())
+
+                # Check 1: One title contains the other
+                if title_normalized in existing_normalized or existing_normalized in title_normalized:
+                    is_duplicate = True
+                    skipped_ids.append(event.id)
+                    break
+
+                # Check 2: First word matches (artist name usually comes first)
+                title_first = title_normalized.split()[0] if title_normalized.split() else ""
+                existing_first = existing_normalized.split()[0] if existing_normalized.split() else ""
+                if title_first and existing_first and title_first == existing_first and len(title_first) > 3:
+                    is_duplicate = True
+                    skipped_ids.append(event.id)
+                    break
+
+                # Check 3: Word overlap (original logic)
                 common_words = title_words & existing_words
-                # If more than 50% of words match, consider it a duplicate
                 if len(common_words) > min(len(title_words), len(existing_words)) * 0.5:
                     is_duplicate = True
                     skipped_ids.append(event.id)

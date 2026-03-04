@@ -12,6 +12,7 @@ from scrapers.base import BaseScraper
 from models import Event
 
 # Venue name mappings (lowercase keys)
+# Maps to venue_id in database. Unknown venues go to "other" with venue_name preserved.
 VENUE_MAPPINGS = {
     # The Slowdown
     "slowdown": "theslowdown",
@@ -38,6 +39,7 @@ VENUE_MAPPINGS = {
     # Steelhouse
     "steelhouse": "steelhouse",
     "steelhouse omaha": "steelhouse",
+    "steakhouse omaha": "steelhouse",  # Common typo on ohmyomaha
     # Holland Center
     "holland": "holland",
     "holland center": "holland",
@@ -46,10 +48,6 @@ VENUE_MAPPINGS = {
     "orpheum": "orpheum",
     "orpheum theater": "orpheum",
     "orpheum theatre": "orpheum",
-    # CHI Health Center
-    "chi": "other",
-    "chi health center": "other",
-    "chi health center omaha": "other",
     # Barnato
     "barnato": "barnato",
 }
