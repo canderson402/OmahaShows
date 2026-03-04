@@ -20,6 +20,11 @@ const SCRAPERS = [
   { id: "other", name: "Other Venues", url: "https://omahaunderground.com" },
 ];
 
+// Discovery scrapers - create pending events for admin review
+const DISCOVERY_SCRAPERS = [
+  { id: "ohmyomaha", name: "OhMyOmaha (Discovery)", url: "https://ohmyomaha.com/biggest-concerts-omaha/" },
+];
+
 // API base URL - use localhost for development
 const API_BASE = import.meta.env.VITE_SCRAPER_API_URL || "http://localhost:8000";
 
@@ -644,8 +649,9 @@ export function ScraperDashboard() {
     );
   }
 
-  const successCount = SCRAPERS.filter(s => latestRuns[s.id]?.status === 'success').length;
-  const errorCount = SCRAPERS.filter(s => latestRuns[s.id]?.status === 'error').length;
+  const allScrapers = [...SCRAPERS, ...DISCOVERY_SCRAPERS];
+  const successCount = allScrapers.filter(s => latestRuns[s.id]?.status === 'success').length;
+  const errorCount = allScrapers.filter(s => latestRuns[s.id]?.status === 'error').length;
   const lastRunTime = Object.values(latestRuns)
     .map(r => new Date(r.started_at).getTime())
     .sort((a, b) => b - a)[0];
@@ -658,7 +664,7 @@ export function ScraperDashboard() {
           <div className="flex items-center gap-6">
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-wider">Total Scrapers</p>
-              <p className="text-2xl font-bold text-white">{SCRAPERS.length}</p>
+              <p className="text-2xl font-bold text-white">{allScrapers.length}</p>
             </div>
             <div className="h-10 w-px bg-gray-700" />
             <div>
@@ -787,6 +793,33 @@ export function ScraperDashboard() {
             onViewResults={() => viewResults(scraper)}
           />
         ))}
+      </div>
+
+      {/* Discovery Scrapers Section */}
+      <div className="mt-8">
+        <div className="flex items-center gap-3 mb-4">
+          <h3 className="text-lg font-medium text-white">Discovery Scrapers</h3>
+          <span className="px-2 py-0.5 text-xs bg-sky-500/20 text-sky-400 rounded">
+            Creates Pending Events
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">
+          Discovery scrapers find shows we might be missing. Events are added to the pending queue for review.
+        </p>
+        <div className="grid gap-3">
+          {DISCOVERY_SCRAPERS.map(scraper => (
+            <ScraperCard
+              key={scraper.id}
+              scraper={scraper}
+              latestRun={latestRuns[scraper.id]}
+              isRunning={runningScrapers.has(scraper.id)}
+              isTriggered={githubTriggered.has(scraper.id)}
+              isGitHubMode={useGitHub}
+              onRun={() => runScraper(scraper)}
+              onViewResults={() => viewResults(scraper)}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Results Modal */}

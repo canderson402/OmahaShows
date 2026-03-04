@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase, approveEvent, rejectEvent, getVenues } from "../lib/supabase";
 import { VENUE_COLORS } from "../App";
 import { ScraperDashboard } from "./ScraperDashboard";
+import { VenueManagement } from "./VenueManagement";
 import { Toast } from "./Toast";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -19,7 +20,7 @@ function normalizeUrl(url: string | null | undefined): string | null {
   return url;
 }
 
-export type AdminTab = "pending" | "scrapers" | "events";
+export type AdminTab = "pending" | "scrapers" | "events" | "venues";
 
 const EVENTS_PER_PAGE = 50;
 
@@ -37,6 +38,7 @@ interface DbEvent {
   supporting_artists: string[] | null;
   source: string;
   status: string;
+  category: string | null;
   created_at: string;
 }
 
@@ -240,6 +242,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           age_restriction: editForm.age_restriction || null,
           supporting_artists: editForm.supporting_artists?.length ? editForm.supporting_artists : null,
           status: editForm.status,
+          category: editForm.category || null,
         })
         .eq("id", editingEvent.id);
 
@@ -349,6 +352,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           }`}
         >
           Scrapers
+        </button>
+        <button
+          onClick={() => setTab("venues")}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            tab === "venues"
+              ? "bg-white/10 text-white"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Venues
         </button>
       </div>
 
@@ -471,9 +484,20 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                         </div>
                         {/* Actions */}
                         <div className="p-4 flex items-center justify-between bg-gray-900/50">
-                          <span className="text-xs text-gray-500">
-                            Submitted {new Date(event.created_at).toLocaleDateString()}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-gray-500">
+                              Submitted {new Date(event.created_at).toLocaleDateString()}
+                            </span>
+                            {event.category ? (
+                              <span className="px-2 py-0.5 text-xs bg-gray-700 text-gray-300 rounded capitalize">
+                                {event.category}
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 text-xs bg-yellow-600/30 text-yellow-400 rounded">
+                                No category
+                              </span>
+                            )}
+                          </div>
                           <div className="flex gap-2">
                             <button
                               onClick={() => openEditModal(event)}
@@ -581,6 +605,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
           {/* Scrapers Tab */}
           {tab === "scrapers" && <ScraperDashboard />}
+
+          {/* Venues Tab */}
+          {tab === "venues" && <VenueManagement />}
         </>
       )}
 
@@ -650,17 +677,33 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Status</label>
-                <select
-                  value={editForm.status || ""}
-                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
-                >
-                  <option value="approved">Approved</option>
-                  <option value="pending">Pending</option>
-                  <option value="rejected">Rejected</option>
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Status</label>
+                  <select
+                    value={editForm.status || ""}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                  >
+                    <option value="approved">Approved</option>
+                    <option value="pending">Pending</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Category</label>
+                  <select
+                    value={editForm.category || ""}
+                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value || null })}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                  >
+                    <option value="">-- Select --</option>
+                    <option value="music">Music</option>
+                    <option value="sports">Sports</option>
+                    <option value="theater">Theater</option>
+                    <option value="comedy">Comedy</option>
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -756,8 +799,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                         setEditingEvent(null);
                       }
                     }}
-                    disabled={saving}
-                    className="px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                    disabled={saving || !editForm.category}
+                    title={!editForm.category ? "Category required for approval" : undefined}
+                    className="px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {saving ? "..." : "Save & Approve"}
                   </button>

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import type { Event, HistoricalShow, SourceStatus } from '../types'
+import type { Event, EventCategory, HistoricalShow, SourceStatus } from '../types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -29,6 +29,7 @@ interface DbEvent {
   source: string
   status: string
   added_at: string
+  category: string | null
 }
 
 interface DbVenue {
@@ -89,6 +90,7 @@ function toAppEvent(dbEvent: DbEvent, venues: DbVenue[]): Event {
     supportingArtists: dbEvent.supporting_artists || undefined,
     source: dbEvent.venue_id, // Use venue_id as source for filtering
     addedAt: dbEvent.added_at,
+    category: dbEvent.category as EventCategory | undefined,
   }
 }
 

@@ -33,6 +33,7 @@ export const VENUE_COLORS: Record<string, { bg: string; text: string; border: st
   holland: { bg: "bg-teal-500/20", text: "text-teal-400", border: "border-teal-500" },
   orpheum: { bg: "bg-indigo-500/20", text: "text-indigo-400", border: "border-indigo-500" },
   barnato: { bg: "bg-lime-500/20", text: "text-lime-400", border: "border-lime-500" },
+  ohmyomaha: { bg: "bg-sky-500/20", text: "text-sky-400", border: "border-sky-500" },
 };
 
 // Build a set of recently added event IDs (within last 7 days, after launch date)

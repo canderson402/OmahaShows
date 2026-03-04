@@ -14,6 +14,12 @@ def main():
         print('SCRAPER_ID environment variable not set')
         sys.exit(1)
 
+    # Special handling for ohmyomaha - it has its own runner
+    if scraper_id == 'ohmyomaha':
+        from run_ohmyomaha import run as run_ohmyomaha
+        run_ohmyomaha()
+        return
+
     scraper = next((s for s in SCRAPERS if s.id == scraper_id), None)
     if not scraper:
         print(f'Unknown scraper: {scraper_id}')

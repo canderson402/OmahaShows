@@ -1,4 +1,6 @@
 // web/src/types.ts
+export type EventCategory = 'music' | 'sports' | 'theater' | 'comedy';
+
 export interface Event {
   id: string;
   title: string;
@@ -14,6 +16,7 @@ export interface Event {
   supportingArtists?: string[];  // ["Artist 1", "Artist 2"]
   source: string;
   addedAt?: string;  // ISO timestamp when first seen
+  category?: EventCategory;
 }
 
 export interface SourceStatus {
