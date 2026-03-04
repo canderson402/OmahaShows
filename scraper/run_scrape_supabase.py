@@ -32,6 +32,18 @@ def run_scraper(scraper) -> tuple[list[Event], str | None]:
         return [], str(e)
 
 
+def normalize_value(val):
+    """Normalize a value for comparison - treat None, empty string, empty list as equal."""
+    if val is None:
+        return None
+    if isinstance(val, str):
+        val = val.strip()
+        return val if val else None
+    if isinstance(val, list):
+        return val if val else None
+    return val
+
+
 def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list[str]]:
     """Upsert events to Supabase, only updating if changed.
 
@@ -76,9 +88,8 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
             # Check if any field changed
             has_changes = False
             for field in compare_fields:
-                old_val = old.get(field)
-                new_val = event_data.get(field)
-                # Normalize None vs empty for comparison
+                old_val = normalize_value(old.get(field))
+                new_val = normalize_value(event_data.get(field))
                 if old_val != new_val:
                     has_changes = True
                     break
