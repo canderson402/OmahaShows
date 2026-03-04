@@ -21,6 +21,7 @@ on:
           - astrotheater
           - steelhouse
           - other
+          - ohmyomaha
 
 jobs:
   scrape:
