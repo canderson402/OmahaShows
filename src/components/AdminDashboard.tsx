@@ -209,6 +209,25 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   };
 
+  const handleClearAllPending = async () => {
+    if (!confirm(`Are you sure you want to reject all ${pendingEvents.length} pending submissions?`)) {
+      return;
+    }
+    setActionLoading("clear-all");
+    try {
+      // Delete all pending events
+      await supabase
+        .from("events")
+        .delete()
+        .eq("status", "pending");
+      await fetchPending();
+    } catch (err) {
+      console.error("Failed to clear pending:", err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const openEditModal = (event: DbEvent) => {
     setEditingEvent(event);
     setEditForm({
@@ -378,15 +397,26 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 <p className="text-gray-500 text-sm">
                   {pendingEvents.length} pending submission{pendingEvents.length !== 1 ? "s" : ""}
                 </p>
-                <button
-                  onClick={() => fetchPending()}
-                  className="px-3 py-1.5 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Refresh
-                </button>
+                <div className="flex gap-2">
+                  {pendingEvents.length > 0 && (
+                    <button
+                      onClick={handleClearAllPending}
+                      disabled={actionLoading === "clear-all"}
+                      className="px-3 py-1.5 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                    >
+                      {actionLoading === "clear-all" ? "Clearing..." : "Clear All Pending"}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => fetchPending()}
+                    className="px-3 py-1.5 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                  </button>
+                </div>
               </div>
               {pendingEvents.length === 0 ? (
                 <div className="text-center py-12">
