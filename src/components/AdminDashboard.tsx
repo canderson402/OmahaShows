@@ -67,6 +67,21 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [enriching, setEnriching] = useState<string | null>(null);
+  const [enrichResult, setEnrichResult] = useState<{
+    eventId: string;
+    success: boolean;
+    source?: string;
+    data?: {
+      time: string | null;
+      price: string | null;
+      image_url: string | null;
+      supporting_artists: string[] | null;
+    };
+    error?: string;
+    domain?: string;
+  } | null>(null);
+  const [showEnrichJson, setShowEnrichJson] = useState(false);
 
   const testEmailFunction = async () => {
     setTestingEmail(true);
@@ -207,6 +222,44 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const handleEnrich = async (event: DbEvent) => {
+    if (!event.ticket_url) return;
+    setEnriching(event.id);
+    setEnrichResult(null);
+    setShowEnrichJson(false);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/enrich", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticket_url: event.ticket_url }),
+      });
+      const result = await response.json();
+      setEnrichResult({ eventId: event.id, ...result });
+    } catch (error) {
+      setEnrichResult({
+        eventId: event.id,
+        success: false,
+        error: `Network error: ${error}`,
+      });
+    } finally {
+      setEnriching(null);
+    }
+  };
+
+  const applyEnrichment = (event: DbEvent) => {
+    if (!enrichResult?.data) return;
+    setEditingEvent(event);
+    setEditForm({
+      ...event,
+      time: enrichResult.data.time || event.time,
+      price: enrichResult.data.price || event.price,
+      image_url: enrichResult.data.image_url || event.image_url,
+      supporting_artists: enrichResult.data.supporting_artists || event.supporting_artists,
+    });
+    setEnrichResult(null);
   };
 
   const openEditModal = (event: DbEvent) => {
@@ -499,6 +552,15 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                             )}
                           </div>
                           <div className="flex gap-2">
+                            {event.ticket_url && (
+                              <button
+                                onClick={() => handleEnrich(event)}
+                                disabled={enriching === event.id}
+                                className="px-3 py-1.5 text-sm bg-purple-600/80 hover:bg-purple-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                              >
+                                {enriching === event.id ? "..." : "Enrich"}
+                              </button>
+                            )}
                             <button
                               onClick={() => openEditModal(event)}
                               className="px-3 py-1.5 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
@@ -521,6 +583,61 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                             </button>
                           </div>
                         </div>
+                        {enrichResult?.eventId === event.id && (
+                          <div className="p-4 border-t border-gray-700/50 bg-gray-900/30">
+                            {enrichResult.success ? (
+                              <>
+                                <div className="text-green-400 text-sm mb-2">
+                                  Found: {[
+                                    enrichResult.data?.time && "time",
+                                    enrichResult.data?.price && "price",
+                                    enrichResult.data?.image_url && "image",
+                                    enrichResult.data?.supporting_artists?.length && "artists"
+                                  ].filter(Boolean).join(", ") || "nothing"}
+                                  <span className="text-gray-500 ml-2">via {enrichResult.source}</span>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => applyEnrichment(event)}
+                                    className="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors"
+                                  >
+                                    Apply to Event
+                                  </button>
+                                  <button
+                                    onClick={() => setShowEnrichJson(!showEnrichJson)}
+                                    className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                                  >
+                                    {showEnrichJson ? "Hide JSON" : "View JSON"}
+                                  </button>
+                                  <button
+                                    onClick={() => setEnrichResult(null)}
+                                    className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                                  >
+                                    Dismiss
+                                  </button>
+                                </div>
+                                {showEnrichJson && (
+                                  <pre className="mt-3 p-3 bg-gray-900 rounded-lg text-xs text-gray-300 overflow-x-auto">
+                                    {JSON.stringify(enrichResult, null, 2)}
+                                  </pre>
+                                )}
+                              </>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <span className="text-red-400 text-sm">
+                                  Error: {enrichResult.error}
+                                  {enrichResult.domain && <span className="text-gray-500 ml-1">({enrichResult.domain})</span>}
+                                </span>
+                                <button
+                                  onClick={() => setEnrichResult(null)}
+                                  className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+                                >
+                                  Dismiss
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
