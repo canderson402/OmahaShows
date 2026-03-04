@@ -112,19 +112,50 @@ function getLocalDateString(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 }
 
+// Time filter type
+export type TimeFilter = 'all' | 'today' | 'week' | 'just-added'
+
+// Get recently added cutoff date
+function getRecentlyAddedCutoff(): string {
+  const LAUNCH_DATE = new Date('2026-03-03T00:00:00Z').getTime()
+  const SEVEN_DAYS_AGO = Date.now() - 7 * 24 * 60 * 60 * 1000
+  const cutoff = Math.max(LAUNCH_DATE, SEVEN_DAYS_AGO)
+  return new Date(cutoff).toISOString()
+}
+
 // Get upcoming events (date >= today) with pagination and search
-export async function getEvents(options?: { limit?: number; offset?: number; search?: string }): Promise<{ events: Event[]; hasMore: boolean }> {
+export async function getEvents(options?: { limit?: number; offset?: number; search?: string; timeFilter?: TimeFilter }): Promise<{ events: Event[]; hasMore: boolean }> {
   const today = getLocalDateString()
   const venues = await getVenues()
   const limit = options?.limit || 20
   const offset = options?.offset || 0
+  const timeFilter = options?.timeFilter || 'all'
 
   let query = supabase
     .from('events')
     .select('*', { count: 'exact' })
     .gte('date', today)
     .eq('status', 'approved')
-    .order('date', { ascending: true })
+
+  // Apply time filter
+  if (timeFilter === 'today') {
+    query = query.eq('date', today)
+  } else if (timeFilter === 'week') {
+    const weekFromNow = new Date()
+    weekFromNow.setDate(weekFromNow.getDate() + 7)
+    const weekDateStr = `${weekFromNow.getFullYear()}-${String(weekFromNow.getMonth() + 1).padStart(2, '0')}-${String(weekFromNow.getDate()).padStart(2, '0')}`
+    query = query.lte('date', weekDateStr)
+  } else if (timeFilter === 'just-added') {
+    const cutoff = getRecentlyAddedCutoff()
+    query = query.gt('added_at', cutoff)
+  }
+
+  // Sort by added_at for recently added, otherwise by date
+  if (timeFilter === 'just-added') {
+    query = query.order('added_at', { ascending: false })
+  } else {
+    query = query.order('date', { ascending: true })
+  }
 
   // Add search filter if provided - search both title and venue_name
   if (options?.search?.trim()) {

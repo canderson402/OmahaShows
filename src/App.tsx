@@ -125,7 +125,12 @@ function HomePage() {
     if (loadingMore || !hasMoreEvents) return;
     setLoadingMore(true);
     try {
-      const result = await getEvents({ limit: EVENTS_PER_PAGE, offset: events.length, search: debouncedEventSearch || undefined });
+      const result = await getEvents({
+        limit: EVENTS_PER_PAGE,
+        offset: events.length,
+        search: debouncedEventSearch || undefined,
+        timeFilter: timeFilter,
+      });
       setEvents(prev => [...prev, ...result.events]);
       setHasMoreEvents(result.hasMore);
     } catch (err) {
@@ -133,14 +138,19 @@ function HomePage() {
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMoreEvents, events.length, debouncedEventSearch]);
+  }, [loadingMore, hasMoreEvents, events.length, debouncedEventSearch, timeFilter]);
 
-  // Refetch events when search changes
+  // Refetch events when search or time filter changes
   useEffect(() => {
     if (!dataLoaded) return;
     const searchEvents = async () => {
       try {
-        const result = await getEvents({ limit: EVENTS_PER_PAGE, offset: 0, search: debouncedEventSearch || undefined });
+        const result = await getEvents({
+          limit: EVENTS_PER_PAGE,
+          offset: 0,
+          search: debouncedEventSearch || undefined,
+          timeFilter: timeFilter,
+        });
         setEvents(result.events);
         setHasMoreEvents(result.hasMore);
       } catch (err) {
@@ -148,7 +158,7 @@ function HomePage() {
       }
     };
     searchEvents();
-  }, [debouncedEventSearch, dataLoaded]);
+  }, [debouncedEventSearch, timeFilter, dataLoaded]);
 
   const loadMoreHistory = useCallback(async () => {
     if (loadingMoreHistory || !hasMoreHistory) return;
