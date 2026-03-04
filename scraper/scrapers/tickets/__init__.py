@@ -10,6 +10,13 @@ from .heuristics import extract_heuristics
 from .etix import EtixScraper
 from .seetickets import SeeTicketsScraper
 
+# Sites that block scraping - give friendly error instead of trying
+BLOCKED_DOMAINS = {
+    "ticketmaster.com": "Ticketmaster blocks automated requests. Check the ticket link manually.",
+    "livenation.com": "Live Nation blocks automated requests. Check the ticket link manually.",
+    "axs.com": "AXS blocks automated requests. Check the ticket link manually.",
+}
+
 __all__ = [
     "EnrichedEvent",
     "BaseTicketScraper",
@@ -46,8 +53,18 @@ def enrich_from_url(url: str) -> dict:
         final_url = resolve_url(url)
         domain = get_domain(final_url)
 
+        # Check if domain is known to block scraping
+        if domain in BLOCKED_DOMAINS:
+            return {
+                "success": False,
+                "error": BLOCKED_DOMAINS[domain],
+                "domain": domain
+            }
+
         response = requests.get(final_url, headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
         }, timeout=15)
         response.raise_for_status()
         html = response.text
@@ -71,6 +88,15 @@ def enrich_from_url(url: str) -> dict:
 
         return {"success": False, "error": f"Could not extract data from {domain}", "domain": domain}
 
+    except requests.HTTPError as e:
+        domain = get_domain(url) if url else None
+        if e.response is not None and e.response.status_code in (401, 403):
+            return {
+                "success": False,
+                "error": f"Access blocked by {domain}. Check the ticket link manually.",
+                "domain": domain
+            }
+        return {"success": False, "error": f"HTTP error: {str(e)}", "domain": domain}
     except requests.RequestException as e:
         return {"success": False, "error": f"Network error: {str(e)}", "domain": get_domain(url) if url else None}
     except Exception as e:
