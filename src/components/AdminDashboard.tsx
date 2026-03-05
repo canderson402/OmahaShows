@@ -82,6 +82,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
   const [eventChanges, setEventChanges] = useState<EventChange[]>([]);
   const [viewingChange, setViewingChange] = useState<EventChange | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const testEmailFunction = async () => {
     setTestingEmail(true);
@@ -363,8 +364,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       // Refresh data
       await Promise.all([fetchPending(), fetchEventChanges()]);
       setViewingChange(null);
+      setToast({ message: "Changes applied successfully", type: "success" });
     } catch (err) {
       console.error("Failed to apply change:", err);
+      setToast({ message: `Failed to apply change: ${err instanceof Error ? err.message : 'Unknown error'}`, type: "error" });
     } finally {
       setActionLoading(null);
     }
@@ -386,8 +389,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
       await fetchEventChanges();
       setViewingChange(null);
+      setToast({ message: "Change rejected", type: "success" });
     } catch (err) {
       console.error("Failed to reject change:", err);
+      setToast({ message: `Failed to reject change: ${err instanceof Error ? err.message : 'Unknown error'}`, type: "error" });
     } finally {
       setActionLoading(null);
     }
@@ -1116,6 +1121,14 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           message={testEmailResult.message}
           type={testEmailResult.success ? "success" : "error"}
           onClose={() => setTestEmailResult(null)}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
