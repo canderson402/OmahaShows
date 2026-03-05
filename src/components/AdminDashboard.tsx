@@ -543,14 +543,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                               <p className="text-xs text-gray-500">
                                 Detected {new Date(change.created_at).toLocaleDateString()}
                               </p>
-                              <a
-                                href={`/#${change.event_id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
-                              >
-                                View Event →
-                              </a>
+                              {(change.proposed_data.event_url || change.original_data?.event_url) && (
+                                <a
+                                  href={change.proposed_data.event_url || change.original_data?.event_url || ''}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
+                                >
+                                  View Source →
+                                </a>
+                              )}
                             </div>
                           </div>
                           <div className="flex gap-2">
@@ -1055,14 +1057,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 <p className="text-sm text-gray-400">
                   Event: <span className="text-white">{viewingChange.original_data?.title || viewingChange.proposed_data.title}</span>
                 </p>
-                <a
-                  href={`/#${viewingChange.event_id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
-                >
-                  View Event →
-                </a>
+                {(viewingChange.proposed_data.event_url || viewingChange.original_data?.event_url) && (
+                  <a
+                    href={viewingChange.proposed_data.event_url || viewingChange.original_data?.event_url || ''}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+                  >
+                    View Source →
+                  </a>
+                )}
               </div>
 
               <table className="w-full text-sm">
