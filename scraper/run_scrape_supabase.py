@@ -134,7 +134,13 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
                 )
                 changed_ids.append(existing["id"])
         else:
-            # No match found - this is a new event
+            # No match found - check if event ID already exists (safety check)
+            existing_by_id = supabase.table("events").select("id").eq("id", event.id).execute()
+            if existing_by_id.data:
+                # Event already exists by ID, skip
+                continue
+
+            # New event - insert as pending
             event_data["status"] = "pending"
             event_data["added_at"] = now
             event_data["updated_at"] = now

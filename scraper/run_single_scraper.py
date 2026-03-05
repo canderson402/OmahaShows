@@ -118,6 +118,12 @@ def main():
                     )
                     changed_ids.append(existing['id'])
             else:
+                # No match found - check if event ID already exists (safety check)
+                existing_by_id = supabase.table('events').select('id').eq('id', e.id).execute()
+                if existing_by_id.data:
+                    # Event already exists by ID, skip
+                    continue
+
                 # New event - insert as pending
                 data['status'] = 'pending'
                 data['added_at'] = now
