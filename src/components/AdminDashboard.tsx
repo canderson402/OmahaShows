@@ -361,10 +361,13 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
       if (changeError) throw changeError;
 
-      // Refresh data
-      await Promise.all([fetchPending(), fetchEventChanges()]);
+      // Remove from local state immediately
+      setEventChanges(prev => prev.filter(c => c.id !== change.id));
       setViewingChange(null);
       setToast({ message: "Changes applied successfully", type: "success" });
+
+      // Also refresh from server
+      await Promise.all([fetchPending(), fetchEventChanges()]);
     } catch (err) {
       console.error("Failed to apply change:", err);
       setToast({ message: `Failed to apply change: ${err instanceof Error ? err.message : 'Unknown error'}`, type: "error" });
@@ -387,9 +390,13 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
       if (error) throw error;
 
-      await fetchEventChanges();
+      // Remove from local state immediately
+      setEventChanges(prev => prev.filter(c => c.id !== change.id));
       setViewingChange(null);
       setToast({ message: "Change rejected", type: "success" });
+
+      // Also refresh from server
+      await fetchEventChanges();
     } catch (err) {
       console.error("Failed to reject change:", err);
       setToast({ message: `Failed to reject change: ${err instanceof Error ? err.message : 'Unknown error'}`, type: "error" });
