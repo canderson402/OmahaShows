@@ -20,7 +20,7 @@ interface EventsFiltersDropdownProps extends BaseFiltersDropdownProps {
   mode?: "events";
   timeFilter: TimeFilter;
   setTimeFilter: (filter: TimeFilter) => void;
-  justAddedCount: number;
+  justAddedCount?: number; // Optional, no longer displayed
 }
 
 interface HistoryFiltersDropdownProps extends BaseFiltersDropdownProps {
@@ -44,7 +44,6 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
   } = props;
 
   const mode = props.mode ?? "events";
-  const justAddedCount = mode === "events" ? (props as EventsFiltersDropdownProps).justAddedCount : 0;
 
   const [internalIsVisible, setInternalIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -138,7 +137,7 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
     { id: "all", label: "All Upcoming" },
     { id: "today", label: "Today" },
     { id: "week", label: "Next 7 Days" },
-    { id: "just-added", label: "Recently Added", count: justAddedCount },
+    { id: "just-added", label: "Recently Added" },
   ];
 
   const historyTimeOptions = [
