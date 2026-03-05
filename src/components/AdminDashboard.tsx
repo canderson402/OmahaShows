@@ -328,14 +328,23 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const handleApplyChange = async (change: EventChange) => {
     setActionLoading(change.id);
     try {
-      // Update the event with proposed data
+      // Only update the changed fields, not id/source/venue_id
+      const updateData: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
+      };
+
+      // Only include the fields that actually changed
+      if (change.changed_fields) {
+        for (const field of change.changed_fields) {
+          if (field in change.proposed_data) {
+            updateData[field] = change.proposed_data[field as keyof typeof change.proposed_data];
+          }
+        }
+      }
+
       const { error: updateError } = await supabase
         .from("events")
-        .update({
-          ...change.proposed_data,
-          status: "approved",
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", change.event_id);
 
       if (updateError) throw updateError;
@@ -525,9 +534,19 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                             <p className="text-sm text-gray-400 mt-1">
                               Changed fields: {change.changed_fields?.join(', ')}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Detected {new Date(change.created_at).toLocaleDateString()}
-                            </p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <p className="text-xs text-gray-500">
+                                Detected {new Date(change.created_at).toLocaleDateString()}
+                              </p>
+                              <a
+                                href={`/#${change.event_id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
+                              >
+                                View Event →
+                              </a>
+                            </div>
                           </div>
                           <div className="flex gap-2">
                             <button
@@ -1027,9 +1046,19 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
             {/* Changes Table */}
             <div className="p-4 overflow-y-auto max-h-[calc(90vh-180px)]">
-              <p className="text-sm text-gray-400 mb-4">
-                Event: <span className="text-white">{viewingChange.original_data?.title || viewingChange.proposed_data.title}</span>
-              </p>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-400">
+                  Event: <span className="text-white">{viewingChange.original_data?.title || viewingChange.proposed_data.title}</span>
+                </p>
+                <a
+                  href={`/#${viewingChange.event_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+                >
+                  View Event →
+                </a>
+              </div>
 
               <table className="w-full text-sm">
                 <thead>
