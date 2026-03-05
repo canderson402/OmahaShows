@@ -5,8 +5,40 @@ import sys
 from datetime import datetime, timezone, date
 from supabase import create_client
 from config import SCRAPERS
+from matching import find_existing_event
 
 COMPARE_FIELDS = ['title', 'date', 'time', 'event_url', 'ticket_url', 'image_url', 'price', 'age_restriction', 'supporting_artists']
+
+
+def normalize_value(val):
+    """Normalize a value for comparison."""
+    if val is None:
+        return None
+    if isinstance(val, str):
+        val = val.strip()
+        return val if val else None
+    if isinstance(val, list):
+        return val if val else None
+    return val
+
+
+def get_events_by_venue_date(supabase, venue_id: str, event_date: str) -> list[dict]:
+    """Fetch all events for a venue on a specific date."""
+    result = supabase.table("events").select("*").eq("venue_id", venue_id).eq("date", event_date).execute()
+    return result.data or []
+
+
+def log_event_change(supabase, event_id: str, change_type: str, proposed_data: dict, original_data: dict | None, changed_fields: list[str] | None):
+    """Log a proposed change to the event_changes table."""
+    supabase.table("event_changes").insert({
+        "event_id": event_id,
+        "change_type": change_type,
+        "proposed_data": proposed_data,
+        "original_data": original_data,
+        "changed_fields": changed_fields,
+        "status": "pending",
+    }).execute()
+
 
 def main():
     scraper_id = os.environ.get('SCRAPER_ID', '')
@@ -40,7 +72,11 @@ def main():
 
         new_ids, changed_ids = [], []
         for e in future_events:
-            existing = supabase.table('events').select('*').eq('id', e.id).execute()
+            # Get all events for this venue + date for fuzzy matching
+            db_events = get_events_by_venue_date(supabase, scraper.id, e.date)
+
+            # Try fuzzy match
+            existing = find_existing_event(e, db_events)
 
             data = {
                 'id': e.id,
@@ -56,21 +92,41 @@ def main():
                 'age_restriction': e.ageRestriction,
                 'supporting_artists': e.supportingArtists,
                 'source': scraper.id,
-                'status': 'approved',
             }
 
-            if existing.data:
-                old = existing.data[0]
-                has_changes = any(old.get(f) != data.get(f) for f in COMPARE_FIELDS)
-                if has_changes:
-                    data['added_at'] = old['added_at']
-                    data['updated_at'] = now
-                    supabase.table('events').update(data).eq('id', e.id).execute()
-                    changed_ids.append(e.id)
+            if existing:
+                # Check for actual changes
+                changed_fields = []
+                for f in COMPARE_FIELDS:
+                    if normalize_value(existing.get(f)) != normalize_value(data.get(f)):
+                        changed_fields.append(f)
+
+                if changed_fields:
+                    # Log proposed change (don't update event directly)
+                    log_event_change(
+                        supabase,
+                        event_id=existing['id'],
+                        change_type='update',
+                        proposed_data=data,
+                        original_data={f: existing.get(f) for f in COMPARE_FIELDS},
+                        changed_fields=changed_fields,
+                    )
+                    changed_ids.append(existing['id'])
             else:
+                # New event - insert as pending
+                data['status'] = 'pending'
                 data['added_at'] = now
                 data['updated_at'] = now
                 supabase.table('events').insert(data).execute()
+
+                log_event_change(
+                    supabase,
+                    event_id=e.id,
+                    change_type='new',
+                    proposed_data=data,
+                    original_data=None,
+                    changed_fields=None,
+                )
                 new_ids.append(e.id)
 
         supabase.table('scraper_runs').insert({

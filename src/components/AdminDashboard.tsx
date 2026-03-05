@@ -42,6 +42,19 @@ interface DbEvent {
   created_at: string;
 }
 
+interface EventChange {
+  id: string;
+  event_id: string;
+  change_type: 'update' | 'new';
+  proposed_data: Partial<DbEvent>;
+  original_data: Partial<DbEvent> | null;
+  changed_fields: string[] | null;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  resolved_at: string | null;
+  resolved_by: string | null;
+}
+
 interface Venue {
   id: string;
   name: string;
@@ -67,6 +80,8 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [eventChanges, setEventChanges] = useState<EventChange[]>([]);
+  const [viewingChange, setViewingChange] = useState<EventChange | null>(null);
 
   const testEmailFunction = async () => {
     setTestingEmail(true);
@@ -155,14 +170,26 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     setVenues(venueData.map(v => ({ id: v.id, name: v.name })));
   }, []);
 
+  const fetchEventChanges = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("event_changes")
+      .select("*")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      setEventChanges(data);
+    }
+  }, []);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      await Promise.all([fetchPending(), fetchCurrentEvents(), fetchVenues()]);
+      await Promise.all([fetchPending(), fetchCurrentEvents(), fetchVenues(), fetchEventChanges()]);
       setLoading(false);
     };
     load();
-  }, [fetchPending, fetchCurrentEvents, fetchVenues]);
+  }, [fetchPending, fetchCurrentEvents, fetchVenues, fetchEventChanges]);
 
   // Search with debounce
   useEffect(() => {
@@ -176,8 +203,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   useEffect(() => {
     if (tab === "pending") {
       fetchPending();
+      fetchEventChanges();
     }
-  }, [tab, fetchPending]);
+  }, [tab, fetchPending, fetchEventChanges]);
 
   const loadMoreEvents = async () => {
     setLoadingMore(true);
@@ -297,6 +325,65 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   };
 
+  const handleApplyChange = async (change: EventChange) => {
+    setActionLoading(change.id);
+    try {
+      // Update the event with proposed data
+      const { error: updateError } = await supabase
+        .from("events")
+        .update({
+          ...change.proposed_data,
+          status: "approved",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", change.event_id);
+
+      if (updateError) throw updateError;
+
+      // Mark change as approved
+      const { error: changeError } = await supabase
+        .from("event_changes")
+        .update({
+          status: "approved",
+          resolved_at: new Date().toISOString(),
+        })
+        .eq("id", change.id);
+
+      if (changeError) throw changeError;
+
+      // Refresh data
+      await Promise.all([fetchPending(), fetchEventChanges()]);
+      setViewingChange(null);
+    } catch (err) {
+      console.error("Failed to apply change:", err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRejectChange = async (change: EventChange) => {
+    setActionLoading(change.id);
+    try {
+      // Mark change as rejected
+      const { error } = await supabase
+        .from("event_changes")
+        .update({
+          status: "rejected",
+          resolved_at: new Date().toISOString(),
+        })
+        .eq("id", change.id);
+
+      if (error) throw error;
+
+      await fetchEventChanges();
+      setViewingChange(null);
+    } catch (err) {
+      console.error("Failed to reject change:", err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     return date.toLocaleDateString("en-US", {
@@ -304,6 +391,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       month: "short",
       day: "numeric",
     });
+  };
+
+  const getChangeForEvent = (eventId: string): EventChange | undefined => {
+    return eventChanges.find(c => c.event_id === eventId);
   };
 
   return (
@@ -518,6 +609,18 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                             <span className="text-xs text-gray-500">
                               Submitted {new Date(event.created_at).toLocaleDateString()}
                             </span>
+                            {(() => {
+                              const change = getChangeForEvent(event.id);
+                              return change ? (
+                                <span className={`px-2 py-0.5 text-xs rounded ${
+                                  change.change_type === 'new'
+                                    ? 'bg-green-600/30 text-green-400'
+                                    : 'bg-blue-600/30 text-blue-400'
+                                }`}>
+                                  {change.change_type === 'new' ? 'New' : 'Changed'}
+                                </span>
+                              ) : null;
+                            })()}
                             {event.category ? (
                               <span className="px-2 py-0.5 text-xs bg-gray-700 text-gray-300 rounded capitalize">
                                 {event.category}
@@ -535,6 +638,17 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                             >
                               Edit
                             </button>
+                            {(() => {
+                              const change = getChangeForEvent(event.id);
+                              return change && change.change_type === 'update' ? (
+                                <button
+                                  onClick={() => setViewingChange(change)}
+                                  className="px-3 py-1.5 text-sm text-blue-400 hover:text-blue-300 border border-blue-600/30 rounded-lg hover:border-blue-500/50 transition-colors"
+                                >
+                                  View Changes
+                                </button>
+                              ) : null;
+                            })()}
                             <button
                               onClick={() => handleReject(event.id)}
                               disabled={actionLoading === event.id}
@@ -837,6 +951,83 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Changes Modal */}
+      {viewingChange && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" onClick={() => setViewingChange(null)}>
+          <div
+            className="w-full max-w-lg max-h-[90vh] bg-gray-900 border border-gray-700 rounded-xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <h3 className="text-lg font-semibold text-white">Proposed Changes</h3>
+              <button
+                onClick={() => setViewingChange(null)}
+                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Changes Table */}
+            <div className="p-4 overflow-y-auto max-h-[calc(90vh-180px)]">
+              <p className="text-sm text-gray-400 mb-4">
+                Event: <span className="text-white">{viewingChange.original_data?.title || viewingChange.proposed_data.title}</span>
+              </p>
+
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-500 border-b border-gray-800">
+                    <th className="pb-2 font-medium">Field</th>
+                    <th className="pb-2 font-medium">Current</th>
+                    <th className="pb-2 font-medium">Proposed</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800">
+                  {viewingChange.changed_fields?.map((field) => (
+                    <tr key={field}>
+                      <td className="py-2 text-gray-400 capitalize">{field.replace(/_/g, ' ')}</td>
+                      <td className="py-2 text-red-400/70">
+                        {String(viewingChange.original_data?.[field as keyof DbEvent] ?? '—')}
+                      </td>
+                      <td className="py-2 text-green-400">
+                        {String(viewingChange.proposed_data[field as keyof DbEvent] ?? '—')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-2 p-4 border-t border-gray-800">
+              <button
+                onClick={() => setViewingChange(null)}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+              >
+                Dismiss
+              </button>
+              <button
+                onClick={() => handleRejectChange(viewingChange)}
+                disabled={actionLoading === viewingChange.id}
+                className="px-4 py-2 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => handleApplyChange(viewingChange)}
+                disabled={actionLoading === viewingChange.id}
+                className="px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+              >
+                {actionLoading === viewingChange.id ? "Applying..." : "Apply Changes"}
+              </button>
             </div>
           </div>
         </div>

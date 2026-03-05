@@ -9,6 +9,7 @@ Usage:
 Or via GitHub Actions with SCRAPER_ID=ohmyomaha
 """
 import os
+import re
 import sys
 from datetime import datetime, timezone, date
 from pathlib import Path
@@ -27,6 +28,18 @@ if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
     sys.exit(1)
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+
+def log_event_change(event_id: str, change_type: str, proposed_data: dict, original_data: dict | None, changed_fields: list[str] | None):
+    """Log a proposed change to the event_changes table."""
+    supabase.table("event_changes").insert({
+        "event_id": event_id,
+        "change_type": change_type,
+        "proposed_data": proposed_data,
+        "original_data": original_data,
+        "changed_fields": changed_fields,
+        "status": "pending",
+    }).execute()
 
 
 def run():
@@ -123,6 +136,16 @@ def run():
             }
 
             supabase.table("events").insert(event_data).execute()
+
+            # Log new event for tracking
+            log_event_change(
+                event_id=event.id,
+                change_type="new",
+                proposed_data=event_data,
+                original_data=None,
+                changed_fields=None,
+            )
+
             new_ids.append(event.id)
             print(f"  + {event.title} ({event.date}) @ {event.venue} [{category}]")
 

@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from supabase import create_client, Client
 from config import SCRAPERS
 from models import Event
+from matching import find_existing_event
 
 # Get Supabase credentials from environment
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
@@ -44,8 +45,30 @@ def normalize_value(val):
     return val
 
 
+def get_events_by_venue_date(venue_id: str, event_date: str) -> list[dict]:
+    """Fetch all events for a venue on a specific date."""
+    result = supabase.table("events").select("*").eq("venue_id", venue_id).eq("date", event_date).execute()
+    return result.data or []
+
+
+def log_event_change(event_id: str, change_type: str, proposed_data: dict, original_data: dict | None, changed_fields: list[str] | None):
+    """Log a proposed change to the event_changes table."""
+    supabase.table("event_changes").insert({
+        "event_id": event_id,
+        "change_type": change_type,
+        "proposed_data": proposed_data,
+        "original_data": original_data,
+        "changed_fields": changed_fields,
+        "status": "pending",
+    }).execute()
+
+
 def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list[str]]:
-    """Upsert events to Supabase, only updating if changed.
+    """Upsert events to Supabase using fuzzy matching.
+
+    - New events: inserted with status='pending'
+    - Changed events: NOT updated directly, change logged to event_changes
+    - Unchanged events: skipped
 
     Returns tuple of (new_event_ids, changed_event_ids).
     """
@@ -63,9 +86,13 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
     ]
 
     for event in events:
-        # Check if event exists and get all fields for comparison
-        existing = supabase.table("events").select("*").eq("id", event.id).execute()
+        # Get all events for this venue + date for fuzzy matching
+        db_events = get_events_by_venue_date(scraper_id, event.date)
 
+        # Try fuzzy match first
+        existing = find_existing_event(event, db_events)
+
+        # Build event data
         event_data = {
             "id": event.id,
             "title": event.title,
@@ -80,31 +107,42 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
             "age_restriction": event.ageRestriction,
             "supporting_artists": event.supportingArtists,
             "source": scraper_id,
-            "status": "approved",
         }
 
-        if existing.data:
-            old = existing.data[0]
-            # Check if any field changed
-            has_changes = False
+        if existing:
+            # Found a match - check if anything actually changed
+            changed_fields = []
             for field in compare_fields:
-                old_val = normalize_value(old.get(field))
+                old_val = normalize_value(existing.get(field))
                 new_val = normalize_value(event_data.get(field))
                 if old_val != new_val:
-                    has_changes = True
-                    break
+                    changed_fields.append(field)
 
-            if has_changes:
-                # Update existing - preserve added_at
-                event_data["added_at"] = old["added_at"]
-                event_data["updated_at"] = now
-                supabase.table("events").update(event_data).eq("id", event.id).execute()
-                changed_ids.append(event.id)
+            if changed_fields:
+                # Log the proposed change (don't update event directly)
+                log_event_change(
+                    event_id=existing["id"],
+                    change_type="update",
+                    proposed_data=event_data,
+                    original_data={f: existing.get(f) for f in compare_fields},
+                    changed_fields=changed_fields,
+                )
+                changed_ids.append(existing["id"])
         else:
-            # Insert new
+            # No match found - this is a new event
+            event_data["status"] = "pending"
             event_data["added_at"] = now
             event_data["updated_at"] = now
             supabase.table("events").insert(event_data).execute()
+
+            # Log new event for tracking
+            log_event_change(
+                event_id=event.id,
+                change_type="new",
+                proposed_data=event_data,
+                original_data=None,
+                changed_fields=None,
+            )
             new_ids.append(event.id)
 
     return new_ids, changed_ids
@@ -138,10 +176,44 @@ def log_scraper_run(
     }).execute()
 
 
+def notify_admin_pending(total_new: int, total_changed: int, scraper_results: list[dict]):
+    """Send email notification to admin about pending items."""
+    import requests
+
+    # Get Supabase URL for edge function
+    supabase_url = SUPABASE_URL.rstrip("/")
+    function_url = f"{supabase_url}/functions/v1/notify-admin-pending"
+
+    try:
+        response = requests.post(
+            function_url,
+            json={
+                "type": "scraper_complete",
+                "scraperSummary": {
+                    "totalNew": total_new,
+                    "totalChanged": total_changed,
+                    "scrapers": scraper_results,
+                }
+            },
+            headers={
+                "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
+                "Content-Type": "application/json",
+            },
+            timeout=10,
+        )
+        if response.ok:
+            print(f"✓ Admin notification sent")
+        else:
+            print(f"! Failed to send notification: {response.text}")
+    except Exception as e:
+        print(f"! Error sending notification: {e}")
+
+
 def run():
     today = date.today().isoformat()
     failed_scrapers = []
     successful_scrapers = []
+    scraper_results = []
     total_events = 0
     total_new = 0
     total_changed = 0
@@ -150,7 +222,7 @@ def run():
     print(f"SUPABASE SCRAPE - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
     print(f"{'='*60}\n")
 
-    # Run all scrapers
+    # Run all scrapers and collect results
     for scraper in SCRAPERS:
         print(f"Scraping {scraper.name}...", end=" ", flush=True)
 
@@ -160,6 +232,7 @@ def run():
             print(f"FAILED: {error}")
             failed_scrapers.append((scraper.name, error))
             log_scraper_run(scraper.id, scraper.name, "error", 0, error=error)
+            scraper_results.append({"name": scraper.name, "newCount": 0, "changedCount": 0})
         else:
             # Filter to future events only
             future_events = [e for e in events if e.date >= today]
@@ -179,6 +252,11 @@ def run():
                 new_event_ids=new_ids,
                 changed_event_ids=changed_ids,
             )
+            scraper_results.append({"name": scraper.name, "newCount": len(new_ids), "changedCount": len(changed_ids)})
+
+    # Send admin notification if there are pending items
+    if total_new > 0 or total_changed > 0:
+        notify_admin_pending(total_new, total_changed, scraper_results)
 
     # Print summary
     print(f"\n{'='*60}")

@@ -325,6 +325,29 @@ export function SubmitShowForm() {
 
       await submitEvent(data);
 
+      // Notify admin of new submission
+      try {
+        await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-admin-pending`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            type: "user_submission",
+            submission: {
+              title: title.trim(),
+              date,
+              venue: venueName,
+              submitterEmail: submitterEmail || undefined,
+            },
+          }),
+        });
+      } catch (notifyError) {
+        // Don't fail the submission if notification fails
+        console.error("Failed to send admin notification:", notifyError);
+      }
+
       setRecentSubmissions(prev => [title, ...prev.slice(0, 4)]);
       setSubmitStatus({ type: "success", message: `"${title}" submitted for review` });
 
