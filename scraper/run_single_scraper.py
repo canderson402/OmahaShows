@@ -10,13 +10,18 @@ from matching import find_existing_event
 COMPARE_FIELDS = ['title', 'date', 'time', 'event_url', 'ticket_url', 'image_url', 'price', 'age_restriction', 'supporting_artists']
 
 
-def normalize_value(val):
+def normalize_value(val, field_name=None):
     """Normalize a value for comparison."""
     if val is None:
         return None
     if isinstance(val, str):
         val = val.strip()
-        return val if val else None
+        if not val:
+            return None
+        # Normalize time format: "21:00:00" -> "21:00"
+        if field_name == "time" and len(val) == 8 and val.count(":") == 2:
+            val = val[:5]  # Strip seconds
+        return val
     if isinstance(val, list):
         return val if val else None
     return val
@@ -98,7 +103,7 @@ def main():
                 # Check for actual changes
                 changed_fields = []
                 for f in COMPARE_FIELDS:
-                    if normalize_value(existing.get(f)) != normalize_value(data.get(f)):
+                    if normalize_value(existing.get(f), f) != normalize_value(data.get(f), f):
                         changed_fields.append(f)
 
                 if changed_fields:

@@ -441,7 +441,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
               : "text-gray-400 hover:text-white"
           }`}
         >
-          Pending ({pendingEvents.length})
+          Pending ({pendingEvents.length + eventChanges.filter(c => c.change_type === 'update').length})
         </button>
         <button
           onClick={() => setTab("events")}
@@ -509,14 +509,63 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   </button>
                 </div>
               </div>
-              {pendingEvents.length === 0 ? (
+              {/* Pending Changes to Approved Events */}
+              {eventChanges.filter(c => c.change_type === 'update').length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-3">Pending Changes to Approved Events</h3>
+                  <div className="space-y-3">
+                    {eventChanges.filter(c => c.change_type === 'update').map((change) => (
+                      <div
+                        key={change.id}
+                        className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-medium">{change.original_data?.title || change.proposed_data.title}</p>
+                            <p className="text-sm text-gray-400 mt-1">
+                              Changed fields: {change.changed_fields?.join(', ')}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Detected {new Date(change.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setViewingChange(change)}
+                              className="px-3 py-1.5 text-sm text-blue-400 hover:text-blue-300 border border-blue-600/30 rounded-lg hover:border-blue-500/50 transition-colors"
+                            >
+                              View Changes
+                            </button>
+                            <button
+                              onClick={() => handleRejectChange(change)}
+                              disabled={actionLoading === change.id}
+                              className="px-3 py-1.5 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                              Reject
+                            </button>
+                            <button
+                              onClick={() => handleApplyChange(change)}
+                              disabled={actionLoading === change.id}
+                              className="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                              {actionLoading === change.id ? "..." : "Apply"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {pendingEvents.length === 0 && eventChanges.filter(c => c.change_type === 'update').length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-400">No pending submissions</p>
+                  <p className="text-gray-400">No pending submissions or changes</p>
                   <p className="text-gray-500 text-sm mt-2">
-                    Events submitted by users will appear here for approval.
+                    Events submitted by users and scraper changes will appear here for approval.
                   </p>
                 </div>
-              ) : (
+              ) : pendingEvents.length === 0 ? null : (
                 <div className="space-y-6">
                   {pendingEvents.map((event) => {
                     const colors = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other;

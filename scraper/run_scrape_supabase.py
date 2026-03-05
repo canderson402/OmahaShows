@@ -33,13 +33,18 @@ def run_scraper(scraper) -> tuple[list[Event], str | None]:
         return [], str(e)
 
 
-def normalize_value(val):
+def normalize_value(val, field_name=None):
     """Normalize a value for comparison - treat None, empty string, empty list as equal."""
     if val is None:
         return None
     if isinstance(val, str):
         val = val.strip()
-        return val if val else None
+        if not val:
+            return None
+        # Normalize time format: "21:00:00" -> "21:00"
+        if field_name == "time" and len(val) == 8 and val.count(":") == 2:
+            val = val[:5]  # Strip seconds
+        return val
     if isinstance(val, list):
         return val if val else None
     return val
@@ -113,8 +118,8 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
             # Found a match - check if anything actually changed
             changed_fields = []
             for field in compare_fields:
-                old_val = normalize_value(existing.get(field))
-                new_val = normalize_value(event_data.get(field))
+                old_val = normalize_value(existing.get(field), field)
+                new_val = normalize_value(event_data.get(field), field)
                 if old_val != new_val:
                     changed_fields.append(field)
 
