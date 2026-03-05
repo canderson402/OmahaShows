@@ -7,6 +7,7 @@ import {
   type ScraperRun
 } from "../lib/supabase";
 import { VENUE_COLORS } from "../App";
+import { Toast } from "./Toast";
 
 // Scraper configuration matching the Python API
 const SCRAPERS = [
@@ -94,7 +95,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
       return { text: "Running", color: "text-amber-400", bg: "bg-amber-500/20" };
     }
     if (isTriggered) {
-      return { text: "Pending", color: "text-amber-400", bg: "bg-amber-500/20" };
+      return { text: "Dispatched", color: "text-sky-400", bg: "bg-sky-500/20" };
     }
     if (!latestRun) {
       return { text: "Never run", color: "text-gray-500", bg: "bg-gray-500/20" };
@@ -178,9 +179,11 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
             onClick={onRun}
             disabled={isRunning || isTriggered}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors flex items-center gap-2 ${
-              isRunning || isTriggered
+              isRunning
                 ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                : "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
+                : isTriggered
+                  ? "bg-sky-500/20 text-sky-400 cursor-not-allowed"
+                  : "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
             }`}
           >
             {isRunning ? (
@@ -190,8 +193,10 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
               </>
             ) : isTriggered ? (
               <>
-                <div className="w-3 h-3 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
-                Pending
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Dispatched
               </>
             ) : (
               <>
@@ -199,7 +204,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Run
+                {isGitHubMode ? "Dispatch" : "Run"}
               </>
             )}
           </button>
@@ -439,6 +444,7 @@ export function ScraperDashboard() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [useGitHub, setUseGitHub] = useState(USE_GITHUB_ACTIONS);
   const [githubTriggered, setGithubTriggered] = useState<Set<string>>(new Set());
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const fetchLatestRuns = useCallback(async () => {
     try {
@@ -528,6 +534,7 @@ export function ScraperDashboard() {
       await triggerGitHubWorkflow(scraper.id);
       setGithubTriggered(prev => new Set(prev).add(scraper.id));
       setApiError(null);
+      setToast({ message: `${scraper.name} dispatched. Check back in 1-2 minutes for results.`, type: 'success' });
 
       // Clear the "triggered" indicator after 30 seconds
       setTimeout(() => {
@@ -577,11 +584,11 @@ export function ScraperDashboard() {
         await triggerGitHubWorkflow(); // No scraper ID = run all
         // Mark all scrapers as triggered/pending
         setGithubTriggered(new Set(SCRAPERS.map(s => s.id)));
-        setRunAllStatus('running');
+        setRunAllStatus('idle');
+        setToast({ message: "All scrapers dispatched. Check back in 2-5 minutes for results.", type: 'success' });
         // Clear the triggered state after 60 seconds
         setTimeout(() => {
           setGithubTriggered(new Set());
-          setRunAllStatus('idle');
           fetchLatestRuns();
         }, 60000);
       } catch (err) {
@@ -713,7 +720,7 @@ export function ScraperDashboard() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Run All Scrapers
+                {useGitHub ? "Dispatch All Scrapers" : "Run All Scrapers"}
               </>
             )}
           </button>
@@ -833,6 +840,15 @@ export function ScraperDashboard() {
             setSelectedScraper(null);
             setSelectedResult(null);
           }}
+        />
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
