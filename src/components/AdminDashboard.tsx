@@ -329,15 +329,18 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const handleApplyChange = async (change: EventChange) => {
     setActionLoading(change.id);
     try {
-      // Only update the changed fields, not id/source/venue_id
+      // Only update the changed fields, not id/source/venue_id/added_at
       const updateData: Record<string, unknown> = {
         updated_at: new Date().toISOString(),
       };
 
+      // Fields that should never be updated via changes
+      const excludeFields = ['id', 'source', 'venue_id', 'added_at', 'status'];
+
       // Only include the fields that actually changed
       if (change.changed_fields) {
         for (const field of change.changed_fields) {
-          if (field in change.proposed_data) {
+          if (field in change.proposed_data && !excludeFields.includes(field)) {
             updateData[field] = change.proposed_data[field as keyof typeof change.proposed_data];
           }
         }
