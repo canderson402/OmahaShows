@@ -100,13 +100,19 @@ class AstroTheaterScraper(BaseScraper):
                 if buy_tickets_el:
                     ticket_url = buy_tickets_el.get_attribute('href')
 
-                # Image URL - download locally due to hotlink protection
+                # Image URL - use remote URL directly (hotlink protection no longer an issue)
                 image_url = None
                 img_el = item.query_selector('.grid-featured-image img')
                 if img_el:
                     remote_url = img_el.get_attribute('src')
                     if remote_url:
-                        image_url = self._download_image(page, remote_url)
+                        # Check if we have a local webp version first (legacy cached images)
+                        local_path = self._get_local_image_path(remote_url)
+                        if local_path:
+                            image_url = local_path
+                        else:
+                            # Use remote URL directly
+                            image_url = remote_url
 
                 # Combine title with tagline if present
                 display_title = title
@@ -203,36 +209,16 @@ class AstroTheaterScraper(BaseScraper):
             return True
         return False
 
-    def _download_image(self, page, remote_url: str) -> str | None:
-        """Download image locally and return local path."""
+    def _get_local_image_path(self, remote_url: str) -> str | None:
+        """Check if we have a local cached version of this image."""
         try:
-            # Create filename from URL hash
             url_hash = hashlib.md5(remote_url.encode()).hexdigest()[:12]
-            ext = Path(remote_url).suffix or '.png'
-            filename = f"{url_hash}{ext}"
             webp_filename = f"{url_hash}.webp"
-            local_path = IMAGES_DIR / filename
             webp_path = IMAGES_DIR / webp_filename
 
-            # If optimized .webp version exists, use that
+            # Only use local path if webp version exists and is valid
             if webp_path.exists() and self._is_valid_image(webp_path.read_bytes()):
                 return f"/images/astro/{webp_filename}"
-
-            # Skip if original already downloaded and valid
-            if local_path.exists():
-                if self._is_valid_image(local_path.read_bytes()):
-                    return f"/images/astro/{filename}"
-                # Delete corrupt file so we re-download
-                local_path.unlink()
-
-            # Download using Playwright's request context (same session, bypasses protection)
-            response = page.request.get(remote_url)
-            if response.ok:
-                body = response.body()
-                if self._is_valid_image(body):
-                    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
-                    local_path.write_bytes(body)
-                    return f"/images/astro/{filename}"
         except Exception:
             pass
         return None
