@@ -72,6 +72,8 @@ function HomePage() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [ready, setReady] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const debouncedEventSearch = useDebounce(eventSearch, 300);
 
@@ -102,16 +104,14 @@ function HomePage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [eventsResult, historyResult, sourcesData] = await Promise.all([
+      // Only load events and sources initially - history is lazy loaded
+      const [eventsResult, sourcesData] = await Promise.all([
         getEvents({ limit: EVENTS_PER_PAGE, offset: 0 }),
-        getHistory({ filter: historyTimeFilter as HistoryFilter, limit: 50, offset: 0 }),
         getSources(),
       ]);
 
       setEvents(eventsResult.events);
       setHasMoreEvents(eventsResult.hasMore);
-      setHistoryShows(historyResult.shows);
-      setHasMoreHistory(historyResult.hasMore);
       setSources(sourcesData);
       setEnabledVenues(new Set(sourcesData.map(s => s.id)));
       setDataLoaded(true);
@@ -120,7 +120,7 @@ function HomePage() {
       console.error("Failed to fetch data:", err);
       setError("Failed to load events");
     }
-  }, [historyTimeFilter]);
+  }, []);
 
   const loadMoreEvents = useCallback(async () => {
     if (loadingMore || !hasMoreEvents) return;
@@ -179,9 +179,13 @@ function HomePage() {
     }
   }, [loadingMoreHistory, hasMoreHistory, historyShows.length, historyTimeFilter]);
 
+  // Lazy load history - only when user switches to history view or changes filter
   useEffect(() => {
     if (!dataLoaded) return;
-    const reloadHistory = async () => {
+    if (view !== 'history') return; // Only load when on history view
+
+    const loadHistory = async () => {
+      setLoadingHistory(true);
       try {
         const result = await getHistory({
           filter: historyTimeFilter as HistoryFilter,
@@ -190,12 +194,15 @@ function HomePage() {
         });
         setHistoryShows(result.shows);
         setHasMoreHistory(result.hasMore);
+        setHistoryLoaded(true);
       } catch (err) {
-        console.error("Failed to reload history:", err);
+        console.error("Failed to load history:", err);
+      } finally {
+        setLoadingHistory(false);
       }
     };
-    reloadHistory();
-  }, [historyTimeFilter, dataLoaded]);
+    loadHistory();
+  }, [historyTimeFilter, dataLoaded, view]);
 
   useEffect(() => {
     fetchData();
@@ -368,7 +375,13 @@ function HomePage() {
                   {view === "events" ? (
                     <EventList events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={VENUE_COLORS} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} />
                   ) : view === "history" ? (
-                    <HistoryList shows={historyShows} enabledVenues={enabledVenues} searchQuery={debouncedHistorySearch} venueColors={VENUE_COLORS} venueUrls={venueUrls} timeFilter={historyTimeFilter} hasMore={hasMoreHistory} loadingMore={loadingMoreHistory} onLoadMore={loadMoreHistory} />
+                    loadingHistory && !historyLoaded ? (
+                      <div className="flex justify-center py-12">
+                        <div className="w-8 h-8 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
+                      </div>
+                    ) : (
+                      <HistoryList shows={historyShows} enabledVenues={enabledVenues} searchQuery={debouncedHistorySearch} venueColors={VENUE_COLORS} venueUrls={venueUrls} timeFilter={historyTimeFilter} hasMore={hasMoreHistory} loadingMore={loadingMoreHistory} onLoadMore={loadMoreHistory} />
+                    )
                   ) : (
                     <CalendarView venueColors={VENUE_COLORS} enabledVenues={enabledVenues} />
                   )}

@@ -1,5 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Event, EventCategory, HistoricalShow, SourceStatus } from '../types'
+import {
+  eventCache,
+  historyCache,
+  venueCache,
+  sourcesCache,
+  getCacheKey,
+  withCache,
+  invalidateEventCaches,
+} from './cache'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -9,6 +18,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Re-export cache invalidation for use in admin actions
+export { invalidateEventCaches }
 
 // Database row type (snake_case)
 interface DbEvent {
@@ -46,22 +58,20 @@ interface DbVenue {
   active: boolean
 }
 
-// Cache venues for mapping
-let venuesCache: DbVenue[] | null = null
-
-// Get all venues
+// Get all venues (cached for 10 minutes)
 export async function getVenues(): Promise<DbVenue[]> {
-  if (venuesCache) return venuesCache
+  const cacheKey = 'venues:active'
 
-  const { data, error } = await supabase
-    .from('venues')
-    .select('*')
-    .eq('active', true)
-    .order('name')
+  return withCache(venueCache, cacheKey, async () => {
+    const { data, error } = await supabase
+      .from('venues')
+      .select('*')
+      .eq('active', true)
+      .order('name')
 
-  if (error) throw error
-  venuesCache = data || []
-  return venuesCache
+    if (error) throw error
+    return data || []
+  })
 }
 
 // Transform DB event to app Event type
@@ -132,6 +142,17 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
   const limit = options?.limit || 20
   const offset = options?.offset || 0
   const timeFilter = options?.timeFilter || 'all'
+  const search = options?.search?.trim() || ''
+
+  // Cache non-search queries (search queries are too unique to cache effectively)
+  const cacheKey = search
+    ? null
+    : getCacheKey('events', { today, limit, offset, timeFilter })
+
+  if (cacheKey) {
+    const cached = eventCache.get<{ events: Event[]; hasMore: boolean }>(cacheKey)
+    if (cached) return cached
+  }
 
   let query = supabase
     .from('events')
@@ -160,18 +181,17 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
   }
 
   // Add search filter if provided - search both title and venue_name
-  if (options?.search?.trim()) {
-    const searchTerm = options.search.trim()
+  if (search) {
     // Check if search matches a known venue name
     const matchingVenue = venues.find(v =>
-      v.name.toLowerCase().includes(searchTerm.toLowerCase())
+      v.name.toLowerCase().includes(search.toLowerCase())
     )
     if (matchingVenue) {
       // Search by title OR venue_id OR venue_name (for "other" venues)
-      query = query.or(`title.ilike.%${searchTerm}%,venue_id.eq.${matchingVenue.id},venue_name.ilike.%${searchTerm}%`)
+      query = query.or(`title.ilike.%${search}%,venue_id.eq.${matchingVenue.id},venue_name.ilike.%${search}%`)
     } else {
       // Search by title OR venue_name (for "other" venues)
-      query = query.or(`title.ilike.%${searchTerm}%,venue_name.ilike.%${searchTerm}%`)
+      query = query.or(`title.ilike.%${search}%,venue_name.ilike.%${search}%`)
     }
   }
 
@@ -183,7 +203,14 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
   const events = (data || []).map(e => toAppEvent(e, venues))
   const hasMore = count ? offset + events.length < count : false
 
-  return { events, hasMore }
+  const result = { events, hasMore }
+
+  // Cache the result if this was a cacheable query
+  if (cacheKey) {
+    eventCache.set(cacheKey, result)
+  }
+
+  return result
 }
 
 // Get history (past events) with filter-based loading
@@ -196,11 +223,17 @@ export async function getHistory(options?: {
 }): Promise<{ shows: HistoricalShow[]; hasMore: boolean }> {
   const today = new Date()
   const todayStr = getLocalDateString()
-  const venues = await getVenues()
 
   const filter = options?.filter || '30days'
   const limit = options?.limit || 50
   const offset = options?.offset || 0
+
+  // Check cache first (history is cached for 5 minutes)
+  const cacheKey = getCacheKey('history', { todayStr, filter, limit, offset })
+  const cached = historyCache.get<{ shows: HistoricalShow[]; hasMore: boolean }>(cacheKey)
+  if (cached) return cached
+
+  const venues = await getVenues()
 
   // Calculate date range based on filter
   let startDate: string | null = null
@@ -240,27 +273,39 @@ export async function getHistory(options?: {
 
   const shows = (data || []).map(e => toHistoricalShow(e, venues))
   const hasMore = count ? offset + shows.length < count : false
+  const result = { shows, hasMore }
 
-  return { shows, hasMore }
+  // Cache the result
+  historyCache.set(cacheKey, result)
+
+  return result
 }
 
 // Get sources (venues as SourceStatus for compatibility)
+// Cached for 1 minute since event counts don't change frequently
 export async function getSources(): Promise<SourceStatus[]> {
-  const venues = await getVenues()
+  const today = getLocalDateString()
+  const cacheKey = getCacheKey('sources', { today })
 
-  // Count events per venue
-  const { data: counts } = await supabase
-    .from('events')
-    .select('venue_id')
-    .gte('date', getLocalDateString())
-    .eq('status', 'approved')
+  const cached = sourcesCache.get<SourceStatus[]>(cacheKey)
+  if (cached) return cached
+
+  // Fetch venues and event counts in parallel
+  const [venues, countsResult] = await Promise.all([
+    getVenues(),
+    supabase
+      .from('events')
+      .select('venue_id')
+      .gte('date', today)
+      .eq('status', 'approved')
+  ])
 
   const countMap: Record<string, number> = {}
-  for (const row of counts || []) {
+  for (const row of countsResult.data || []) {
     countMap[row.venue_id] = (countMap[row.venue_id] || 0) + 1
   }
 
-  return venues.map(v => ({
+  const result = venues.map(v => ({
     id: v.id,
     name: v.name,
     url: v.website_url || '',
@@ -268,6 +313,9 @@ export async function getSources(): Promise<SourceStatus[]> {
     lastScraped: new Date().toISOString(),
     eventCount: countMap[v.id] || 0,
   }))
+
+  sourcesCache.set(cacheKey, result)
+  return result
 }
 
 // Helper to get pending events (admin only)
@@ -341,6 +389,9 @@ export async function approveEvent(id: string) {
 
   if (error) throw error
 
+  // Invalidate caches since event list changed
+  invalidateEventCaches()
+
   // Send notification email if submitter provided email
   if (event?.submitter_email) {
     try {
@@ -365,6 +416,9 @@ export async function rejectEvent(id: string) {
     .eq('id', id)
 
   if (error) throw error
+
+  // Invalidate caches since event list changed
+  invalidateEventCaches()
 }
 
 // Auth helpers
