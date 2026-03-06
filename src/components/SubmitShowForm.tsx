@@ -19,28 +19,6 @@ const VENUES = [
   { id: "other", name: "Other Venue" },
 ];
 
-const HOUR_PRESETS = [
-  { label: "1", value: 1 },
-  { label: "2", value: 2 },
-  { label: "3", value: 3 },
-  { label: "4", value: 4 },
-  { label: "5", value: 5 },
-  { label: "6", value: 6 },
-  { label: "7", value: 7 },
-  { label: "8", value: 8 },
-  { label: "9", value: 9 },
-  { label: "10", value: 10 },
-  { label: "11", value: 11 },
-  { label: "12", value: 12 },
-];
-
-const MINUTE_PRESETS = [
-  { label: "00", value: "00" },
-  { label: "15", value: "15" },
-  { label: "30", value: "30" },
-  { label: "45", value: "45" },
-];
-
 type ImageMode = "url" | "upload";
 
 interface ValidationErrors {
@@ -114,6 +92,7 @@ export function SubmitShowForm() {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const minuteInputRef = useRef<HTMLInputElement>(null);
 
   const selectedVenue = VENUES.find(v => v.id === venueId);
   const venueName = venueId === "other" ? customVenue : (selectedVenue?.name || "");
@@ -393,18 +372,6 @@ export function SubmitShowForm() {
     setCustomTime(timeStr);
   };
 
-  const handleHourSelect = (hour: number) => {
-    setSelectedHour(hour);
-    updateTimeFromSelectors(hour, selectedMinute, isPM);
-  };
-
-  const handleMinuteSelect = (minute: string) => {
-    setSelectedMinute(minute);
-    if (selectedHour !== null) {
-      updateTimeFromSelectors(selectedHour, minute, isPM);
-    }
-  };
-
   const handleAmPmToggle = (pm: boolean) => {
     setIsPM(pm);
     if (selectedHour !== null) {
@@ -447,15 +414,17 @@ export function SubmitShowForm() {
         )}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Form */}
+      {/* Form Header */}
+      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider pb-4 mb-5 border-b border-gray-800 flex items-center gap-2">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Show Details
+      </h2>
+
+      <div className="grid md:grid-cols-2 gap-x-8 gap-y-5">
+        {/* Column 1: Core Details */}
         <div className="space-y-5">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Show Details
-          </h2>
 
           {/* Title */}
           <div>
@@ -467,7 +436,7 @@ export function SubmitShowForm() {
               value={title}
               onChange={e => setTitle(e.target.value)}
               onBlur={() => handleBlur("title")}
-              placeholder="e.g. The National, Local Band Showcase"
+              placeholder="Event or artist name"
               className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white placeholder-gray-600 focus:outline-none transition-all ${
                 errors.title
                   ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20"
@@ -477,115 +446,6 @@ export function SubmitShowForm() {
             {errors.title && (
               <p className="text-red-400 text-xs mt-1">{errors.title}</p>
             )}
-          </div>
-
-          {/* Date */}
-          <div>
-            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-              Date <span className="text-rose-400">*</span>
-            </label>
-            <input
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              onBlur={() => handleBlur("date")}
-              min={new Date().toISOString().split("T")[0]}
-              className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white focus:outline-none transition-all [color-scheme:dark] ${
-                errors.date
-                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20"
-                  : "border-gray-700 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20"
-              }`}
-            />
-            {errors.date && (
-              <p className="text-red-400 text-xs mt-1">{errors.date}</p>
-            )}
-          </div>
-
-          {/* Time */}
-          <div>
-            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Time
-            </label>
-            {/* Time Input */}
-            <input
-              type="time"
-              value={time || customTime}
-              onChange={e => {
-                setTime("");
-                setCustomTime(e.target.value);
-                // Clear quick selectors when manually typing
-                setSelectedHour(null);
-              }}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all [color-scheme:dark] mb-3"
-            />
-            {/* AM/PM Toggle */}
-            <div className="mb-2">
-              <span className="text-xs text-gray-600 uppercase tracking-wider mb-1 block">AM / PM</span>
-              <div className="flex gap-1">
-                <button
-                  type="button"
-                  onClick={() => handleAmPmToggle(false)}
-                  className={`w-12 py-1.5 rounded text-xs font-medium transition-all ${
-                    !isPM
-                      ? "bg-amber-500 text-white"
-                      : "bg-gray-800 text-gray-500 hover:bg-gray-700 hover:text-white"
-                  }`}
-                >
-                  AM
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAmPmToggle(true)}
-                  className={`w-12 py-1.5 rounded text-xs font-medium transition-all ${
-                    isPM
-                      ? "bg-amber-500 text-white"
-                      : "bg-gray-800 text-gray-500 hover:bg-gray-700 hover:text-white"
-                  }`}
-                >
-                  PM
-                </button>
-              </div>
-            </div>
-            {/* Quick Hour Select */}
-            <div className="mb-2">
-              <span className="text-xs text-gray-600 uppercase tracking-wider mb-1 block">Hour</span>
-              <div className="flex flex-wrap gap-1">
-                {HOUR_PRESETS.map(preset => (
-                  <button
-                    key={preset.value}
-                    type="button"
-                    onClick={() => handleHourSelect(preset.value)}
-                    className={`w-12 py-1.5 rounded text-xs font-medium transition-all ${
-                      selectedHour === preset.value
-                        ? "bg-amber-500 text-white"
-                        : "bg-gray-800 text-gray-500 hover:bg-gray-700 hover:text-white"
-                    }`}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Minutes Select */}
-            <div>
-              <span className="text-xs text-gray-600 uppercase tracking-wider mb-1 block">Minutes</span>
-              <div className="flex gap-1">
-                {MINUTE_PRESETS.map(preset => (
-                  <button
-                    key={preset.value}
-                    type="button"
-                    onClick={() => handleMinuteSelect(preset.value)}
-                    className={`w-12 py-1.5 rounded text-xs font-medium transition-all ${
-                      selectedMinute === preset.value
-                        ? "bg-amber-500 text-white"
-                        : "bg-gray-800 text-gray-500 hover:bg-gray-700 hover:text-white"
-                    }`}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Venue */}
@@ -626,7 +486,7 @@ export function SubmitShowForm() {
                   value={customVenue}
                   onChange={e => setCustomVenue(e.target.value)}
                   onBlur={() => handleBlur("customVenue")}
-                  placeholder="e.g. O'Leaver's, The Sydney"
+                  placeholder="Venue name"
                   className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white placeholder-gray-600 focus:outline-none transition-all ${
                     errors.customVenue
                       ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20"
@@ -645,7 +505,7 @@ export function SubmitShowForm() {
                   type="url"
                   value={otherVenueWebsite}
                   onChange={e => setOtherVenueWebsite(e.target.value)}
-                  placeholder="e.g. olearvers.com"
+                  placeholder="e.g. venuename.com"
                   className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
                 />
               </div>
@@ -657,22 +517,127 @@ export function SubmitShowForm() {
                   type="text"
                   value={otherVenueAddress}
                   onChange={e => setOtherVenueAddress(e.target.value)}
-                  placeholder="e.g. 1322 S Saddle Creek Rd, Omaha, NE"
+                  placeholder="e.g. 123 Main St, Omaha, NE"
                   className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
                 />
               </div>
             </>
           )}
 
+          {/* Date */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+              Date <span className="text-rose-400">*</span>
+            </label>
+            <input
+              type="date"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+              onBlur={() => handleBlur("date")}
+              min={new Date().toISOString().split("T")[0]}
+              className={`w-full px-4 py-3 bg-gray-900 border rounded-lg text-white focus:outline-none transition-all [color-scheme:dark] ${
+                errors.date
+                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20"
+                  : "border-gray-700 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20"
+              }`}
+            />
+            {errors.date && (
+              <p className="text-red-400 text-xs mt-1">{errors.date}</p>
+            )}
+          </div>
+
+          {/* Time */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+              Time
+            </label>
+            <div className="flex items-center gap-1">
+              {/* Hour */}
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={2}
+                value={selectedHour?.toString() ?? ""}
+                onFocus={e => e.target.select()}
+                onChange={e => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                  if (val === '') {
+                    setSelectedHour(null);
+                    setTime("");
+                    setCustomTime("");
+                    return;
+                  }
+                  const num = parseInt(val);
+                  if (num >= 0 && num <= 12) {
+                    setSelectedHour(num);
+                    if (num > 0) updateTimeFromSelectors(num, selectedMinute, isPM);
+                    // Auto-advance to minutes when hour is complete:
+                    // - Two digits entered (10, 11, 12), or
+                    // - Single digit 2-9 (can't form valid 2-digit hour)
+                    if (val.length === 2 || (val.length === 1 && num >= 2)) {
+                      setTimeout(() => {
+                        minuteInputRef.current?.focus();
+                        minuteInputRef.current?.select();
+                      }, 0);
+                    }
+                  }
+                }}
+                onBlur={e => {
+                  const val = e.target.value;
+                  if (val === '') return; // Allow empty
+                  let num = parseInt(val) || 1;
+                  if (num < 1) num = 1;
+                  if (num > 12) num = 12;
+                  setSelectedHour(num);
+                  updateTimeFromSelectors(num, selectedMinute, isPM);
+                }}
+                className="w-14 px-2 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-center text-lg font-medium focus:outline-none focus:border-amber-500/50 transition-all"
+                placeholder="7"
+              />
+              <span className="text-gray-500 text-2xl font-light">:</span>
+              {/* Minute */}
+              <input
+                ref={minuteInputRef}
+                type="text"
+                inputMode="numeric"
+                maxLength={2}
+                value={selectedMinute}
+                onFocus={e => e.target.select()}
+                onChange={e => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                  setSelectedMinute(val);
+                  if (selectedHour) updateTimeFromSelectors(selectedHour, val.padStart(2, '0'), isPM);
+                }}
+                onBlur={e => {
+                  let num = parseInt(e.target.value) || 0;
+                  if (num > 59) num = 59;
+                  const padded = num.toString().padStart(2, '0');
+                  setSelectedMinute(padded);
+                  if (selectedHour) updateTimeFromSelectors(selectedHour, padded, isPM);
+                }}
+                className="w-14 px-2 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-center text-lg font-medium focus:outline-none focus:border-amber-500/50 transition-all"
+                placeholder="00"
+              />
+              {/* AM/PM Toggle */}
+              <button
+                type="button"
+                onClick={() => handleAmPmToggle(!isPM)}
+                className="ml-2 px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-all min-w-[52px]"
+              >
+                {isPM ? "PM" : "AM"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Column 2: Image, Links, Additional Info */}
+        <div className="space-y-5">
           {/* Image Upload/URL */}
-          <div className="pt-2">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider flex items-center gap-2">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+          <div>
+            <div className="flex items-start justify-between mb-1.5">
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Event Image
-              </h3>
+              </label>
               <div className="flex gap-1 p-0.5 bg-gray-800 rounded-lg">
                 <button
                   type="button"
@@ -778,21 +743,17 @@ export function SubmitShowForm() {
           </div>
 
           {/* URLs */}
-          <div className="pt-2">
-            <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-              </svg>
-              Links
-            </h3>
-            <div className="space-y-3">
+          <div className="space-y-3">
               <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                  Event URL
+                </label>
                 <input
                   type="url"
                   value={eventUrl}
                   onChange={e => setEventUrl(e.target.value)}
                   onBlur={() => handleBlur("eventUrl")}
-                  placeholder="Event page URL"
+                  placeholder="https://..."
                   className={`w-full px-4 py-2.5 bg-gray-900/50 border rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none transition-all ${
                     errors.eventUrl
                       ? "border-red-500 focus:border-red-500"
@@ -804,12 +765,15 @@ export function SubmitShowForm() {
                 )}
               </div>
               <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                  Ticket URL
+                </label>
                 <input
                   type="url"
                   value={ticketUrl}
                   onChange={e => setTicketUrl(e.target.value)}
                   onBlur={() => handleBlur("ticketUrl")}
-                  placeholder="Ticket purchase URL"
+                  placeholder="https://..."
                   className={`w-full px-4 py-2.5 bg-gray-900/50 border rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none transition-all ${
                     errors.ticketUrl
                       ? "border-red-500 focus:border-red-500"
@@ -820,17 +784,10 @@ export function SubmitShowForm() {
                   <p className="text-red-400 text-xs mt-1">{errors.ticketUrl}</p>
                 )}
               </div>
-            </div>
           </div>
 
           {/* Additional Details */}
-          <div className="pt-2">
-            <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Additional Info
-            </h3>
+          <div>
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="text"
@@ -857,13 +814,10 @@ export function SubmitShowForm() {
           </div>
 
           {/* Email Notification */}
-          <div className="pt-2">
-            <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Get Notified (Optional)
-            </h3>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+              Email (Optional - get notified when approved)
+            </label>
             <input
               type="email"
               value={submitterEmail}
@@ -882,7 +836,7 @@ export function SubmitShowForm() {
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div>
             <button
               onClick={handleSubmit}
               disabled={!isValid || submitting}

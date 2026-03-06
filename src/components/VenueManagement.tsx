@@ -307,19 +307,17 @@ export function VenueManagement() {
           {search ? "No venues match your search." : "No venues found."}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="divide-y divide-gray-800">
           {filteredVenues.map((venue) => {
             const colors = getVenueColors(venue);
             return (
               <div
                 key={venue.id}
                 onClick={() => openEditModal(venue)}
-                className="flex items-center gap-3 py-3 px-4 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 cursor-pointer transition-colors"
+                className="flex items-center gap-3 py-3 hover:bg-white/5 cursor-pointer transition-colors -mx-2 px-2"
               >
                 {/* Venue ID badge with color */}
-                <span
-                  className={`text-xs px-2 py-0.5 rounded ${colors.bg} ${colors.text} flex-shrink-0 min-w-[100px] text-center`}
-                >
+                <span className={`text-sm ${colors.text} flex-shrink-0 min-w-[100px]`}>
                   {venue.id}
                 </span>
 
@@ -334,13 +332,7 @@ export function VenueManagement() {
                 </span>
 
                 {/* Active status */}
-                <span
-                  className={`text-xs px-2 py-0.5 rounded flex-shrink-0 ${
-                    venue.active
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-gray-500/20 text-gray-400"
-                  }`}
-                >
+                <span className={`text-xs flex-shrink-0 ${venue.active ? "text-green-400" : "text-gray-500"}`}>
                   {venue.active ? "Active" : "Inactive"}
                 </span>
               </div>

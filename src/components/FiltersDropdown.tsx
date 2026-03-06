@@ -357,7 +357,10 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
             <FilterContent />
 
             {/* Footer buttons */}
-            <div className="sticky bottom-0 p-4 bg-gray-900 border-t border-gray-800 flex gap-3">
+            <div
+              className="sticky bottom-0 p-4 bg-gray-900 border-t border-gray-800 flex gap-3"
+              style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 1rem)' }}
+            >
               <button
                 onClick={clearAllFilters}
                 disabled={!hasActiveFilters}

@@ -6,9 +6,6 @@ import { ScraperDashboard } from "./ScraperDashboard";
 import { VenueManagement } from "./VenueManagement";
 import { Toast } from "./Toast";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
 function normalizeUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   url = url.trim();
@@ -78,53 +75,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [editForm, setEditForm] = useState<Partial<DbEvent>>({});
   const [saving, setSaving] = useState(false);
   const [venues, setVenues] = useState<Venue[]>([]);
-  const [testingEmail, setTestingEmail] = useState(false);
-  const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
   const [eventChanges, setEventChanges] = useState<EventChange[]>([]);
   const [viewingChange, setViewingChange] = useState<EventChange | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  const testEmailFunction = async () => {
-    setTestingEmail(true);
-    setTestEmailResult(null);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setTestEmailResult({ success: false, message: "No active session" });
-        return;
-      }
-
-      // Pass anon key in Authorization header (gateway accepts HS256)
-      // Pass user's access token in body (function verifies ES256 inside)
-      const response = await fetch(`${supabaseUrl}/functions/v1/send-approval-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${supabaseAnonKey}`,
-          "apikey": supabaseAnonKey,
-        },
-        body: JSON.stringify({
-          title: "Test Show - The Email Works!",
-          date: new Date().toISOString().split("T")[0],
-          venue: "The Slowdown",
-          submitterEmail: "canderson1192@gmail.com",
-          accessToken: session.access_token,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setTestEmailResult({ success: true, message: `Email sent! ID: ${data.id}` });
-      } else {
-        const error = await response.text();
-        setTestEmailResult({ success: false, message: `Error ${response.status}: ${error}` });
-      }
-    } catch (err) {
-      setTestEmailResult({ success: false, message: err instanceof Error ? err.message : "Unknown error" });
-    } finally {
-      setTestingEmail(false);
-    }
-  };
 
   const fetchPending = useCallback(async () => {
     const { data, error } = await supabase
@@ -227,6 +180,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   };
 
   const handleReject = async (id: string) => {
+    if (!confirm("Are you sure you want to reject this event?")) return;
     setActionLoading(id);
     try {
       await rejectEvent(id);
@@ -266,6 +220,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       venue_id: event.venue_id,
       event_url: event.event_url || "",
       ticket_url: event.ticket_url || "",
+      image_url: event.image_url || "",
       price: event.price || "",
       age_restriction: event.age_restriction || "",
       supporting_artists: event.supporting_artists || [],
@@ -286,6 +241,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           venue_id: editForm.venue_id,
           event_url: normalizeUrl(editForm.event_url),
           ticket_url: normalizeUrl(editForm.ticket_url),
+          image_url: editForm.image_url || null,
           price: editForm.price || null,
           age_restriction: editForm.age_restriction || null,
           supporting_artists: editForm.supporting_artists?.length ? editForm.supporting_artists : null,
@@ -380,6 +336,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   };
 
   const handleRejectChange = async (change: EventChange) => {
+    if (!confirm("Are you sure you want to reject this change?")) return;
     setActionLoading(change.id);
     try {
       // Mark change as rejected
@@ -422,33 +379,26 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   };
 
   return (
-    <div>
+    <div className="px-2 sm:px-0">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white">Admin Dashboard</h2>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={testEmailFunction}
-            disabled={testingEmail}
-            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all disabled:opacity-50"
-          >
-            {testingEmail ? "Sending..." : "Test Email"}
-          </button>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-white">Admin Dashboard</h2>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link
             to="/"
-            className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+            className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
           >
-            Back to Site
+            Back
           </Link>
           <Link
             to="/submission"
-            className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
+            className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
           >
-            + Add Show
+            + Add
           </Link>
           <button
             onClick={onLogout}
-            className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+            className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
           >
             Logout
           </button>
@@ -456,10 +406,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-1 sm:gap-2 mb-6 overflow-x-auto pb-2 -mx-2 px-2 sm:mx-0 sm:px-0">
         <button
           onClick={() => setTab("pending")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
             tab === "pending"
               ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
               : "text-gray-400 hover:text-white"
@@ -469,17 +419,17 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         </button>
         <button
           onClick={() => setTab("events")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
             tab === "events"
               ? "bg-white/10 text-white"
               : "text-gray-400 hover:text-white"
           }`}
         >
-          Current Events
+          Events
         </button>
         <button
           onClick={() => setTab("scrapers")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
             tab === "scrapers"
               ? "bg-white/10 text-white"
               : "text-gray-400 hover:text-white"
@@ -489,7 +439,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         </button>
         <button
           onClick={() => setTab("venues")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
             tab === "venues"
               ? "bg-white/10 text-white"
               : "text-gray-400 hover:text-white"
@@ -508,8 +458,8 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           {/* Pending Tab */}
           {tab === "pending" && (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-gray-500 text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <p className="text-gray-500 text-xs sm:text-sm">
                   {pendingEvents.length} pending submission{pendingEvents.length !== 1 ? "s" : ""}
                 </p>
                 <div className="flex gap-2">
@@ -517,16 +467,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     <button
                       onClick={handleClearAllPending}
                       disabled={actionLoading === "clear-all"}
-                      className="px-3 py-1.5 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                      className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
                     >
-                      {actionLoading === "clear-all" ? "Clearing..." : "Clear All Pending"}
+                      {actionLoading === "clear-all" ? "..." : "Clear All"}
                     </button>
                   )}
                   <button
                     onClick={() => fetchPending()}
-                    className="px-3 py-1.5 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors flex items-center gap-2"
+                    className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors flex items-center gap-1 sm:gap-2"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                     Refresh
@@ -541,17 +491,17 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     {eventChanges.filter(c => c.change_type === 'update').map((change) => (
                       <div
                         key={change.id}
-                        className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4"
+                        className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-3 sm:p-4"
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-white font-medium">{change.original_data?.title || change.proposed_data.title}</p>
-                            <p className="text-sm text-gray-400 mt-1">
-                              Changed fields: {change.changed_fields?.join(', ')}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-white font-medium text-sm sm:text-base truncate">{change.original_data?.title || change.proposed_data.title}</p>
+                            <p className="text-xs sm:text-sm text-gray-400 mt-1">
+                              Changed: {change.changed_fields?.join(', ')}
                             </p>
-                            <div className="flex items-center gap-3 mt-1">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
                               <p className="text-xs text-gray-500">
-                                Detected {new Date(change.created_at).toLocaleDateString()}
+                                {new Date(change.created_at).toLocaleDateString()}
                               </p>
                               {(change.proposed_data.event_url || change.original_data?.event_url) && (
                                 <a
@@ -560,29 +510,29 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                   rel="noopener noreferrer"
                                   className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
                                 >
-                                  View Source →
+                                  Source →
                                 </a>
                               )}
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                             <button
                               onClick={() => setViewingChange(change)}
-                              className="px-3 py-1.5 text-sm text-blue-400 hover:text-blue-300 border border-blue-600/30 rounded-lg hover:border-blue-500/50 transition-colors"
+                              className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-blue-400 hover:text-blue-300 border border-blue-600/30 rounded-lg hover:border-blue-500/50 transition-colors"
                             >
-                              View Changes
+                              View
                             </button>
                             <button
                               onClick={() => handleRejectChange(change)}
                               disabled={actionLoading === change.id}
-                              className="px-3 py-1.5 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                              className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
                             >
                               Reject
                             </button>
                             <button
                               onClick={() => handleApplyChange(change)}
                               disabled={actionLoading === change.id}
-                              className="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                              className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
                             >
                               {actionLoading === change.id ? "..." : "Apply"}
                             </button>
@@ -602,7 +552,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   </p>
                 </div>
               ) : pendingEvents.length === 0 ? null : (
-                <div className="space-y-6">
+                <div className="divide-y divide-gray-800">
                   {pendingEvents.map((event) => {
                     const colors = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other;
                     const venueName = venues.find(v => v.id === event.venue_id)?.name || event.venue_id;
@@ -615,139 +565,156 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                       return `${hour12}:${minutes} ${ampm}`;
                     };
                     return (
-                      <div
-                        key={event.id}
-                        className="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden"
-                      >
-                        {/* Preview Section - mimics EventCardCompact */}
-                        <div className="p-4 border-b border-gray-700/50">
-                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">Preview</p>
-                          <div className="flex gap-4">
-                            {/* Image placeholder */}
-                            <div className="w-[140px] flex-shrink-0">
-                              <div className="bg-slate-900 py-1 px-2 rounded-t-lg">
-                                <p className="text-white font-semibold text-center text-xs">
-                                  {formatDate(event.date)}
-                                </p>
-                              </div>
-                              <div className="relative bg-gray-900 rounded-b-lg overflow-hidden aspect-square flex items-center justify-center">
-                                {event.image_url ? (
-                                  <img
-                                    src={event.image_url}
-                                    alt=""
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <span className="text-gray-600 text-3xl">&#9834;</span>
-                                )}
-                              </div>
-                            </div>
-                            {/* Content */}
-                            <div className="flex-1 pt-1">
-                              <h3 className="text-lg font-bold text-white">{event.title}</h3>
-                              {event.supporting_artists && event.supporting_artists.length > 0 && (
-                                <p className="text-gray-400 text-sm mt-1">
-                                  with {event.supporting_artists.join(", ")}
-                                </p>
-                              )}
-                              <p className="text-gray-400 text-sm mt-2">
-                                {formatTime12(event.time) && <>{formatTime12(event.time)} · </>}
-                                <span className={colors.text}>{venueName}</span>
+                      <div key={event.id} className="py-6">
+                        {/* Mobile Layout */}
+                        <div className="md:hidden flex flex-col gap-4">
+                          {/* Image with date header */}
+                          <div className="relative">
+                            <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
+                              <p className="text-white font-semibold text-center text-sm">
+                                {formatDate(event.date)}
                               </p>
-                              {event.price && (
-                                <p className="text-gray-500 text-xs mt-1">{event.price}</p>
-                              )}
-                              {event.age_restriction && (
-                                <p className="text-gray-500 text-xs">{event.age_restriction}</p>
+                            </div>
+                            <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square flex items-center justify-center">
+                              {event.image_url ? (
+                                <img src={event.image_url} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-gray-600 text-5xl">&#9834;</span>
                               )}
                             </div>
                           </div>
-                          {/* URLs */}
-                          {(event.event_url || event.ticket_url) && (
-                            <div className="mt-3 flex gap-3 text-xs">
-                              {event.event_url && (
-                                <a
-                                  href={event.event_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-400 hover:text-blue-300 truncate max-w-[200px]"
-                                >
-                                  Event URL ↗
-                                </a>
-                              )}
-                              {event.ticket_url && event.ticket_url !== event.event_url && (
-                                <a
-                                  href={event.ticket_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-400 hover:text-blue-300 truncate max-w-[200px]"
-                                >
-                                  Ticket URL ↗
-                                </a>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        {/* Actions */}
-                        <div className="p-4 flex items-center justify-between bg-gray-900/50">
-                          <div className="flex items-center gap-3">
+
+                          {/* Content */}
+                          <div>
+                            <h3 className="text-xl font-bold text-white">{event.title}</h3>
+                            {event.supporting_artists && event.supporting_artists.length > 0 && (
+                              <p className="text-gray-400 mt-1">with {event.supporting_artists.join(", ")}</p>
+                            )}
+                            <p className="text-gray-400 mt-2">
+                              {formatTime12(event.time) && <>{formatTime12(event.time)} · </>}
+                              <span className={colors.text}>{venueName}</span>
+                            </p>
+                            {event.price && <p className="text-gray-500 text-sm mt-1">{event.price}</p>}
+                          </div>
+
+                          {/* Meta info */}
+                          <div className="flex flex-wrap items-center gap-2">
                             <span className="text-xs text-gray-500">
                               Submitted {new Date(event.created_at).toLocaleDateString()}
                             </span>
                             {(() => {
                               const change = getChangeForEvent(event.id);
                               return change ? (
-                                <span className={`px-2 py-0.5 text-xs rounded ${
-                                  change.change_type === 'new'
-                                    ? 'bg-green-600/30 text-green-400'
-                                    : 'bg-blue-600/30 text-blue-400'
-                                }`}>
+                                <span className={`px-2 py-0.5 text-xs rounded ${change.change_type === 'new' ? 'bg-green-600/30 text-green-400' : 'bg-blue-600/30 text-blue-400'}`}>
                                   {change.change_type === 'new' ? 'New' : 'Changed'}
                                 </span>
                               ) : null;
                             })()}
                             {event.category ? (
-                              <span className="px-2 py-0.5 text-xs bg-gray-700 text-gray-300 rounded capitalize">
-                                {event.category}
-                              </span>
+                              <span className="px-2 py-0.5 text-xs bg-gray-700 text-gray-300 rounded capitalize">{event.category}</span>
                             ) : (
-                              <span className="px-2 py-0.5 text-xs bg-yellow-600/30 text-yellow-400 rounded">
-                                No category
-                              </span>
+                              <span className="px-2 py-0.5 text-xs bg-yellow-600/30 text-yellow-400 rounded">No category</span>
                             )}
                           </div>
+
+                          {/* Action buttons */}
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => openEditModal(event)}
-                              className="px-3 py-1.5 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
-                            >
+                            <button onClick={() => openEditModal(event)} className="flex-1 px-3 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors">
+                              Edit
+                            </button>
+                            <button onClick={() => handleReject(event.id)} disabled={actionLoading === event.id} className="flex-1 px-3 py-2.5 bg-red-600/80 hover:bg-red-600 text-white font-medium rounded-lg disabled:opacity-50 transition-colors">
+                              Reject
+                            </button>
+                            <button onClick={() => handleApprove(event.id)} disabled={actionLoading === event.id} className="flex-1 px-3 py-2.5 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors">
+                              {actionLoading === event.id ? "..." : "Approve"}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Desktop Layout */}
+                        <div className="hidden md:flex gap-5 relative">
+                          {/* Action buttons - top right */}
+                          <div className="absolute top-0 right-0 flex gap-2">
+                            <button onClick={() => openEditModal(event)} className="px-4 py-2 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors">
                               Edit
                             </button>
                             {(() => {
                               const change = getChangeForEvent(event.id);
                               return change && change.change_type === 'update' ? (
-                                <button
-                                  onClick={() => setViewingChange(change)}
-                                  className="px-3 py-1.5 text-sm text-blue-400 hover:text-blue-300 border border-blue-600/30 rounded-lg hover:border-blue-500/50 transition-colors"
-                                >
-                                  View Changes
+                                <button onClick={() => setViewingChange(change)} className="px-4 py-2 text-blue-400 hover:text-blue-300 border border-blue-600/30 rounded-lg hover:border-blue-500/50 transition-colors">
+                                  Changes
                                 </button>
                               ) : null;
                             })()}
-                            <button
-                              onClick={() => handleReject(event.id)}
-                              disabled={actionLoading === event.id}
-                              className="px-3 py-1.5 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
-                            >
+                            <button onClick={() => handleReject(event.id)} disabled={actionLoading === event.id} className="px-4 py-2 bg-red-600/80 hover:bg-red-600 text-white font-medium rounded-lg disabled:opacity-50 transition-colors">
                               Reject
                             </button>
-                            <button
-                              onClick={() => handleApprove(event.id)}
-                              disabled={actionLoading === event.id}
-                              className="px-4 py-1.5 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
-                            >
+                            <button onClick={() => handleApprove(event.id)} disabled={actionLoading === event.id} className="px-5 py-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors">
                               {actionLoading === event.id ? "..." : "Approve"}
                             </button>
+                          </div>
+
+                          {/* Image with date header */}
+                          <div className="w-[180px] flex-shrink-0">
+                            <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
+                              <p className="text-white font-semibold text-center text-sm">
+                                {formatDate(event.date)}
+                              </p>
+                            </div>
+                            <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square flex items-center justify-center">
+                              {event.image_url ? (
+                                <img src={event.image_url} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-gray-600 text-5xl">&#9834;</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 pt-1 pr-80">
+                            <h3 className="text-xl font-bold text-white">{event.title}</h3>
+                            {event.supporting_artists && event.supporting_artists.length > 0 && (
+                              <p className="text-gray-400 mt-1">with {event.supporting_artists.join(", ")}</p>
+                            )}
+                            <p className="text-gray-400 mt-3">
+                              {formatTime12(event.time) && <>{formatTime12(event.time)} · </>}
+                              <span className={colors.text}>{venueName}</span>
+                            </p>
+                            {event.price && <p className="text-gray-500 text-sm mt-1">{event.price}</p>}
+
+                            {/* Meta info */}
+                            <div className="flex flex-wrap items-center gap-2 mt-3">
+                              <span className="text-xs text-gray-500">
+                                Submitted {new Date(event.created_at).toLocaleDateString()}
+                              </span>
+                              {(() => {
+                                const change = getChangeForEvent(event.id);
+                                return change ? (
+                                  <span className={`px-2 py-0.5 text-xs rounded ${change.change_type === 'new' ? 'bg-green-600/30 text-green-400' : 'bg-blue-600/30 text-blue-400'}`}>
+                                    {change.change_type === 'new' ? 'New' : 'Changed'}
+                                  </span>
+                                ) : null;
+                              })()}
+                              {event.category ? (
+                                <span className="px-2 py-0.5 text-xs bg-gray-700 text-gray-300 rounded capitalize">{event.category}</span>
+                              ) : (
+                                <span className="px-2 py-0.5 text-xs bg-yellow-600/30 text-yellow-400 rounded">No category</span>
+                              )}
+                              {(event.event_url || event.ticket_url) && (
+                                <>
+                                  {event.event_url && (
+                                    <a href={event.event_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:text-blue-300">
+                                      Event ↗
+                                    </a>
+                                  )}
+                                  {event.ticket_url && event.ticket_url !== event.event_url && (
+                                    <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:text-blue-300">
+                                      Tickets ↗
+                                    </a>
+                                  )}
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -777,34 +744,43 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 </div>
               </div>
 
-              <p className="text-gray-500 text-sm mb-4">
-                Showing {currentEvents.length} upcoming events. Click to edit.
+              <p className="text-gray-500 text-xs sm:text-sm mb-4">
+                Showing {currentEvents.length} upcoming events. Tap to edit.
               </p>
 
-              <div className="space-y-2">
+              <div className="divide-y divide-gray-800">
                 {currentEvents.map((event) => {
                   const colors = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other;
+                  const venueName = venues.find(v => v.id === event.venue_id)?.name || event.venue_id;
                   return (
                     <div
                       key={event.id}
                       onClick={() => openEditModal(event)}
-                      className="flex items-center gap-3 py-2 px-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 cursor-pointer transition-colors"
+                      className="flex items-center justify-between gap-3 py-3 hover:bg-white/5 cursor-pointer transition-colors -mx-2 px-2"
                     >
-                      <span className="text-sm text-gray-500 w-24 flex-shrink-0">
-                        {formatDate(event.date)}
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <span className="text-xs sm:text-sm text-gray-500 flex-shrink-0">
+                          {formatDate(event.date)}
+                        </span>
+                        <span className="text-sm text-white truncate">{event.title}</span>
+                      </div>
+                      <span className={`text-xs sm:text-sm ${colors.text} flex-shrink-0`}>
+                        {venueName}
                       </span>
-                      <span className={`text-xs px-2 py-0.5 rounded ${colors.bg} ${colors.text} flex-shrink-0`}>
-                        {event.venue_id}
-                      </span>
-                      <span className="text-white truncate flex-1">{event.title}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded ${
-                        event.status === "approved"
-                          ? "bg-green-500/20 text-green-400"
-                          : event.status === "pending"
-                          ? "bg-amber-500/20 text-amber-400"
-                          : "bg-red-500/20 text-red-400"
-                      }`}>
-                        {event.status}
+                      <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
+                        {event.status === "approved" ? (
+                          <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : event.status === "pending" ? (
+                          <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        )}
                       </span>
                     </div>
                   );
@@ -842,14 +818,18 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
       {/* Edit Event Modal */}
       {editingEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" onClick={() => setEditingEvent(null)}>
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          onClick={() => setEditingEvent(null)}
+        >
           <div
-            className="w-full max-w-lg max-h-[90vh] bg-gray-900 border border-gray-700 rounded-xl overflow-hidden"
+            className="w-full sm:max-w-lg max-h-[85vh] sm:max-h-[90vh] bg-gray-900 border-t sm:border border-gray-700 rounded-t-2xl sm:rounded-xl overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-800">
-              <h3 className="text-lg font-semibold text-white">Edit Event</h3>
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-800">
+              <h3 className="text-base sm:text-lg font-semibold text-white">Edit Event</h3>
               <button
                 onClick={() => setEditingEvent(null)}
                 className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
@@ -861,44 +841,44 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
             </div>
 
             {/* Form */}
-            <div className="p-4 overflow-y-auto max-h-[calc(90vh-140px)] space-y-4">
+            <div className="p-3 sm:p-4 overflow-y-auto flex-1 space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Title</label>
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Title</label>
                 <input
                   type="text"
                   value={editForm.title || ""}
                   onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Date</label>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Date</label>
                   <input
                     type="date"
                     value={editForm.date || ""}
                     onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                    className="w-full px-2 sm:px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Time</label>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Time</label>
                   <input
                     type="time"
                     value={editForm.time || ""}
                     onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                    className="w-full px-2 sm:px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Venue</label>
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Venue</label>
                 <select
                   value={editForm.venue_id || ""}
                   onChange={(e) => setEditForm({ ...editForm, venue_id: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
                 >
                   {venues.map((v) => (
                     <option key={v.id} value={v.id}>{v.name}</option>
@@ -906,13 +886,13 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Status</label>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Status</label>
                   <select
                     value={editForm.status || ""}
                     onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                    className="w-full px-2 sm:px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
                   >
                     <option value="approved">Approved</option>
                     <option value="pending">Pending</option>
@@ -920,11 +900,11 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Category</label>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Category</label>
                   <select
                     value={editForm.category || ""}
                     onChange={(e) => setEditForm({ ...editForm, category: e.target.value || null })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                    className="w-full px-2 sm:px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
                   >
                     <option value="">-- Select --</option>
                     <option value="music">Music</option>
@@ -935,50 +915,72 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Price</label>
-                <input
-                  type="text"
-                  value={editForm.price || ""}
-                  onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                  placeholder="e.g. $20"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
-                />
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Price</label>
+                  <input
+                    type="text"
+                    value={editForm.price || ""}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    placeholder="e.g. $20"
+                    className="w-full px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Age</label>
+                  <input
+                    type="text"
+                    value={editForm.age_restriction || ""}
+                    onChange={(e) => setEditForm({ ...editForm, age_restriction: e.target.value })}
+                    placeholder="e.g. 21+"
+                    className="w-full px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Age Restriction</label>
-                <input
-                  type="text"
-                  value={editForm.age_restriction || ""}
-                  onChange={(e) => setEditForm({ ...editForm, age_restriction: e.target.value })}
-                  placeholder="e.g. 21+"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Event URL</label>
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Event URL</label>
                 <input
                   type="url"
                   value={editForm.event_url || ""}
                   onChange={(e) => setEditForm({ ...editForm, event_url: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Ticket URL</label>
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Ticket URL</label>
                 <input
                   type="url"
                   value={editForm.ticket_url || ""}
                   onChange={(e) => setEditForm({ ...editForm, ticket_url: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Supporting Artists (comma-separated)</label>
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Image URL</label>
+                <input
+                  type="url"
+                  value={editForm.image_url || ""}
+                  onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
+                />
+                {editForm.image_url && (
+                  <div className="mt-2">
+                    <img
+                      src={editForm.image_url}
+                      alt="Preview"
+                      className="w-20 h-20 object-cover rounded-lg bg-gray-800"
+                      onError={(e) => (e.currentTarget.style.display = 'none')}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Supporting Artists (comma-separated)</label>
                 <input
                   type="text"
                   value={editForm.supporting_artists?.join(", ") || ""}
@@ -987,17 +989,20 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     supporting_artists: e.target.value.split(",").map(s => s.trim()).filter(Boolean)
                   })}
                   placeholder="Artist 1, Artist 2"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
+                  className="w-full px-3 py-2 text-sm sm:text-base bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
                 />
               </div>
 
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 truncate">
                 ID: {editingEvent.id}
               </div>
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between p-4 border-t border-gray-800">
+            <div
+              className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 p-3 sm:p-4 border-t border-gray-800"
+              style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0.75rem)' }}
+            >
               <button
                 onClick={handleDeleteEvent}
                 disabled={saving}
@@ -1005,19 +1010,19 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
               >
                 Delete
               </button>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 justify-end">
                 <button
                   onClick={() => setEditingEvent(null)}
-                  className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+                  className="px-3 sm:px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveEdit}
                   disabled={saving}
-                  className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                  className="px-3 sm:px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50 transition-colors"
                 >
-                  {saving ? "Saving..." : "Save"}
+                  {saving ? "..." : "Save"}
                 </button>
                 {editingEvent.status === "pending" && (
                   <button
@@ -1030,9 +1035,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     }}
                     disabled={saving || !editForm.category}
                     title={!editForm.category ? "Category required for approval" : undefined}
-                    className="px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-3 sm:px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {saving ? "..." : "Save & Approve"}
+                    {saving ? "..." : "Approve"}
                   </button>
                 )}
               </div>
@@ -1043,14 +1048,18 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
       {/* View Changes Modal */}
       {viewingChange && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" onClick={() => setViewingChange(null)}>
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          onClick={() => setViewingChange(null)}
+        >
           <div
-            className="w-full max-w-lg max-h-[90vh] bg-gray-900 border border-gray-700 rounded-xl overflow-hidden"
+            className="w-full sm:max-w-lg max-h-[85vh] sm:max-h-[90vh] bg-gray-900 border-t sm:border border-gray-700 rounded-t-2xl sm:rounded-xl overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-800">
-              <h3 className="text-lg font-semibold text-white">Proposed Changes</h3>
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-800">
+              <h3 className="text-base sm:text-lg font-semibold text-white">Proposed Changes</h3>
               <button
                 onClick={() => setViewingChange(null)}
                 className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
@@ -1061,25 +1070,49 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
               </button>
             </div>
 
-            {/* Changes Table */}
-            <div className="p-4 overflow-y-auto max-h-[calc(90vh-180px)]">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-gray-400">
-                  Event: <span className="text-white">{viewingChange.original_data?.title || viewingChange.proposed_data.title}</span>
+            {/* Changes */}
+            <div className="p-3 sm:p-4 overflow-y-auto flex-1">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <p className="text-xs sm:text-sm text-gray-400">
+                  Event: <span className="text-white block sm:inline truncate">{viewingChange.original_data?.title || viewingChange.proposed_data.title}</span>
                 </p>
                 {(viewingChange.proposed_data.event_url || viewingChange.original_data?.event_url) && (
                   <a
                     href={viewingChange.proposed_data.event_url || viewingChange.original_data?.event_url || ''}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+                    className="text-xs sm:text-sm text-blue-400 hover:text-blue-300 hover:underline flex-shrink-0"
                   >
                     View Source →
                   </a>
                 )}
               </div>
 
-              <table className="w-full text-sm">
+              {/* Mobile: Card layout */}
+              <div className="sm:hidden space-y-3">
+                {viewingChange.changed_fields?.map((field) => (
+                  <div key={field} className="bg-gray-800/50 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">{field.replace(/_/g, ' ')}</p>
+                    <div className="space-y-1.5">
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs text-gray-500 w-16 flex-shrink-0">Current:</span>
+                        <span className="text-xs text-red-400/70 break-all">
+                          {String(viewingChange.original_data?.[field as keyof DbEvent] ?? '—')}
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs text-gray-500 w-16 flex-shrink-0">New:</span>
+                        <span className="text-xs text-green-400 break-all">
+                          {String(viewingChange.proposed_data[field as keyof DbEvent] ?? '—')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: Table layout */}
+              <table className="hidden sm:table w-full text-sm">
                 <thead>
                   <tr className="text-left text-gray-500 border-b border-gray-800">
                     <th className="pb-2 font-medium">Field</th>
@@ -1091,10 +1124,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   {viewingChange.changed_fields?.map((field) => (
                     <tr key={field}>
                       <td className="py-2 text-gray-400 capitalize">{field.replace(/_/g, ' ')}</td>
-                      <td className="py-2 text-red-400/70">
+                      <td className="py-2 text-red-400/70 break-all">
                         {String(viewingChange.original_data?.[field as keyof DbEvent] ?? '—')}
                       </td>
-                      <td className="py-2 text-green-400">
+                      <td className="py-2 text-green-400 break-all">
                         {String(viewingChange.proposed_data[field as keyof DbEvent] ?? '—')}
                       </td>
                     </tr>
@@ -1104,38 +1137,33 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-2 p-4 border-t border-gray-800">
+            <div
+              className="flex flex-wrap items-center justify-end gap-2 p-3 sm:p-4 border-t border-gray-800"
+              style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0.75rem)' }}
+            >
               <button
                 onClick={() => setViewingChange(null)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+                className="px-3 sm:px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
               >
                 Dismiss
               </button>
               <button
                 onClick={() => handleRejectChange(viewingChange)}
                 disabled={actionLoading === viewingChange.id}
-                className="px-4 py-2 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                className="px-3 sm:px-4 py-2 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
               >
                 Reject
               </button>
               <button
                 onClick={() => handleApplyChange(viewingChange)}
                 disabled={actionLoading === viewingChange.id}
-                className="px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                className="px-3 sm:px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
               >
-                {actionLoading === viewingChange.id ? "Applying..." : "Apply Changes"}
+                {actionLoading === viewingChange.id ? "..." : "Apply"}
               </button>
             </div>
           </div>
         </div>
-      )}
-
-      {testEmailResult && (
-        <Toast
-          message={testEmailResult.message}
-          type={testEmailResult.success ? "success" : "error"}
-          onClose={() => setTestEmailResult(null)}
-        />
       )}
 
       {toast && (

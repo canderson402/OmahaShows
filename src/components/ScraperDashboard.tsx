@@ -121,21 +121,20 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
   };
 
   return (
-    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+    <div className="py-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={`text-xs px-2 py-0.5 rounded ${colors.bg} ${colors.text}`}>
-              {scraper.id}
+            <span className={`text-sm font-medium ${colors.text}`}>
+              {scraper.name}
             </span>
-            <span className={`text-xs px-2 py-0.5 rounded ${status.bg} ${status.color}`}>
-              {status.text}
+            <span className={`text-xs ${status.color}`}>
+              · {status.text}
             </span>
           </div>
-          <h3 className="text-white font-medium">{scraper.name}</h3>
           <p className="text-xs text-gray-500 truncate">{scraper.url}</p>
-          <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-            <span>Last run: {lastRunTime}</span>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-gray-500">
+            <span>Last: {lastRunTime}</span>
             {latestRun?.event_count !== undefined && latestRun.status === "success" && (
               <span>
                 {latestRun.event_count} events
@@ -162,19 +161,17 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                ) : (
-                  <span className="ml-1 text-gray-500">(no changes)</span>
-                )}
+                ) : null}
               </span>
             )}
           </div>
           {latestRun?.error_message && (
-            <p className="text-xs text-red-400 mt-2 truncate" title={latestRun.error_message}>
+            <p className="text-xs text-red-400 mt-1 truncate" title={latestRun.error_message}>
               Error: {latestRun.error_message}
             </p>
           )}
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
           <button
             onClick={onRun}
             disabled={isRunning || isTriggered}
@@ -182,8 +179,8 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
               isRunning
                 ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                 : isTriggered
-                  ? "bg-sky-500/20 text-sky-400 cursor-not-allowed"
-                  : "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
+                  ? "text-sky-400"
+                  : "text-amber-400 hover:bg-white/5"
             }`}
           >
             {isRunning ? (
@@ -196,7 +193,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Dispatched
+                Sent
               </>
             ) : (
               <>
@@ -211,7 +208,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
           {latestRun && latestRun.status !== "running" && !isGitHubMode && (
             <button
               onClick={onViewResults}
-              className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 rounded-lg transition-colors"
+              className="px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
             >
               View
             </button>
@@ -221,7 +218,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
 
       {/* Expanded new/changed events list */}
       {expanded && hasNewOrChanged && (
-        <div className="mt-3 pt-3 border-t border-gray-700">
+        <div className="mt-3 pt-3 border-t border-gray-800">
           {loadingEvents ? (
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <div className="w-3 h-3 border-2 border-gray-500/30 border-t-gray-500 rounded-full animate-spin" />
@@ -666,65 +663,58 @@ export function ScraperDashboard() {
   return (
     <div>
       {/* Summary Header */}
-      <div className="mb-6 p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-6">
-            <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Total Scrapers</p>
-              <p className="text-2xl font-bold text-white">{allScrapers.length}</p>
-            </div>
-            <div className="h-10 w-px bg-gray-700" />
-            <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Success</p>
-              <p className="text-2xl font-bold text-green-400">{successCount}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Errors</p>
-              <p className="text-2xl font-bold text-red-400">{errorCount}</p>
-            </div>
-            {lastRunTime && (
-              <>
-                <div className="h-10 w-px bg-gray-700" />
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Last Run</p>
-                  <p className="text-lg text-gray-300">{formatRelativeTime(new Date(lastRunTime).toISOString())}</p>
-                </div>
-              </>
-            )}
-          </div>
-          <button
-            onClick={runAllScrapers}
-            disabled={runAllStatus === 'running'}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-              runAllStatus === 'running'
-                ? "bg-amber-500/20 text-amber-400"
-                : runAllStatus === 'done'
-                  ? "bg-green-500/20 text-green-400"
-                  : "bg-gradient-to-r from-amber-500 to-rose-500 text-white hover:from-amber-400 hover:to-rose-400"
-            }`}
-          >
-            {runAllStatus === 'running' ? (
-              <>
-                <div className="w-4 h-4 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
-                Running All...
-              </>
-            ) : runAllStatus === 'done' ? (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Complete
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                {useGitHub ? "Dispatch All Scrapers" : "Run All Scrapers"}
-              </>
-            )}
-          </button>
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+        <div className="flex items-center gap-4 text-sm">
+          <span className="text-gray-400">
+            <span className="text-white font-medium">{allScrapers.length}</span> scrapers
+          </span>
+          <span className="text-gray-600">·</span>
+          <span className="text-green-400">{successCount} success</span>
+          {errorCount > 0 && (
+            <>
+              <span className="text-gray-600">·</span>
+              <span className="text-red-400">{errorCount} errors</span>
+            </>
+          )}
+          {lastRunTime && (
+            <>
+              <span className="text-gray-600">·</span>
+              <span className="text-gray-500">Last run {formatRelativeTime(new Date(lastRunTime).toISOString())}</span>
+            </>
+          )}
         </div>
+        <button
+          onClick={runAllScrapers}
+          disabled={runAllStatus === 'running'}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+            runAllStatus === 'running'
+              ? "bg-amber-500/20 text-amber-400"
+              : runAllStatus === 'done'
+                ? "bg-green-500/20 text-green-400"
+                : "bg-gradient-to-r from-amber-500 to-rose-500 text-white hover:from-amber-400 hover:to-rose-400"
+          }`}
+        >
+          {runAllStatus === 'running' ? (
+            <>
+              <div className="w-3 h-3 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+              Running...
+            </>
+          ) : runAllStatus === 'done' ? (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Done
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {useGitHub ? "Dispatch All" : "Run All"}
+            </>
+          )}
+        </button>
       </div>
 
       {/* API Error */}
@@ -740,54 +730,37 @@ export function ScraperDashboard() {
       )}
 
       {/* Mode Toggle */}
-      <div className="mb-4 p-3 bg-gray-800/50 border border-gray-700 rounded-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-400">Execution Mode:</span>
-            <div className="flex gap-1 p-0.5 bg-gray-900 rounded-lg">
-              <button
-                onClick={() => setUseGitHub(false)}
-                className={`px-3 py-1 text-xs rounded transition-all ${
-                  !useGitHub
-                    ? "bg-gray-700 text-white"
-                    : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                Local API
-              </button>
-              <button
-                onClick={() => setUseGitHub(true)}
-                disabled={!USE_GITHUB_ACTIONS}
-                className={`px-3 py-1 text-xs rounded transition-all ${
-                  useGitHub && USE_GITHUB_ACTIONS
-                    ? "bg-gray-700 text-white"
-                    : !USE_GITHUB_ACTIONS
-                      ? "text-gray-600 cursor-not-allowed"
-                      : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                GitHub Actions
-              </button>
-            </div>
-          </div>
-          {!useGitHub && (
-            <code className="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">
-              cd scraper && python api.py
-            </code>
-          )}
+      <div className="flex items-center gap-3 mb-4">
+        <span className="text-xs text-gray-500">Mode:</span>
+        <div className="flex gap-1 p-0.5 bg-gray-800 rounded-lg">
+          <button
+            onClick={() => setUseGitHub(false)}
+            className={`px-2 py-1 text-xs rounded transition-all ${
+              !useGitHub
+                ? "bg-gray-700 text-white"
+                : "text-gray-500 hover:text-gray-300"
+            }`}
+          >
+            Local
+          </button>
+          <button
+            onClick={() => setUseGitHub(true)}
+            disabled={!USE_GITHUB_ACTIONS}
+            className={`px-2 py-1 text-xs rounded transition-all ${
+              useGitHub && USE_GITHUB_ACTIONS
+                ? "bg-gray-700 text-white"
+                : !USE_GITHUB_ACTIONS
+                  ? "text-gray-600 cursor-not-allowed"
+                  : "text-gray-500 hover:text-gray-300"
+            }`}
+          >
+            GitHub
+          </button>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          {useGitHub && USE_GITHUB_ACTIONS
-            ? "Scrapers run via GitHub Actions workflow. Results appear after ~2-5 minutes."
-            : USE_GITHUB_ACTIONS
-              ? "Running locally. Start the Python API first, or switch to GitHub Actions."
-              : "Running locally. Configure VITE_GITHUB_* env vars to enable GitHub Actions."
-          }
-        </p>
       </div>
 
-      {/* Scrapers Grid */}
-      <div className="grid gap-3">
+      {/* Scrapers List */}
+      <div className="divide-y divide-gray-800">
         {SCRAPERS.map(scraper => (
           <ScraperCard
             key={scraper.id}
@@ -813,7 +786,7 @@ export function ScraperDashboard() {
         <p className="text-sm text-gray-500 mb-4">
           Discovery scrapers find shows we might be missing. Events are added to the pending queue for review.
         </p>
-        <div className="grid gap-3">
+        <div className="divide-y divide-gray-800">
           {DISCOVERY_SCRAPERS.map(scraper => (
             <ScraperCard
               key={scraper.id}
