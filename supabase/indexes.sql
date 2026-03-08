@@ -38,6 +38,16 @@ ON scraper_runs(scraper_id, started_at DESC);
 -- FULL-TEXT SEARCH
 -- =============================================================================
 
+-- Immutable wrapper for array_to_string (required for generated columns)
+CREATE OR REPLACE FUNCTION immutable_array_to_string(text[], text)
+RETURNS text AS $$
+  SELECT array_to_string($1, $2);
+$$ LANGUAGE sql IMMUTABLE;
+
+-- Generated text column for ilike search on supporting_artists array
+ALTER TABLE events ADD COLUMN IF NOT EXISTS supporting_artists_text TEXT
+GENERATED ALWAYS AS (immutable_array_to_string(supporting_artists, ' ')) STORED;
+
 -- Add search vector column (will error if already exists - that's OK)
 ALTER TABLE events ADD COLUMN IF NOT EXISTS search_vector tsvector
 GENERATED ALWAYS AS (

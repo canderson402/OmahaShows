@@ -188,10 +188,9 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
     )
     if (matchingVenue) {
       // Search by title OR venue_id OR venue_name (for "other" venues)
-      query = query.or(`title.ilike.%${search}%,venue_id.eq.${matchingVenue.id},venue_name.ilike.%${search}%`)
+      query = query.or(`title.ilike.%${search}%,venue_id.eq.${matchingVenue.id},venue_name.ilike.%${search}%,supporting_artists_text.ilike.%${search}%`)
     } else {
-      // Search by title OR venue_name (for "other" venues)
-      query = query.or(`title.ilike.%${search}%,venue_name.ilike.%${search}%`)
+      query = query.or(`title.ilike.%${search}%,venue_name.ilike.%${search}%,supporting_artists_text.ilike.%${search}%`)
     }
   }
 
