@@ -27,6 +27,9 @@ interface DbEvent {
   date: string;
   time: string | null;
   venue_id: string;
+  venue_name: string | null;
+  other_venue_website: string | null;
+  other_venue_address: string | null;
   event_url: string | null;
   ticket_url: string | null;
   image_url: string | null;
@@ -592,7 +595,18 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                             )}
                             <p className="text-gray-400 mt-2">
                               {formatTime12(event.time) && <>{formatTime12(event.time)} · </>}
-                              <span className={colors.text}>{venueName}</span>
+                              {event.venue_id === 'other' ? (
+                                <span className="text-emerald-400">
+                                  {event.venue_name || 'Unknown Venue'}
+                                  {event.other_venue_address && (
+                                    <span className="text-gray-500 text-xs ml-1">
+                                      ({event.other_venue_address})
+                                    </span>
+                                  )}
+                                </span>
+                              ) : (
+                                <span className={colors.text}>{venueName}</span>
+                              )}
                             </p>
                             {event.price && <p className="text-gray-500 text-sm mt-1">{event.price}</p>}
                           </div>
@@ -616,6 +630,27 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                               <span className="px-2 py-0.5 text-xs bg-yellow-600/30 text-yellow-400 rounded">No category</span>
                             )}
                           </div>
+
+                          {/* Other venue details */}
+                          {event.venue_id === 'other' && event.venue_name && (
+                            <div className="mt-2 p-2 bg-emerald-900/20 border border-emerald-700/30 rounded-lg">
+                              <p className="text-xs text-emerald-400 font-medium mb-1">External Venue</p>
+                              <p className="text-sm text-white">{event.venue_name}</p>
+                              {event.other_venue_address && (
+                                <p className="text-xs text-gray-400 mt-0.5">{event.other_venue_address}</p>
+                              )}
+                              {event.other_venue_website && (
+                                <a
+                                  href={event.other_venue_website}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-emerald-400 hover:text-emerald-300 hover:underline"
+                                >
+                                  Venue Website
+                                </a>
+                              )}
+                            </div>
+                          )}
 
                           {/* Action buttons */}
                           <div className="flex gap-2">
@@ -678,7 +713,18 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                             )}
                             <p className="text-gray-400 mt-3">
                               {formatTime12(event.time) && <>{formatTime12(event.time)} · </>}
-                              <span className={colors.text}>{venueName}</span>
+                              {event.venue_id === 'other' ? (
+                                <span className="text-emerald-400">
+                                  {event.venue_name || 'Unknown Venue'}
+                                  {event.other_venue_address && (
+                                    <span className="text-gray-500 text-xs ml-1">
+                                      ({event.other_venue_address})
+                                    </span>
+                                  )}
+                                </span>
+                              ) : (
+                                <span className={colors.text}>{venueName}</span>
+                              )}
                             </p>
                             {event.price && <p className="text-gray-500 text-sm mt-1">{event.price}</p>}
 
@@ -715,6 +761,27 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                 </>
                               )}
                             </div>
+
+                            {/* Other venue details */}
+                            {event.venue_id === 'other' && event.venue_name && (
+                              <div className="mt-2 p-2 bg-emerald-900/20 border border-emerald-700/30 rounded-lg">
+                                <p className="text-xs text-emerald-400 font-medium mb-1">External Venue</p>
+                                <p className="text-sm text-white">{event.venue_name}</p>
+                                {event.other_venue_address && (
+                                  <p className="text-xs text-gray-400 mt-0.5">{event.other_venue_address}</p>
+                                )}
+                                {event.other_venue_website && (
+                                  <a
+                                    href={event.other_venue_website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-emerald-400 hover:text-emerald-300 hover:underline"
+                                  >
+                                    Venue Website
+                                  </a>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

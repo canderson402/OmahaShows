@@ -48,6 +48,7 @@ interface Venue {
   color_text: string | null;
   color_border: string | null;
   active: boolean;
+  aliases: string[] | null;
 }
 
 // Form state for editing/creating venues
@@ -60,6 +61,7 @@ interface VenueForm {
   website_url: string;
   hexColor: string;
   active: boolean;
+  aliases: string[];
 }
 
 const DEFAULT_FORM: VenueForm = {
@@ -71,6 +73,7 @@ const DEFAULT_FORM: VenueForm = {
   website_url: "",
   hexColor: "#6b7280",
   active: true,
+  aliases: [],
 };
 
 // Extract hex from existing Tailwind class or return default
@@ -159,6 +162,7 @@ export function VenueManagement() {
       website_url: venue.website_url || "",
       hexColor: extractHexFromTailwind(venue.color_text),
       active: venue.active,
+      aliases: venue.aliases || [],
     });
     setError(null);
     setModalOpen(true);
@@ -173,7 +177,7 @@ export function VenueManagement() {
   };
 
   // Update form field
-  const updateForm = (field: keyof VenueForm, value: string | boolean) => {
+  const updateForm = (field: keyof VenueForm, value: string | boolean | string[]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -204,6 +208,7 @@ export function VenueManagement() {
       color_text: `text-[${hex}]`,
       color_border: `border-[${hex}]`,
       active: form.active,
+      aliases: form.aliases.length > 0 ? form.aliases : null,
     };
 
     try {
@@ -222,6 +227,7 @@ export function VenueManagement() {
             color_text: venueData.color_text,
             color_border: venueData.color_border,
             active: venueData.active,
+            aliases: venueData.aliases,
           })
           .eq("id", editingVenue.id);
 
@@ -446,6 +452,78 @@ export function VenueManagement() {
                   placeholder="https://example.com"
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
                 />
+              </div>
+
+              {/* Aliases */}
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">
+                  Aliases (for venue matching)
+                </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Alternative names that should match this venue (e.g., "waiting room", "the waiting room")
+                </p>
+
+                {/* Current aliases */}
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {form.aliases.map((alias, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-sm"
+                    >
+                      <input
+                        type="text"
+                        value={alias}
+                        onChange={(e) => {
+                          const newAliases = [...form.aliases];
+                          newAliases[index] = e.target.value;
+                          updateForm("aliases", newAliases);
+                        }}
+                        className="bg-transparent text-white outline-none w-32"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newAliases = form.aliases.filter((_, i) => i !== index);
+                          updateForm("aliases", newAliases);
+                        }}
+                        className="text-gray-500 hover:text-red-400 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add new alias */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Add alias..."
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                        e.preventDefault();
+                        updateForm("aliases", [...form.aliases, e.currentTarget.value.trim().toLowerCase()]);
+                        e.currentTarget.value = "";
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      if (input.value.trim()) {
+                        updateForm("aliases", [...form.aliases, input.value.trim().toLowerCase()]);
+                        input.value = "";
+                      }
+                    }}
+                    className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition-colors"
+                  >
+                    + Add
+                  </button>
+                </div>
               </div>
 
               {/* Color */}

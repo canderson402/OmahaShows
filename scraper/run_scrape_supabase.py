@@ -9,9 +9,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from supabase import create_client, Client
-from config import SCRAPERS
+from config import get_scrapers
 from models import Event
 from matching import find_existing_event
+from venue_matcher import VenueMatcher
 
 # Get Supabase credentials from environment
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
@@ -229,12 +230,18 @@ def run():
     total_new = 0
     total_changed = 0
 
+    # Create venue matcher for deduplication
+    venue_matcher = VenueMatcher(supabase)
+
+    # Get scrapers with Supabase client and venue matcher
+    scrapers = get_scrapers(supabase_client=supabase, venue_matcher=venue_matcher)
+
     print(f"\n{'='*60}")
     print(f"SUPABASE SCRAPE - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
     print(f"{'='*60}\n")
 
     # Run all scrapers and collect results
-    for scraper in SCRAPERS:
+    for scraper in scrapers:
         print(f"Scraping {scraper.name}...", end=" ", flush=True)
 
         events, error = run_scraper(scraper)
@@ -276,7 +283,7 @@ def run():
     print(f"Total events processed: {total_events}")
     print(f"New events added: {total_new}")
     print(f"Events changed: {total_changed}")
-    print(f"Scrapers: {len(successful_scrapers)}/{len(SCRAPERS)} successful")
+    print(f"Scrapers: {len(successful_scrapers)}/{len(scrapers)} successful")
 
     if failed_scrapers:
         print(f"\n{'!'*60}")

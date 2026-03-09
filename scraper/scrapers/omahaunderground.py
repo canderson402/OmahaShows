@@ -7,17 +7,8 @@ import requests
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
-
-# Venues we already scrape - skip these to avoid duplicates
-EXISTING_VENUES = {
-    "the slowdown", "slowdown",
-    "waiting room", "waiting room lounge",
-    "reverb lounge", "reverb",
-    "bourbon theatre", "bourbon theater",
-    "the admiral", "admiral",
-    "the astro", "astro theater", "astro theatre",
-    "steel house", "steelhouse", "steelhouse omaha",
-}
+from venue_matcher import VenueMatcher
+from matching import find_existing_event
 
 
 class OtherVenuesScraper(BaseScraper):
@@ -25,11 +16,13 @@ class OtherVenuesScraper(BaseScraper):
     id = "other"
     url = "https://omahaunderground.net/shows/"
 
-    def __init__(self):
+    def __init__(self, supabase_client=None, venue_matcher=None):
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         })
+        self.supabase = supabase_client
+        self.venue_matcher = venue_matcher
 
     def scrape(self) -> list[Event]:
         """Override scrape to fetch detail pages for each show."""
@@ -49,9 +42,12 @@ class OtherVenuesScraper(BaseScraper):
                     continue
                 venue_name = venue_link.get_text(strip=True)
 
-                # Skip venues we already scrape
-                if venue_name.lower() in EXISTING_VENUES:
-                    continue
+                # Try to match venue to an official venue
+                matched_venue_id = None
+                if self.venue_matcher:
+                    match_result = self.venue_matcher.match(venue_name)
+                    if match_result:
+                        matched_venue_id = match_result[0]  # (venue_id, match_type)
 
                 # Get detail page URL
                 detail_link = show_div.select_one("a[href*='/shows/2']")
@@ -61,8 +57,8 @@ class OtherVenuesScraper(BaseScraper):
                 if not detail_url.startswith("http"):
                     detail_url = f"https://omahaunderground.net{detail_url}"
 
-                # Fetch detail page
-                event = self._fetch_detail(detail_url, venue_name)
+                # Fetch detail page (dedup handled inside)
+                event = self._fetch_detail(detail_url, venue_name, matched_venue_id)
                 if event:
                     events.append(event)
 
@@ -71,8 +67,17 @@ class OtherVenuesScraper(BaseScraper):
 
         return events
 
-    def _fetch_detail(self, url: str, venue_name: str) -> Event | None:
-        """Fetch a show detail page and extract event info."""
+    def _fetch_detail(self, url: str, venue_name: str, matched_venue_id: str | None = None) -> Event | None:
+        """Fetch a show detail page and extract event info.
+
+        Args:
+            url: Detail page URL
+            venue_name: Raw venue name from scraper
+            matched_venue_id: Official venue ID if matched, None otherwise
+
+        Returns:
+            Event object or None if skipped (duplicate) or error
+        """
         try:
             response = self.session.get(url, timeout=15)
             response.raise_for_status()
@@ -92,6 +97,28 @@ class OtherVenuesScraper(BaseScraper):
             if not title:
                 return None
 
+            # If matched to official venue, check for existing event
+            if matched_venue_id and self.supabase:
+                existing_events = self._get_events_for_venue_date(matched_venue_id, date_str)
+                # Create a temp event object for matching
+                temp_event = Event(
+                    id="temp",
+                    title=title,
+                    date=date_str,
+                    time=None,
+                    venue=venue_name,
+                    eventUrl=url,
+                    ticketUrl=None,
+                    imageUrl=None,
+                    price=None,
+                    ageRestriction=None,
+                    supportingArtists=None,
+                    source=self.id
+                )
+                if find_existing_event(temp_event, existing_events):
+                    # Duplicate found - skip this event
+                    return None
+
             # Image
             img_el = soup.select_one("div.below-name img")
             image_url = img_el.get("src") if img_el else None
@@ -105,26 +132,43 @@ class OtherVenuesScraper(BaseScraper):
                 time_str = self._parse_time(info_text)
                 price = self._parse_price(info_text)
 
+            # Determine venue_id and venue_name for the event
+            # If matched to official venue, use that venue_id
+            # Otherwise, use "other" with the raw venue name
+            if matched_venue_id:
+                final_venue_id = matched_venue_id
+                final_venue_name = None  # Don't need venue_name for official venues
+            else:
+                final_venue_id = "other"
+                final_venue_name = venue_name
+
             # Generate ID
             slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
-            event_id = f"other-{date_str}-{slug}"[:80]
+            event_id = f"{final_venue_id}-{date_str}-{slug}"[:80]
 
             return Event(
                 id=event_id,
                 title=title,
                 date=date_str,
                 time=time_str,
-                venue=venue_name,
+                venue=final_venue_name,  # Only set for "other" venues
                 eventUrl=url,
                 ticketUrl=None,
                 imageUrl=image_url,
                 price=price,
                 ageRestriction=None,
                 supportingArtists=None,
-                source=self.id
+                source=final_venue_id  # Use matched venue_id as source
             )
         except Exception:
             return None
+
+    def _get_events_for_venue_date(self, venue_id: str, event_date: str) -> list[dict]:
+        """Query existing events for a venue on a specific date."""
+        if not self.supabase:
+            return []
+        result = self.supabase.table("events").select("*").eq("venue_id", venue_id).eq("date", event_date).execute()
+        return result.data or []
 
     def _parse_date(self, text: str) -> str | None:
         """Parse 'Feb. 27, 2026' or 'March 7, 2026' to YYYY-MM-DD."""

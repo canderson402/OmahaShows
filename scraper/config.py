@@ -10,13 +10,20 @@ from scrapers.astrotheater import AstroTheaterScraper
 from scrapers.steelhouse import SteelHouseScraper
 from scrapers.omahaunderground import OtherVenuesScraper
 
-SCRAPERS = [
-    SlowdownScraper(),
-    WaitingRoomScraper(),
-    ReverbLoungeScraper(),
-    BourbonTheatreScraper(),
-    AdmiralScraper(),
-    AstroTheaterScraper(),
-    SteelHouseScraper(),
-    OtherVenuesScraper(),
-]
+
+def get_scrapers(supabase_client=None, venue_matcher=None):
+    """Get list of scrapers, optionally with Supabase client for dedup."""
+    return [
+        SlowdownScraper(),
+        WaitingRoomScraper(),
+        ReverbLoungeScraper(),
+        BourbonTheatreScraper(),
+        AdmiralScraper(),
+        AstroTheaterScraper(),
+        SteelHouseScraper(),
+        OtherVenuesScraper(supabase_client=supabase_client, venue_matcher=venue_matcher),
+    ]
+
+
+# Keep SCRAPERS for backwards compatibility
+SCRAPERS = get_scrapers()
