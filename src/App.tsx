@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import type { Event, HistoricalShow, SourceStatus } from "./types";
 import { EventList } from "./components/EventList";
+import { EventCardCompact } from "./components/EventCardCompact";
 import { HistoryList } from "./components/HistoryList";
 import { FiltersDropdown, type HistoryTimeFilter } from "./components/FiltersDropdown";
 import { ContactModal } from "./components/ContactModal";
@@ -10,13 +11,14 @@ import { CalendarView } from "./components/CalendarView";
 import { SeoStructuredData } from "./components/SeoStructuredData";
 import { SubmitShowForm } from "./components/SubmitShowForm";
 import { useDebounce } from "./hooks/useDebounce";
+import { useSavedShows } from "./hooks/useSavedShows";
 import { trackViewChange } from "./analytics";
 import { getEvents, getHistory, getSources, getEventById, type HistoryFilter } from "./lib/supabase";
 import { LoginPage } from "./pages/LoginPage";
 import { AdminPage } from "./pages/AdminPage";
 import { SubmissionPage } from "./pages/SubmissionPage";
 
-type View = "events" | "history" | "calendar" | "submit";
+type View = "events" | "history" | "calendar" | "submit" | "myshows";
 type Layout = "compact" | "full";
 type TimeFilter = "all" | "today" | "week" | "just-added";
 
@@ -52,6 +54,140 @@ const getRecentlyAddedIds = (events: Event[]): Set<string> => {
 
 const EVENTS_PER_PAGE = 20;
 
+// Generate a stable ID for a historical show (must match HistoryList)
+function generateShowId(show: HistoricalShow): string {
+  const slug = show.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const venueSlug = show.venue.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `${venueSlug}-${show.date}-${slug}`;
+}
+
+// Convert a HistoricalShow to an Event-like object for display
+function historyShowToEvent(show: HistoricalShow): Event {
+  return {
+    id: generateShowId(show),
+    title: show.title,
+    date: show.date,
+    venue: show.venue,
+    supportingArtists: show.supportingArtists,
+    source: 'history',
+  };
+}
+
+// My Shows list component
+function MyShowsList({
+  events,
+  historyShows,
+  savedIds,
+  venueColors,
+  onToggleSave,
+}: {
+  events: Event[];
+  historyShows: HistoricalShow[];
+  savedIds: string[];
+  venueColors: typeof VENUE_COLORS;
+  onToggleSave: (id: string) => void;
+}) {
+  // Get today's date string for comparison
+  const today = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }, []);
+
+  // Filter events to only saved ones, also include saved history shows
+  const savedEvents = useMemo(() => {
+    const savedSet = new Set(savedIds);
+
+    // Get saved events from main events list
+    const fromEvents = events.filter((e) => savedSet.has(e.id));
+
+    // Get saved events from history (convert to Event format)
+    const fromHistory = historyShows
+      .filter((show) => savedSet.has(generateShowId(show)))
+      .map(historyShowToEvent);
+
+    // Combine and deduplicate by ID, then sort by date
+    const combined = [...fromEvents, ...fromHistory];
+    const uniqueById = Array.from(new Map(combined.map(e => [e.id, e])).values());
+
+    return uniqueById.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [events, historyShows, savedIds]);
+
+  // Check if an event is expired
+  const isExpired = useCallback((event: Event) => event.date < today, [today]);
+
+  if (savedEvents.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-400">No saved shows.</p>
+        <p className="text-gray-500 text-sm mt-2">
+          Click the + button on any event to add it here.
+        </p>
+      </div>
+    );
+  }
+
+  // Split into upcoming and past shows
+  const upcomingShows = savedEvents.filter((e) => !isExpired(e));
+  const pastShows = savedEvents.filter((e) => isExpired(e));
+
+  return (
+    <div>
+      <div className="mb-4 px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700">
+        <p className="text-gray-400 text-sm">
+          Saved shows are stored in your browser. They won't appear on other devices and will be cleared if you clear your browser data.
+        </p>
+      </div>
+
+      {/* Upcoming shows - full cards */}
+      {upcomingShows.length > 0 && (
+        <div className="divide-y divide-gray-700">
+          {upcomingShows.map((event) => (
+            <EventCardCompact
+              key={event.id}
+              event={event}
+              venueColors={venueColors}
+              isSaved={true}
+              onToggleSave={onToggleSave}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Past shows - compact list */}
+      {pastShows.length > 0 && (
+        <div className={upcomingShows.length > 0 ? "mt-6" : ""}>
+          <div className="text-sm text-gray-500 font-medium mb-2">Past Shows</div>
+          <div className="divide-y divide-gray-800/50">
+            {pastShows.map((event) => {
+              const colors = venueColors[event.source] || { text: "text-gray-400" };
+              const formatDate = (dateStr: string) => {
+                const date = new Date(dateStr + "T00:00:00");
+                return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              };
+              return (
+                <div key={event.id} className="py-2 flex items-center gap-3 opacity-60">
+                  <span className="text-xs text-gray-500 w-14 flex-shrink-0">{formatDate(event.date)}</span>
+                  <span className="text-white flex-1 truncate">{event.title}</span>
+                  <span className={`text-xs ${colors.text} flex-shrink-0`}>{event.venue}</span>
+                  <button
+                    onClick={() => onToggleSave(event.id)}
+                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-green-500/90 text-white"
+                    title="Remove from My Shows"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HomePage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [hasMoreEvents, setHasMoreEvents] = useState(true);
@@ -76,6 +212,25 @@ function HomePage() {
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   const debouncedEventSearch = useDebounce(eventSearch, 300);
+  const { savedIds, isSaved, toggleSave } = useSavedShows();
+  const [showSaveToast, setShowSaveToast] = useState(false);
+
+  // Wrap toggleSave to show toast when adding
+  const handleToggleSave = useCallback((id: string) => {
+    const wasAlreadySaved = isSaved(id);
+    toggleSave(id);
+    if (!wasAlreadySaved) {
+      setShowSaveToast(true);
+    }
+  }, [isSaved, toggleSave]);
+
+  // Auto-hide toast after 3 seconds
+  useEffect(() => {
+    if (showSaveToast) {
+      const timer = setTimeout(() => setShowSaveToast(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSaveToast]);
 
   // Read URL hash on mount and on hash change - prefill search
   useEffect(() => {
@@ -179,10 +334,10 @@ function HomePage() {
     }
   }, [loadingMoreHistory, hasMoreHistory, historyShows.length, historyTimeFilter]);
 
-  // Lazy load history - only when user switches to history view or changes filter
+  // Lazy load history - when on history view, myshows view (to show saved history items), or changes filter
   useEffect(() => {
     if (!dataLoaded) return;
-    if (view !== 'history') return; // Only load when on history view
+    if (view !== 'history' && view !== 'myshows') return; // Load for history or myshows view
 
     const loadHistory = async () => {
       setLoadingHistory(true);
@@ -221,6 +376,7 @@ function HomePage() {
       calendar: "Calendar | Omaha Shows",
       history: "Past Shows | Omaha Shows",
       submit: "Submit Show | Omaha Shows",
+      myshows: "My Shows | Omaha Shows",
     };
     document.title = titles[view];
   }, [view]);
@@ -316,6 +472,18 @@ function HomePage() {
                       {v === "events" ? "Shows" : v === "submit" ? "Submit" : v.charAt(0).toUpperCase() + v.slice(1)}
                     </button>
                   ))}
+                  {savedIds.length > 0 && (
+                    <button
+                      onClick={() => { setView("myshows"); trackViewChange("myshows"); }}
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        view === "myshows"
+                          ? "bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/30"
+                          : "text-gray-500 hover:text-gray-300"
+                      }`}
+                    >
+                      My Shows ({savedIds.length})
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -323,7 +491,7 @@ function HomePage() {
                 <div className="mb-6 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-300">{error}</div>
               )}
 
-              {(view === "events" || view === "history" || view === "calendar") && (
+              {(view === "events" || view === "history" || view === "calendar" || view === "myshows") && (
                 <>
                   <div className="flex items-center justify-end mb-4">
                     <div className="flex items-center gap-2">
@@ -373,7 +541,9 @@ function HomePage() {
                   </div>
 
                   {view === "events" ? (
-                    <EventList events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={VENUE_COLORS} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} />
+                    <EventList events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={VENUE_COLORS} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} isSaved={isSaved} onToggleSave={handleToggleSave} />
+                  ) : view === "myshows" ? (
+                    <MyShowsList events={events} historyShows={historyShows} savedIds={savedIds} venueColors={VENUE_COLORS} onToggleSave={handleToggleSave} />
                   ) : view === "history" ? (
                     loadingHistory && !historyLoaded ? (
                       <div className="flex justify-center py-12">
@@ -409,6 +579,23 @@ function HomePage() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center justify-center w-12 h-12 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-all shadow-lg">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
         </button>
+      </div>
+
+      {/* Toast for saved shows */}
+      <div
+        className={`fixed bottom-24 md:bottom-6 inset-x-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 z-50 transition-all duration-300 ${
+          showSaveToast ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <div className="bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-center gap-2 text-sm md:text-base">
+          <span>Added to My Shows</span>
+          <button
+            onClick={() => { setView("myshows"); setShowSaveToast(false); }}
+            className="underline hover:no-underline font-medium"
+          >
+            View
+          </button>
+        </div>
       </div>
     </div>
   );

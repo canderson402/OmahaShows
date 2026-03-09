@@ -23,9 +23,11 @@ interface EventListProps {
   loadingMore?: boolean;  // currently loading more from database
   onLoadMore?: () => void;  // callback to load more from database
   highlightedEventId?: string | null;  // event to highlight and scroll to
+  isSaved?: (id: string) => boolean;  // check if event is saved
+  onToggleSave?: (id: string) => void;  // toggle save state
 }
 
-export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId }: EventListProps) {
+export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId, isSaved, onToggleSave }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const today = useMemo(() => {
@@ -171,6 +173,8 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
               venueColors={venueColors}
               isJustAdded={isJustAdded?.(event)}
               isHighlighted={event.id === highlightedEventId}
+              isSaved={isSaved?.(event.id)}
+              onToggleSave={onToggleSave}
             />
           ))}
         </div>

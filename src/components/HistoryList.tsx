@@ -16,6 +16,15 @@ interface HistoryListProps {
   hasMore?: boolean;  // more shows available from database
   loadingMore?: boolean;  // currently loading more from database
   onLoadMore?: () => void;  // callback to load more from database
+  isSaved?: (id: string) => boolean;
+  onToggleSave?: (id: string) => void;
+}
+
+// Generate a stable ID for a historical show
+function generateShowId(show: HistoricalShow): string {
+  const slug = show.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const venueSlug = show.venue.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `${venueSlug}-${show.date}-${slug}`;
 }
 
 const SHOWS_PER_PAGE = 25;
@@ -44,7 +53,7 @@ const venueNameToId: Record<string, string> = {
   "Barnato": "barnato",
 };
 
-export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, venueUrls, timeFilter = "all", hasMore: hasMoreFromDb, loadingMore, onLoadMore }: HistoryListProps) {
+export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, venueUrls, timeFilter = "all", hasMore: hasMoreFromDb, loadingMore, onLoadMore, isSaved, onToggleSave }: HistoryListProps) {
   const [visibleCount, setVisibleCount] = useState(SHOWS_PER_PAGE);
   const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(new Set());
   const [collapsedDays, setCollapsedDays] = useState<Set<string>>(new Set());
@@ -259,6 +268,8 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
                         const colors = venueColors[venueId] || { text: "text-gray-400" };
                         const venueUrl = venueUrls?.[venueId];
                         const isLast = idx === day.shows.length - 1;
+                        const showId = generateShowId(show);
+                        const saved = isSaved?.(showId) ?? false;
                         return (
                           <div
                             key={`${show.date}-${show.title}-${idx}`}
@@ -279,6 +290,27 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
                                 <span className={`text-xs ${colors.text} flex-shrink-0`}>
                                   {show.venue}
                                 </span>
+                              )}
+                              {onToggleSave && (
+                                <button
+                                  onClick={() => onToggleSave(showId)}
+                                  className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+                                    saved
+                                      ? "bg-green-500/90 text-white"
+                                      : "bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white"
+                                  }`}
+                                  title={saved ? "Remove from My Shows" : "Add to My Shows"}
+                                >
+                                  {saved ? (
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                  )}
+                                </button>
                               )}
                             </div>
                             {show.supportingArtists && show.supportingArtists.length > 0 && (
