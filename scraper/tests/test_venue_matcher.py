@@ -81,3 +81,10 @@ class TestVenueMatcher:
         assert result is not None
         assert result[0] == "reverblounge"
         assert result[1] == "alias"
+
+    def test_reverb_lounge_matches_by_name(self, matcher):
+        # "Reverb Lounge" should match "reverblounge" venue by name
+        result = matcher.match("Reverb Lounge")
+        assert result is not None
+        assert result[0] == "reverblounge"
+        assert result[1] == "name"

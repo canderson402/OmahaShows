@@ -43,21 +43,31 @@ class VenueMatcher:
 
     def _load_venues(self):
         """Load venues from database."""
-        result = self.supabase.table("venues").select("id, name, aliases").neq("id", "other").execute()
-        # Filter out "other" venue in Python as well (safeguard for tests/edge cases)
-        self._venues = [v for v in (result.data or []) if v.get("id") != "other"]
+        try:
+            # Select all columns - works whether aliases column exists or not
+            result = self.supabase.table("venues").select("*").neq("id", "other").execute()
+            # Filter out "other" venue in Python as well (safeguard for tests/edge cases)
+            self._venues = [v for v in (result.data or []) if v.get("id") != "other"]
 
-        # Build lookup maps
-        for venue in self._venues:
-            venue_id = venue["id"]
-            # Map normalized name
-            normalized_name = normalize_venue_name(venue["name"])
-            self._name_map[normalized_name] = venue_id
-            # Map all aliases
-            for alias in venue.get("aliases") or []:
-                normalized_alias = normalize_venue_name(alias)
-                if normalized_alias:
-                    self._alias_map[normalized_alias] = venue_id
+            print(f"VenueMatcher: Loaded {len(self._venues)} venues")
+
+            # Build lookup maps
+            for venue in self._venues:
+                venue_id = venue["id"]
+                venue_name = venue.get("name", "")
+                # Map normalized name
+                normalized_name = normalize_venue_name(venue_name)
+                if normalized_name:
+                    self._name_map[normalized_name] = venue_id
+                    print(f"  - {venue_id}: '{venue_name}' -> '{normalized_name}'")
+                # Map all aliases (if column exists)
+                for alias in venue.get("aliases") or []:
+                    normalized_alias = normalize_venue_name(alias)
+                    if normalized_alias:
+                        self._alias_map[normalized_alias] = venue_id
+        except Exception as e:
+            print(f"VenueMatcher: Error loading venues: {e}")
+            self._venues = []
 
     def match(self, venue_name: str) -> Optional[tuple[str, str]]:
         """
@@ -79,10 +89,12 @@ class VenueMatcher:
 
         # Priority 1: Exact alias match
         if normalized in self._alias_map:
+            print(f"  VenueMatcher: '{venue_name}' -> '{normalized}' matched alias -> {self._alias_map[normalized]}")
             return (self._alias_map[normalized], "alias")
 
         # Priority 2: Exact name match
         if normalized in self._name_map:
+            print(f"  VenueMatcher: '{venue_name}' -> '{normalized}' matched name -> {self._name_map[normalized]}")
             return (self._name_map[normalized], "name")
 
         # Priority 3: Fuzzy match against venue names
@@ -95,6 +107,8 @@ class VenueMatcher:
                     best_match = (venue["id"], ratio)
 
         if best_match:
+            print(f"  VenueMatcher: '{venue_name}' -> '{normalized}' fuzzy matched -> {best_match[0]} ({best_match[1]:.2f})")
             return (best_match[0], f"fuzzy:{best_match[1]:.2f}")
 
+        print(f"  VenueMatcher: '{venue_name}' -> '{normalized}' NO MATCH (known: {list(self._name_map.keys())[:5]}...)")
         return None
