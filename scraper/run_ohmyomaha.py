@@ -2,6 +2,7 @@
 """
 Run the ohmyomaha scraper - creates pending events for admin review.
 Skips events that already exist in the database.
+Sports events are automatically excluded.
 
 Usage:
     python run_ohmyomaha.py
@@ -18,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from supabase import create_client, Client
 from scrapers.ohmyomaha import OhMyOmahaScraper
+from venue_matcher import VenueMatcher
 
 # Get Supabase credentials
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
@@ -47,7 +49,10 @@ def run():
     print(f"OHMYOMAHA SCRAPE - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
     print(f"{'='*60}\n")
 
-    scraper = OhMyOmahaScraper()
+    # Create venue matcher for deduplication
+    venue_matcher = VenueMatcher(supabase)
+
+    scraper = OhMyOmahaScraper(supabase_client=supabase, venue_matcher=venue_matcher)
     now = datetime.now(timezone.utc).isoformat()
     today = date.today().isoformat()
 
@@ -110,9 +115,9 @@ def run():
             if is_duplicate:
                 continue
 
-            # Map venue and get category
-            venue_id = scraper._map_venue(event.venue)
-            category = scraper._categorize(event.title, event.venue)
+            # source is already set to matched venue_id by the scraper
+            venue_id = event.source
+            category = scraper._categorize(event.title, event.venue or "")
 
             # Insert as pending event
             event_data = {

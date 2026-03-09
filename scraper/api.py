@@ -25,6 +25,7 @@ from scrapers.astrotheater import AstroTheaterScraper
 from scrapers.steelhouse import SteelHouseScraper
 from scrapers.omahaunderground import OtherVenuesScraper
 from scrapers.ohmyomaha import OhMyOmahaScraper
+from venue_matcher import VenueMatcher
 
 app = FastAPI(title="ShowCal Scraper API")
 
@@ -118,7 +119,8 @@ def get_raw_venue(venue_id: str):
                 return {"error": "Missing SUPABASE env vars", "events": []}
 
             db = create_client(supabase_url, supabase_key)
-            scraper = OhMyOmahaScraper()
+            venue_matcher = VenueMatcher(db)
+            scraper = OhMyOmahaScraper(supabase_client=db, venue_matcher=venue_matcher)
             today = date.today().isoformat()
 
             events = scraper.scrape()
@@ -148,13 +150,14 @@ def get_raw_venue(venue_id: str):
                             reason = f"Similar: {existing['title']}"
                             break
 
+                # source is already set to matched venue_id by the scraper
                 results.append({
                     "id": event.id,
                     "title": event.title,
                     "date": event.date,
                     "venue": event.venue,
-                    "venue_id": scraper._map_venue(event.venue),
-                    "category": scraper._categorize(event.title, event.venue),
+                    "venue_id": event.source,
+                    "category": scraper._categorize(event.title, event.venue or ""),
                     "ticket_url": event.ticketUrl,
                     "status": status,
                     "reason": reason,
@@ -222,10 +225,11 @@ def scrape_venue(venue_id: str) -> ScrapeResponse:
                 )
 
             db = create_client(supabase_url, supabase_key)
-            scraper = OhMyOmahaScraper()
+            venue_matcher = VenueMatcher(db)
+            scraper = OhMyOmahaScraper(supabase_client=db, venue_matcher=venue_matcher)
             today = date.today().isoformat()
 
-            # Scrape events
+            # Scrape events (sports are already filtered, dupes already checked by scraper)
             events = scraper.scrape()
             future_events = [e for e in events if e.date >= today]
 
@@ -259,14 +263,14 @@ def scrape_venue(venue_id: str) -> ScrapeResponse:
                         break
 
                 if not is_duplicate:
-                    venue_id_mapped = scraper._map_venue(event.venue)
-                    category = scraper._categorize(event.title, event.venue)
+                    # source is already set to matched venue_id by the scraper
+                    category = scraper._categorize(event.title, event.venue or "")
                     new_events.append({
                         "id": event.id,
                         "title": event.title,
                         "date": event.date,
                         "venue": event.venue,
-                        "venue_id": venue_id_mapped,
+                        "venue_id": event.source,
                         "category": category,
                         "ticket_url": event.ticketUrl,
                     })
