@@ -456,7 +456,7 @@ function HomePage() {
                   </div>
                 </button>
 
-                <div className="flex justify-center gap-2 mt-4">
+                <div className="flex justify-center flex-wrap gap-2 mt-4">
                   {(["events", "calendar", "history", "submit"] as const).map((v) => (
                     <button
                       key={v}
