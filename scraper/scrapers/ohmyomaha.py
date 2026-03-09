@@ -10,47 +10,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
-
-# Venue name mappings (lowercase keys)
-# Maps to venue_id in database. Unknown venues go to "other" with venue_name preserved.
-VENUE_MAPPINGS = {
-    # The Slowdown
-    "slowdown": "theslowdown",
-    "the slowdown": "theslowdown",
-    # Waiting Room
-    "waiting room": "waitingroom",
-    "waiting room lounge": "waitingroom",
-    "the waiting room": "waitingroom",
-    # Reverb Lounge
-    "reverb": "reverblounge",
-    "reverb lounge": "reverblounge",
-    # Bourbon Theatre
-    "bourbon": "bourbontheatre",
-    "bourbon theatre": "bourbontheatre",
-    "bourbon theater": "bourbontheatre",
-    # The Admiral
-    "admiral": "admiral",
-    "the admiral": "admiral",
-    # The Astro
-    "astro": "astrotheater",
-    "the astro": "astrotheater",
-    "astro theater": "astrotheater",
-    "astro theatre": "astrotheater",
-    # Steelhouse
-    "steelhouse": "steelhouse",
-    "steelhouse omaha": "steelhouse",
-    "steakhouse omaha": "steelhouse",  # Common typo on ohmyomaha
-    # Holland Center
-    "holland": "holland",
-    "holland center": "holland",
-    "holland performing arts center": "holland",
-    # Orpheum
-    "orpheum": "orpheum",
-    "orpheum theater": "orpheum",
-    "orpheum theatre": "orpheum",
-    # Barnato
-    "barnato": "barnato",
-}
+from venue_matcher import VenueMatcher
+from matching import find_existing_event
 
 # Sports team names and keywords
 SPORTS_KEYWORDS = [
@@ -93,6 +54,11 @@ class OhMyOmahaScraper(BaseScraper):
     id = "ohmyomaha"
     url = "https://ohmyomaha.com/biggest-concerts-omaha/"
 
+    def __init__(self, supabase_client=None, venue_matcher=None):
+        super().__init__()
+        self.supabase = supabase_client
+        self.venue_matcher = venue_matcher
+
     def parse_events(self, html: str) -> list[Event]:
         soup = self.get_soup(html)
         events = []
@@ -129,15 +95,50 @@ class OhMyOmahaScraper(BaseScraper):
                 if not venue_name:
                     continue
 
+                # Auto-categorize and skip sports events
+                category = self._categorize(title, venue_name)
+                if category == "sports":
+                    continue
+
                 # Get ticket link if present
                 link = li.find("a")
                 ticket_url = link.get("href") if link else None
 
-                # Map venue to venue_id
-                venue_id = self._map_venue(venue_name)
+                # Try to match venue using VenueMatcher
+                matched_venue_id = None
+                if self.venue_matcher:
+                    match_result = self.venue_matcher.match(venue_name)
+                    if match_result:
+                        matched_venue_id = match_result[0]
 
-                # Auto-categorize
-                category = self._categorize(title, venue_name)
+                # Determine final venue_id
+                if matched_venue_id:
+                    venue_id = matched_venue_id
+                    final_venue_name = None  # Don't need venue_name for official venues
+                else:
+                    venue_id = "other"
+                    final_venue_name = venue_name
+
+                # Check for duplicates if we matched to an official venue
+                if matched_venue_id and self.supabase:
+                    existing_events = self._get_events_for_venue_date(matched_venue_id, date)
+                    temp_event = Event(
+                        id="temp",
+                        title=title,
+                        date=date,
+                        time=None,
+                        venue=venue_name,
+                        eventUrl=None,
+                        ticketUrl=ticket_url,
+                        imageUrl=None,
+                        price=None,
+                        ageRestriction=None,
+                        supportingArtists=None,
+                        source=self.id
+                    )
+                    if find_existing_event(temp_event, existing_events):
+                        # Duplicate found - skip
+                        continue
 
                 # Generate standard ID
                 slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
@@ -148,20 +149,27 @@ class OhMyOmahaScraper(BaseScraper):
                     title=title,
                     date=date,
                     time=None,  # ohmyomaha doesn't typically list times
-                    venue=venue_name,  # Original venue name for display
+                    venue=final_venue_name,  # Only set for "other" venues
                     eventUrl=None,
                     ticketUrl=ticket_url,
                     imageUrl=None,
                     price=None,
                     ageRestriction=None,
                     supportingArtists=None,
-                    source=self.id
+                    source=venue_id  # Use matched venue_id as source
                 ))
 
             except Exception:
                 continue
 
         return events
+
+    def _get_events_for_venue_date(self, venue_id: str, event_date: str) -> list[dict]:
+        """Query existing events for a venue on a specific date."""
+        if not self.supabase:
+            return []
+        result = self.supabase.table("events").select("*").eq("venue_id", venue_id).eq("date", event_date).execute()
+        return result.data or []
 
     def _parse_date(self, text: str) -> str | None:
         """Parse various date formats to YYYY-MM-DD."""
@@ -185,21 +193,6 @@ class OhMyOmahaScraper(BaseScraper):
                 continue
 
         return None
-
-    def _map_venue(self, venue_name: str) -> str:
-        """Map venue name to venue_id."""
-        name_lower = venue_name.lower().strip()
-
-        # Exact match first
-        if name_lower in VENUE_MAPPINGS:
-            return VENUE_MAPPINGS[name_lower]
-
-        # Partial match
-        for key, venue_id in VENUE_MAPPINGS.items():
-            if key in name_lower or name_lower in key:
-                return venue_id
-
-        return "other"
 
     def _categorize(self, title: str, venue_name: str) -> str:
         """Auto-categorize event based on title and venue."""
@@ -233,18 +226,20 @@ class OhMyOmahaScraper(BaseScraper):
 
 
 # Standalone function to get categorized events
-def scrape_ohmyomaha() -> list[dict]:
+def scrape_ohmyomaha(supabase_client=None, venue_matcher=None) -> list[dict]:
     """
     Scrape ohmyomaha and return events with venue_id and category.
     Returns list of dicts ready for DB insertion.
+    Sports events are automatically excluded.
     """
-    scraper = OhMyOmahaScraper()
+    scraper = OhMyOmahaScraper(supabase_client=supabase_client, venue_matcher=venue_matcher)
     events = scraper.scrape()
 
     result = []
     for event in events:
-        venue_id = scraper._map_venue(event.venue)
-        category = scraper._categorize(event.title, event.venue)
+        # source is already set to the matched venue_id
+        venue_id = event.source
+        category = scraper._categorize(event.title, event.venue or "")
 
         result.append({
             "id": event.id,

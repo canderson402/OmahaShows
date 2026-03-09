@@ -9,6 +9,7 @@ from scrapers.admiral import AdmiralScraper
 from scrapers.astrotheater import AstroTheaterScraper
 from scrapers.steelhouse import SteelHouseScraper
 from scrapers.omahaunderground import OtherVenuesScraper
+from scrapers.ohmyomaha import OhMyOmahaScraper
 
 
 def get_scrapers(supabase_client=None, venue_matcher=None):
@@ -22,6 +23,7 @@ def get_scrapers(supabase_client=None, venue_matcher=None):
         AstroTheaterScraper(),
         SteelHouseScraper(),
         OtherVenuesScraper(supabase_client=supabase_client, venue_matcher=venue_matcher),
+        OhMyOmahaScraper(supabase_client=supabase_client, venue_matcher=venue_matcher),
     ]
 
 
