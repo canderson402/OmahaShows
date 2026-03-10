@@ -74,6 +74,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [eventSearch, setEventSearch] = useState("");
+  const [venueFilter, setVenueFilter] = useState<string>("");
   const [editingEvent, setEditingEvent] = useState<DbEvent | null>(null);
   const [editForm, setEditForm] = useState<Partial<DbEvent>>({});
   const [saving, setSaving] = useState(false);
@@ -94,7 +95,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   }, []);
 
-  const fetchCurrentEvents = useCallback(async (search?: string, offset = 0) => {
+  const fetchCurrentEvents = useCallback(async (search?: string, venueId?: string, offset = 0) => {
     const today = new Date().toISOString().split("T")[0];
 
     let query = supabase
@@ -106,6 +107,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
     if (search && search.trim()) {
       query = query.ilike("title", `%${search.trim()}%`);
+    }
+
+    if (venueId && venueId.trim()) {
+      query = query.eq("venue_id", venueId);
     }
 
     query = query.range(offset, offset + EVENTS_PER_PAGE - 1);
@@ -148,13 +153,13 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     load();
   }, [fetchPending, fetchCurrentEvents, fetchVenues, fetchEventChanges]);
 
-  // Search with debounce
+  // Search/filter with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchCurrentEvents(eventSearch, 0);
+      fetchCurrentEvents(eventSearch, venueFilter, 0);
     }, 300);
     return () => clearTimeout(timer);
-  }, [eventSearch, fetchCurrentEvents]);
+  }, [eventSearch, venueFilter, fetchCurrentEvents]);
 
   // Refresh pending when tab changes to pending
   useEffect(() => {
@@ -166,7 +171,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
   const loadMoreEvents = async () => {
     setLoadingMore(true);
-    await fetchCurrentEvents(eventSearch, currentEvents.length);
+    await fetchCurrentEvents(eventSearch, venueFilter, currentEvents.length);
     setLoadingMore(false);
   };
 
@@ -256,7 +261,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       if (error) throw error;
 
       // Refresh data
-      await Promise.all([fetchPending(), fetchCurrentEvents(eventSearch, 0)]);
+      await Promise.all([fetchPending(), fetchCurrentEvents(eventSearch, venueFilter, 0)]);
       setEditingEvent(null);
     } catch (err) {
       console.error("Failed to save:", err);
@@ -276,7 +281,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
       if (error) throw error;
 
-      await Promise.all([fetchPending(), fetchCurrentEvents(eventSearch, 0)]);
+      await Promise.all([fetchPending(), fetchCurrentEvents(eventSearch, venueFilter, 0)]);
       setEditingEvent(null);
     } catch (err) {
       console.error("Failed to delete:", err);
@@ -795,9 +800,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           {/* Current Events Tab */}
           {tab === "events" && (
             <div>
-              {/* Search */}
-              <div className="mb-4">
-                <div className="relative">
+              {/* Search and Venue Filter */}
+              <div className="mb-4 flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
                   <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
@@ -809,6 +814,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
                   />
                 </div>
+                <select
+                  value={venueFilter}
+                  onChange={(e) => setVenueFilter(e.target.value)}
+                  className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+                >
+                  <option value="">All Venues</option>
+                  {venues.map((v) => (
+                    <option key={v.id} value={v.id}>{v.name}</option>
+                  ))}
+                </select>
               </div>
 
               <p className="text-gray-500 text-xs sm:text-sm mb-4">
