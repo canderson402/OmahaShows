@@ -20,6 +20,10 @@ on:
           - admiral
           - astrotheater
           - steelhouse
+          - holland
+          - orpheum
+          - baxterarena
+          - stircove
           - other
           - ohmyomaha
 
