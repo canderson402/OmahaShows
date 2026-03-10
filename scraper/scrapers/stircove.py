@@ -53,6 +53,22 @@ class StirCoveScraper(BaseScraper):
         if t1 in t2 or t2 in t1:
             return True
 
+        # Check without spaces (handles "lilbigtown" vs "little big town")
+        t1_nospace = t1.replace(' ', '')
+        t2_nospace = t2.replace(' ', '')
+        if t1_nospace in t2_nospace or t2_nospace in t1_nospace:
+            return True
+
+        # Handle common abbreviations
+        abbreviations = {'little': 'lil', 'lil': 'little'}
+        t1_expanded = t1_nospace
+        t2_expanded = t2_nospace
+        for full, abbr in abbreviations.items():
+            t1_expanded = t1_expanded.replace(full, abbr)
+            t2_expanded = t2_expanded.replace(full, abbr)
+        if t1_expanded in t2_expanded or t2_expanded in t1_expanded:
+            return True
+
         # Check for significant word overlap
         words1 = set(t1.split())
         words2 = set(t2.split())
@@ -74,54 +90,47 @@ class StirCoveScraper(BaseScraper):
 
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(
+                    headless=True,
+                    args=['--disable-blink-features=AutomationControlled']
+                )
                 context = browser.new_context(
-                    user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    viewport={'width': 1920, 'height': 1080},
+                    user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                 )
                 page = context.new_page()
 
+                # Anti-detection
+                page.add_init_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined});')
+
                 # Navigate to Caesars shows page
-                page.goto(self.caesars_url, wait_until="networkidle", timeout=60000)
-                page.wait_for_timeout(3000)  # Wait for JS to render
+                page.goto(self.caesars_url, wait_until="domcontentloaded", timeout=30000)
+                page.wait_for_timeout(10000)  # Wait for JS to render
 
-                # Try to find event cards/tiles with images
-                # Look for common patterns in event listings
-                cards = page.query_selector_all('[class*="event"], [class*="show"], [class*="card"], [class*="tile"]')
+                # Scroll to load lazy content
+                for i in range(5):
+                    page.evaluate(f'window.scrollTo(0, {1000 * (i+1)})')
+                    page.wait_for_timeout(1000)
 
-                for card in cards:
-                    try:
-                        # Try to find title
-                        title_el = card.query_selector('h2, h3, h4, [class*="title"], [class*="name"]')
-                        if not title_el:
-                            continue
-                        title = title_el.inner_text().strip().lower()
-                        if not title:
-                            continue
+                content = page.content()
 
-                        # Try to find image
-                        img_el = card.query_selector('img')
-                        if img_el:
-                            img_url = img_el.get_attribute('src') or img_el.get_attribute('data-src')
-                            if img_url and not any(x in img_url.lower() for x in ['logo', 'icon', 'placeholder']):
-                                image_map[title] = img_url
-                    except Exception:
+                # Find Council Bluffs event images (cou- prefix)
+                cou_imgs = re.findall(r'(https://assets\.caesars\.com/[^"]+cou-[^"]+\.(?:jpg|jpeg|png|webp))', content)
+
+                for img_url in set(cou_imgs):
+                    # Skip thumbnails and non-event images
+                    if '/thul-' in img_url or '/mini-' in img_url or 'exterior' in img_url:
                         continue
 
-                # Also try to extract from JSON-LD or other structured data
-                scripts = page.query_selector_all('script[type="application/ld+json"]')
-                for script in scripts:
-                    try:
-                        content = script.inner_text()
-                        data = json.loads(content)
-                        items = data if isinstance(data, list) else [data]
-                        for item in items:
-                            if item.get("@type") == "Event":
-                                name = item.get("name", "").lower().strip()
-                                image = item.get("image", "")
-                                if name and image:
-                                    image_map[name] = image
-                    except Exception:
-                        continue
+                    # Extract artist name from filename pattern: cou-ARTIST-NAME-...
+                    # Examples: cou-kaleo-1920x1080.jpg, cou-jo-dee-messina-1920x1080.png
+                    match = re.search(r'cou-(?:entertainment-|shows-stir-cove-)?([a-z0-9-]+?)(?:-\d+x\d+)?\.(?:jpg|jpeg|png|webp)', img_url.lower())
+                    if match:
+                        artist_slug = match.group(1)
+                        # Convert slug to searchable name (e.g., "jo-dee-messina" -> "jo dee messina")
+                        artist_name = artist_slug.replace('-', ' ').strip()
+                        if artist_name and artist_name not in ['brett', 'michaels']:  # Skip generic promo images
+                            image_map[artist_name] = img_url
 
                 browser.close()
         except Exception as e:
