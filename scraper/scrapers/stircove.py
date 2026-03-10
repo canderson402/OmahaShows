@@ -1,7 +1,8 @@
 # scraper/scrapers/stircove.py
 """
 Stir Concert Cove scraper.
-Uses stircoveamp.com for event data and Playwright to fetch images from caesars.com
+Uses stircoveamp.com for event data and Playwright to fetch images + Ticketmaster links from caesars.com
+(stircoveamp.com ticket links go to a scam site, so we use real Ticketmaster links from Caesars)
 """
 import json
 import re
@@ -22,24 +23,27 @@ class StirCoveScraper(BaseScraper):
     caesars_url = "https://www.caesars.com/harrahs-council-bluffs/shows"
 
     def scrape(self) -> list[Event]:
-        """Override to use Playwright for image fetching from Caesars."""
+        """Override to use Playwright for images and Ticketmaster links from Caesars."""
         # First, fetch event data from stircoveamp.com (simple HTML)
         html = self.fetch_html()
         events = self.parse_events(html)
 
-        # Then use Playwright to get images from Caesars
-        image_map = self._fetch_caesars_images()
+        # Then use Playwright to get images AND ticket URLs from Caesars
+        # (stircoveamp.com ticket links redirect to a scam site)
+        caesars_data = self._fetch_caesars_data()
 
-        # Match images to events
+        # Match images and ticket URLs to events
         for event in events:
-            if not event.imageUrl:
-                # Try to find matching image from Caesars
-                event_title_lower = event.title.lower().strip()
-                for caesars_title, image_url in image_map.items():
-                    # Fuzzy match - check if titles overlap
-                    if self._titles_match(event_title_lower, caesars_title):
-                        event.imageUrl = image_url
-                        break
+            event_title_lower = event.title.lower().strip()
+            for caesars_title, data in caesars_data.items():
+                if self._titles_match(event_title_lower, caesars_title):
+                    # Use Caesars image if we don't have one
+                    if not event.imageUrl and data.get('image'):
+                        event.imageUrl = data['image']
+                    # Always use Ticketmaster link instead of scam site
+                    if data.get('ticket_url'):
+                        event.ticketUrl = data['ticket_url']
+                    break
 
         return events
 
@@ -84,9 +88,12 @@ class StirCoveScraper(BaseScraper):
         # If more than half the words match, consider it a match
         return len(overlap) >= min(len(words1), len(words2)) * 0.5
 
-    def _fetch_caesars_images(self) -> dict[str, str]:
-        """Use Playwright to fetch images from Caesars site."""
-        image_map = {}
+    def _fetch_caesars_data(self) -> dict[str, dict]:
+        """Use Playwright to fetch images and Ticketmaster links from Caesars site.
+
+        Returns dict mapping artist name -> {'image': url, 'ticket_url': url}
+        """
+        data_map = {}
 
         try:
             with sync_playwright() as p:
@@ -114,29 +121,52 @@ class StirCoveScraper(BaseScraper):
 
                 content = page.content()
 
-                # Find Council Bluffs event images (cou- prefix)
-                cou_imgs = re.findall(r'(https://assets\.caesars\.com/[^"]+cou-[^"]+\.(?:jpg|jpeg|png|webp))', content)
+                # Find Council Bluffs event images (cou- prefix) and nearby Ticketmaster links
+                img_matches = list(re.finditer(r'cou-(?:entertainment-|shows-stir-cove-)?([a-z0-9-]+?)(?:-\d+x\d+)?\.(jpg|jpeg|png|webp)', content, re.I))
 
-                for img_url in set(cou_imgs):
+                for img_match in img_matches:
+                    full_match = img_match.group(0)
+                    artist_slug = img_match.group(1)
+
                     # Skip thumbnails and non-event images
-                    if '/thul-' in img_url or '/mini-' in img_url or 'exterior' in img_url:
+                    if 'thul-' in content[max(0, img_match.start()-50):img_match.start()]:
+                        continue
+                    if artist_slug in ['exterior', 'brett', 'michaels']:
                         continue
 
-                    # Extract artist name from filename pattern: cou-ARTIST-NAME-...
-                    # Examples: cou-kaleo-1920x1080.jpg, cou-jo-dee-messina-1920x1080.png
-                    match = re.search(r'cou-(?:entertainment-|shows-stir-cove-)?([a-z0-9-]+?)(?:-\d+x\d+)?\.(?:jpg|jpeg|png|webp)', img_url.lower())
-                    if match:
-                        artist_slug = match.group(1)
-                        # Convert slug to searchable name (e.g., "jo-dee-messina" -> "jo dee messina")
-                        artist_name = artist_slug.replace('-', ' ').strip()
-                        if artist_name and artist_name not in ['brett', 'michaels']:  # Skip generic promo images
-                            image_map[artist_name] = img_url
+                    artist_name = artist_slug.replace('-', ' ').strip()
+                    if not artist_name:
+                        continue
+
+                    # Find the full image URL
+                    img_url_match = re.search(
+                        rf'(https://assets\.caesars\.com/[^"]+{re.escape(full_match)})',
+                        content
+                    )
+                    img_url = img_url_match.group(1) if img_url_match else None
+
+                    # Skip if it's a thumbnail version
+                    if img_url and ('/thul-' in img_url or '/mini-' in img_url):
+                        continue
+
+                    # Look for Ticketmaster link within 5000 chars after the image
+                    nearby_content = content[img_match.start():img_match.start()+5000]
+                    tm_match = re.search(r'ticketmaster\.com/event/([A-Z0-9]+)', nearby_content)
+                    ticket_url = f"https://www.ticketmaster.com/event/{tm_match.group(1)}" if tm_match else None
+
+                    # Store data (don't overwrite if we already have this artist)
+                    if artist_name not in data_map:
+                        data_map[artist_name] = {}
+                    if img_url and 'image' not in data_map[artist_name]:
+                        data_map[artist_name]['image'] = img_url
+                    if ticket_url and 'ticket_url' not in data_map[artist_name]:
+                        data_map[artist_name]['ticket_url'] = ticket_url
 
                 browser.close()
         except Exception as e:
-            print(f"Warning: Failed to fetch Caesars images: {e}")
+            print(f"Warning: Failed to fetch Caesars data: {e}")
 
-        return image_map
+        return data_map
 
     def parse_events(self, html: str) -> list[Event]:
         soup = self.get_soup(html)
@@ -179,16 +209,9 @@ class StirCoveScraper(BaseScraper):
                         else:
                             event_url = href
 
-                # Ticket URL
+                # Skip ticket URLs from stircoveamp.com - they redirect to a scam site
+                # Real Ticketmaster links are fetched from Caesars in scrape()
                 ticket_url = None
-                ticket_link = card.select_one("a.btn-blue")
-                if ticket_link:
-                    href = ticket_link.get("href")
-                    if href:
-                        if href.startswith("/"):
-                            ticket_url = f"https://www.stircoveamp.com{href}"
-                        else:
-                            ticket_url = href
 
                 # Generate ID
                 slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
