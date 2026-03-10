@@ -13,7 +13,7 @@ import { SubmitShowForm } from "./components/SubmitShowForm";
 import { useDebounce } from "./hooks/useDebounce";
 import { useSavedShows } from "./hooks/useSavedShows";
 import { trackViewChange } from "./analytics";
-import { getEvents, getHistory, getSources, getEventById, type HistoryFilter } from "./lib/supabase";
+import { getEvents, getHistory, getSources, getEventById, getFullEventsByIds, type HistoryFilter } from "./lib/supabase";
 import { LoginPage } from "./pages/LoginPage";
 import { AdminPage } from "./pages/AdminPage";
 import { SubmissionPage } from "./pages/SubmissionPage";
@@ -54,66 +54,59 @@ const getRecentlyAddedIds = (events: Event[]): Set<string> => {
 
 const EVENTS_PER_PAGE = 20;
 
-// Generate a stable ID for a historical show (must match HistoryList)
-function generateShowId(show: HistoricalShow): string {
-  const slug = show.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const venueSlug = show.venue.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return `${venueSlug}-${show.date}-${slug}`;
-}
-
-// Convert a HistoricalShow to an Event-like object for display
-function historyShowToEvent(show: HistoricalShow): Event {
-  return {
-    id: generateShowId(show),
-    title: show.title,
-    date: show.date,
-    venue: show.venue,
-    supportingArtists: show.supportingArtists,
-    source: 'history',
-  };
-}
-
 // My Shows list component
 function MyShowsList({
-  events,
-  historyShows,
   savedIds,
   venueColors,
   onToggleSave,
 }: {
-  events: Event[];
-  historyShows: HistoricalShow[];
   savedIds: string[];
   venueColors: typeof VENUE_COLORS;
   onToggleSave: (id: string) => void;
 }) {
+  const [savedEvents, setSavedEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Get today's date string for comparison
   const today = useMemo(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }, []);
 
-  // Filter events to only saved ones, also include saved history shows
-  const savedEvents = useMemo(() => {
-    const savedSet = new Set(savedIds);
+  // Fetch saved events directly from database when savedIds change
+  useEffect(() => {
+    if (savedIds.length === 0) {
+      setSavedEvents([]);
+      setLoading(false);
+      return;
+    }
 
-    // Get saved events from main events list
-    const fromEvents = events.filter((e) => savedSet.has(e.id));
+    const fetchSavedEvents = async () => {
+      setLoading(true);
+      try {
+        const events = await getFullEventsByIds(savedIds);
+        setSavedEvents(events);
+      } catch (err) {
+        console.error("Failed to fetch saved events:", err);
+        setSavedEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Get saved events from history (convert to Event format)
-    const fromHistory = historyShows
-      .filter((show) => savedSet.has(generateShowId(show)))
-      .map(historyShowToEvent);
-
-    // Combine and deduplicate by ID, then sort by date
-    const combined = [...fromEvents, ...fromHistory];
-    const uniqueById = Array.from(new Map(combined.map(e => [e.id, e])).values());
-
-    return uniqueById.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [events, historyShows, savedIds]);
+    fetchSavedEvents();
+  }, [savedIds]);
 
   // Check if an event is expired
   const isExpired = useCallback((event: Event) => event.date < today, [today]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="w-8 h-8 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (savedEvents.length === 0) {
     return (
@@ -334,10 +327,10 @@ function HomePage() {
     }
   }, [loadingMoreHistory, hasMoreHistory, historyShows.length, historyTimeFilter]);
 
-  // Lazy load history - when on history view, myshows view (to show saved history items), or changes filter
+  // Lazy load history when on history view
   useEffect(() => {
     if (!dataLoaded) return;
-    if (view !== 'history' && view !== 'myshows') return; // Load for history or myshows view
+    if (view !== 'history') return;
 
     const loadHistory = async () => {
       setLoadingHistory(true);
@@ -543,7 +536,7 @@ function HomePage() {
                   {view === "events" ? (
                     <EventList events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={VENUE_COLORS} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} isSaved={isSaved} onToggleSave={handleToggleSave} />
                   ) : view === "myshows" ? (
-                    <MyShowsList events={events} historyShows={historyShows} savedIds={savedIds} venueColors={VENUE_COLORS} onToggleSave={handleToggleSave} />
+                    <MyShowsList savedIds={savedIds} venueColors={VENUE_COLORS} onToggleSave={handleToggleSave} />
                   ) : view === "history" ? (
                     loadingHistory && !historyLoaded ? (
                       <div className="flex justify-center py-12">

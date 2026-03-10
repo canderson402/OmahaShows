@@ -92,20 +92,27 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
     ]
 
     for event in events:
+        # Get the actual venue_id for this event
+        # For discovery scrapers (ohmyomaha), event.source contains the matched venue_id
+        event_venue_id = event.source if event.source and event.source != scraper_id else scraper_id
+
         # Get all events for this venue + date for fuzzy matching
-        db_events = get_events_by_venue_date(scraper_id, event.date)
+        db_events = get_events_by_venue_date(event_venue_id, event.date)
 
         # Try fuzzy match first
         existing = find_existing_event(event, db_events)
 
         # Build event data
+        # For discovery scrapers (ohmyomaha), use event.source as venue_id
+        # For venue-specific scrapers, use scraper_id
+        venue_id = event.source if event.source and event.source != scraper_id else scraper_id
         event_data = {
             "id": event.id,
             "title": event.title,
             "date": event.date,
             "time": event.time,
-            "venue_id": scraper_id,
-            "venue_name": event.venue if scraper_id == 'other' else None,
+            "venue_id": venue_id,
+            "venue_name": event.venue if venue_id == 'other' else None,
             "event_url": event.eventUrl,
             "ticket_url": event.ticketUrl,
             "image_url": event.imageUrl,

@@ -543,6 +543,22 @@ export async function getEventsByIds(ids: string[]): Promise<{ id: string; title
   return data || []
 }
 
+// Get full events by IDs (for My Shows - includes all event data)
+export async function getFullEventsByIds(ids: string[]): Promise<Event[]> {
+  if (!ids.length) return []
+
+  const venues = await getVenues()
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .in('id', ids)
+    .order('date', { ascending: true })
+
+  if (error) throw error
+  return (data || []).map(e => toAppEvent(e, venues))
+}
+
 // Minimal event type for calendar (no image loading)
 export interface CalendarEvent {
   id: string
