@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import type { CalendarEvent } from "../lib/supabase";
 import { outboundClickProps } from "../analytics";
 
-type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+// VenueColors is now just venue_id -> hex color
+type VenueColors = Record<string, string>;
 
 interface DayEventsSheetProps {
   isOpen: boolean;
@@ -122,9 +123,7 @@ export function DayEventsSheet({
             </p>
           ) : (
             events.map((event, idx) => {
-              const colors = venueColors[event.source] || {
-                text: "text-gray-400",
-              };
+              const venueHex = venueColors[event.source] || "#9ca3af";
               const isLast = idx === events.length - 1;
               const listingUrl = event.eventUrl || event.ticketUrl;
 
@@ -159,12 +158,13 @@ export function DayEventsSheet({
                             href={event.venueUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`${colors.text} hover:underline`}
+                            className="hover:underline"
+                            style={{ color: venueHex }}
                           >
                             {event.venue}
                           </a>
                         ) : (
-                          <span className={colors.text}>{event.venue}</span>
+                          <span style={{ color: venueHex }}>{event.venue}</span>
                         )}
                         <span className="text-gray-600"> · </span>
                         {formatTime(event.time)}

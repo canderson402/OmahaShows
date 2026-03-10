@@ -52,9 +52,7 @@ interface DbVenue {
   city: string
   state: string
   website_url: string | null
-  color_bg: string | null
-  color_text: string | null
-  color_border: string | null
+  color_hex: string | null
   active: boolean
 }
 
@@ -311,6 +309,7 @@ export async function getSources(): Promise<SourceStatus[]> {
     status: 'ok' as const,
     lastScraped: new Date().toISOString(),
     eventCount: countMap[v.id] || 0,
+    colorHex: v.color_hex || '#6b7280',
   }))
 
   sourcesCache.set(cacheKey, result)

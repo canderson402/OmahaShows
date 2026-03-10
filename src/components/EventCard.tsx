@@ -1,7 +1,8 @@
 // web/src/components/EventCard.tsx
 import type { Event } from "../types";
 
-type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+// VenueColors is now just venue_id -> hex color
+type VenueColors = Record<string, string>;
 
 interface EventCardProps {
   event: Event;
@@ -84,12 +85,13 @@ export function EventCard({ event, venueColors }: EventCardProps) {
               href={event.venueUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${venueColors?.[event.source]?.text || "text-gray-400"} hover:underline`}
+              className="hover:underline"
+              style={{ color: venueColors?.[event.source] || "#9ca3af" }}
             >
               {event.venue}
             </a>
           ) : (
-            <span className={venueColors?.[event.source]?.text || "text-gray-400"}>{event.venue}</span>
+            <span style={{ color: venueColors?.[event.source] || "#9ca3af" }}>{event.venue}</span>
           )}
           {event.price && (
             <>

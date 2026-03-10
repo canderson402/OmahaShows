@@ -557,7 +557,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
               ) : pendingEvents.length === 0 ? null : (
                 <div className="divide-y divide-gray-800">
                   {pendingEvents.map((event) => {
-                    const colors = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other;
+                    const venueHex = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other || "#10b981";
                     const venueName = venues.find(v => v.id === event.venue_id)?.name || event.venue_id;
                     const formatTime12 = (timeStr?: string | null) => {
                       if (!timeStr) return null;
@@ -605,7 +605,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                   )}
                                 </span>
                               ) : (
-                                <span className={colors.text}>{venueName}</span>
+                                <span style={{ color: venueHex }}>{venueName}</span>
                               )}
                             </p>
                             {event.price && <p className="text-gray-500 text-sm mt-1">{event.price}</p>}
@@ -723,7 +723,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                   )}
                                 </span>
                               ) : (
-                                <span className={colors.text}>{venueName}</span>
+                                <span style={{ color: venueHex }}>{venueName}</span>
                               )}
                             </p>
                             {event.price && <p className="text-gray-500 text-sm mt-1">{event.price}</p>}
@@ -817,7 +817,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
               <div className="divide-y divide-gray-800">
                 {currentEvents.map((event) => {
-                  const colors = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other;
+                  const venueHex = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other || "#10b981";
                   const venueName = venues.find(v => v.id === event.venue_id)?.name || event.venue_id;
                   return (
                     <div
@@ -831,7 +831,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                         </span>
                         <span className="text-sm text-white truncate">{event.title}</span>
                       </div>
-                      <span className={`text-xs sm:text-sm ${colors.text} flex-shrink-0`}>
+                      <span className="text-xs sm:text-sm flex-shrink-0" style={{ color: venueHex }}>
                         {venueName}
                       </span>
                       <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center">

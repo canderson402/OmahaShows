@@ -13,9 +13,7 @@ CREATE TABLE venues (
   website_url TEXT,
   image_url TEXT,                   -- Venue photo
   capacity INTEGER,
-  color_bg TEXT,                    -- Tailwind class e.g., 'bg-amber-500/20'
-  color_text TEXT,                  -- Tailwind class e.g., 'text-amber-400'
-  color_border TEXT,                -- Tailwind class e.g., 'border-amber-500'
+  color_hex TEXT DEFAULT '#6b7280', -- Hex color e.g., '#f59e0b'
   active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -76,20 +74,20 @@ CREATE INDEX idx_scraper_runs_started ON scraper_runs(started_at DESC);
 CREATE INDEX idx_subscribers_email ON subscribers(email);
 
 -- Seed venue data
-INSERT INTO venues (id, name, address, city, state, website_url, color_bg, color_text, color_border) VALUES
-  ('theslowdown', 'The Slowdown', '729 N 14th St', 'Omaha', 'NE', 'https://theslowdown.com', 'bg-amber-500/20', 'text-amber-400', 'border-amber-500'),
-  ('waitingroom', 'Waiting Room', '6212 Maple St', 'Omaha', 'NE', 'https://waitingroomlounge.com', 'bg-orange-500/20', 'text-orange-400', 'border-orange-500'),
-  ('reverblounge', 'Reverb Lounge', '6121 Military Ave', 'Omaha', 'NE', 'https://reverbloungeomaha.com', 'bg-rose-500/20', 'text-rose-400', 'border-rose-500'),
-  ('bourbontheatre', 'Bourbon Theatre', '1415 O St', 'Lincoln', 'NE', 'https://bourbontheatre.com', 'bg-pink-500/20', 'text-pink-400', 'border-pink-500'),
-  ('admiral', 'The Admiral', '1516 S St', 'Omaha', 'NE', 'https://admiralomaha.com', 'bg-fuchsia-500/20', 'text-fuchsia-400', 'border-fuchsia-500'),
-  ('astrotheater', 'The Astro', '2001 N 72nd St', 'Omaha', 'NE', 'https://astrotheateromaha.com', 'bg-purple-500/20', 'text-purple-400', 'border-purple-500'),
-  ('steelhouse', 'Steelhouse Omaha', '2002 N 72nd St', 'Omaha', 'NE', 'https://steelhouseomaha.com', 'bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500'),
-  ('holland', 'Holland Center', '1200 Douglas St', 'Omaha', 'NE', 'https://omahaperformingarts.org', 'bg-teal-500/20', 'text-teal-400', 'border-teal-500'),
-  ('orpheum', 'Orpheum Theater', '409 S 16th St', 'Omaha', 'NE', 'https://omahaperformingarts.org', 'bg-indigo-500/20', 'text-indigo-400', 'border-indigo-500'),
-  ('barnato', 'Barnato', '6209 Maple St', 'Omaha', 'NE', 'https://barnatoomaha.com', 'bg-lime-500/20', 'text-lime-400', 'border-lime-500'),
-  ('baxterarena', 'Baxter Arena', '2425 S 67th St', 'Omaha', 'NE', 'https://www.baxterarena.com', 'bg-red-500/20', 'text-red-400', 'border-red-500'),
-  ('stircove', 'Stir Concert Cove', '1 Harrahs Blvd', 'Council Bluffs', 'IA', 'https://www.caesars.com/harrahs-council-bluffs/shows', 'bg-yellow-500/20', 'text-yellow-400', 'border-yellow-500'),
-  ('other', 'Other', NULL, 'Omaha', 'NE', NULL, 'bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500');
+INSERT INTO venues (id, name, address, city, state, website_url, color_hex) VALUES
+  ('theslowdown', 'The Slowdown', '729 N 14th St', 'Omaha', 'NE', 'https://theslowdown.com', '#f59e0b'),
+  ('waitingroom', 'Waiting Room', '6212 Maple St', 'Omaha', 'NE', 'https://waitingroomlounge.com', '#f97316'),
+  ('reverblounge', 'Reverb Lounge', '6121 Military Ave', 'Omaha', 'NE', 'https://reverbloungeomaha.com', '#f43f5e'),
+  ('bourbontheatre', 'Bourbon Theatre', '1415 O St', 'Lincoln', 'NE', 'https://bourbontheatre.com', '#ec4899'),
+  ('admiral', 'The Admiral', '1516 S St', 'Omaha', 'NE', 'https://admiralomaha.com', '#d946ef'),
+  ('astrotheater', 'The Astro', '2001 N 72nd St', 'Omaha', 'NE', 'https://astrotheateromaha.com', '#a855f7'),
+  ('steelhouse', 'Steelhouse Omaha', '2002 N 72nd St', 'Omaha', 'NE', 'https://steelhouseomaha.com', '#06b6d4'),
+  ('holland', 'Holland Center', '1200 Douglas St', 'Omaha', 'NE', 'https://omahaperformingarts.org', '#14b8a6'),
+  ('orpheum', 'Orpheum Theater', '409 S 16th St', 'Omaha', 'NE', 'https://omahaperformingarts.org', '#6366f1'),
+  ('barnato', 'Barnato', '6209 Maple St', 'Omaha', 'NE', 'https://barnatoomaha.com', '#84cc16'),
+  ('baxterarena', 'Baxter Arena', '2425 S 67th St', 'Omaha', 'NE', 'https://www.baxterarena.com', '#ef4444'),
+  ('stircove', 'Stir Concert Cove', '1 Harrahs Blvd', 'Council Bluffs', 'IA', 'https://www.stircoveamp.com', '#eab308'),
+  ('other', 'Other', NULL, 'Omaha', 'NE', NULL, '#10b981');
 
 -- Updated at trigger
 CREATE OR REPLACE FUNCTION update_updated_at()

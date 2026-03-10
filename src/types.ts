@@ -27,6 +27,7 @@ export interface SourceStatus {
   lastScraped: string;
   eventCount: number;
   error?: string;
+  colorHex?: string;
 }
 
 export interface EventsData {

@@ -6,7 +6,8 @@ import { EventCardCompact } from "./EventCardCompact";
 
 const EVENTS_PER_PAGE = 15;
 
-type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+// VenueColors is now just venue_id -> hex color
+type VenueColors = Record<string, string>;
 
 interface EventListProps {
   events: Event[];

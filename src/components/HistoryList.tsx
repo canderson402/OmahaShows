@@ -3,7 +3,8 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import type { HistoricalShow } from "../types";
 import type { HistoryTimeFilter } from "./FiltersDropdown";
 
-type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+// VenueColors is now just venue_id -> hex color
+type VenueColors = Record<string, string>;
 type VenueUrls = Record<string, string>;
 
 interface HistoryListProps {
@@ -265,7 +266,7 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
                       </button>
                       {!isDayCollapsed && day.shows.map((show, idx) => {
                         const venueId = getVenueId(show.venue);
-                        const colors = venueColors[venueId] || { text: "text-gray-400" };
+                        const venueHex = venueColors[venueId] || "#9ca3af";
                         const venueUrl = venueUrls?.[venueId];
                         const isLast = idx === day.shows.length - 1;
                         const showId = generateShowId(show);
@@ -282,12 +283,13 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
                                   href={venueUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className={`text-xs ${colors.text} flex-shrink-0 hover:underline`}
+                                  className="text-xs flex-shrink-0 hover:underline"
+                                  style={{ color: venueHex }}
                                 >
                                   {show.venue}
                                 </a>
                               ) : (
-                                <span className={`text-xs ${colors.text} flex-shrink-0`}>
+                                <span className="text-xs flex-shrink-0" style={{ color: venueHex }}>
                                   {show.venue}
                                 </span>
                               )}

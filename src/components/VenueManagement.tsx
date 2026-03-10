@@ -6,27 +6,6 @@ function generateVenueId(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '').replace(/^-|-$/g, '');
 }
 
-// Color palette for auto-generation (warm/cool tones that work well together)
-const COLOR_PALETTE = [
-  "#f59e0b", // amber
-  "#f97316", // orange
-  "#f43f5e", // rose
-  "#ec4899", // pink
-  "#d946ef", // fuchsia
-  "#a855f7", // purple
-  "#06b6d4", // cyan
-  "#14b8a6", // teal
-  "#6366f1", // indigo
-  "#84cc16", // lime
-  "#10b981", // emerald
-  "#0ea5e9", // sky
-  "#ef4444", // red
-  "#eab308", // yellow
-  "#22c55e", // green
-  "#3b82f6", // blue
-  "#8b5cf6", // violet
-];
-
 // Convert hex to rgba for background with opacity
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -44,9 +23,7 @@ interface Venue {
   city: string;
   state: string;
   website_url: string | null;
-  color_bg: string | null;
-  color_text: string | null;
-  color_border: string | null;
+  color_hex: string | null;
   active: boolean;
   aliases: string[] | null;
 }
@@ -59,7 +36,7 @@ interface VenueForm {
   city: string;
   state: string;
   website_url: string;
-  hexColor: string;
+  colorHex: string;
   active: boolean;
   aliases: string[];
 }
@@ -71,30 +48,10 @@ const DEFAULT_FORM: VenueForm = {
   city: "Omaha",
   state: "NE",
   website_url: "",
-  hexColor: "#6b7280",
+  colorHex: "#6b7280",
   active: true,
   aliases: [],
 };
-
-// Extract hex from existing Tailwind class or return default
-function extractHexFromTailwind(colorClass: string | null): string {
-  if (!colorClass) return "#6b7280";
-  // Match arbitrary hex like bg-[#f59e0b]/20 or text-[#f59e0b]
-  const match = colorClass.match(/#[0-9a-fA-F]{6}/);
-  if (match) return match[0];
-  // Map known Tailwind colors
-  const tailwindToHex: Record<string, string> = {
-    amber: "#f59e0b", orange: "#f97316", rose: "#f43f5e", pink: "#ec4899",
-    fuchsia: "#d946ef", purple: "#a855f7", cyan: "#06b6d4", teal: "#14b8a6",
-    indigo: "#6366f1", lime: "#84cc16", emerald: "#10b981", sky: "#0ea5e9",
-    gray: "#6b7280", red: "#ef4444", yellow: "#eab308", green: "#22c55e",
-    blue: "#3b82f6", violet: "#8b5cf6",
-  };
-  for (const [name, hex] of Object.entries(tailwindToHex)) {
-    if (colorClass.includes(name)) return hex;
-  }
-  return "#6b7280";
-}
 
 export function VenueManagement() {
   const [venues, setVenues] = useState<Venue[]>([]);
@@ -105,12 +62,6 @@ export function VenueManagement() {
   const [form, setForm] = useState<VenueForm>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Track original colors to preserve them if unchanged
-  const [originalColors, setOriginalColors] = useState<{
-    color_bg: string | null;
-    color_text: string | null;
-    color_border: string | null;
-  } | null>(null);
 
   // Fetch all venues (including inactive)
   const fetchVenues = useCallback(async () => {
@@ -152,7 +103,6 @@ export function VenueManagement() {
   const openAddModal = () => {
     setEditingVenue(null);
     setForm(DEFAULT_FORM);
-    setOriginalColors(null);
     setError(null);
     setModalOpen(true);
   };
@@ -167,14 +117,9 @@ export function VenueManagement() {
       city: venue.city,
       state: venue.state,
       website_url: venue.website_url || "",
-      hexColor: extractHexFromTailwind(venue.color_text),
+      colorHex: venue.color_hex || "#6b7280",
       active: venue.active,
       aliases: venue.aliases || [],
-    });
-    setOriginalColors({
-      color_bg: venue.color_bg,
-      color_text: venue.color_text,
-      color_border: venue.color_border,
     });
     setError(null);
     setModalOpen(true);
@@ -185,7 +130,6 @@ export function VenueManagement() {
     setModalOpen(false);
     setEditingVenue(null);
     setForm(DEFAULT_FORM);
-    setOriginalColors(null);
     setError(null);
   };
 
@@ -206,12 +150,6 @@ export function VenueManagement() {
 
     // Generate ID from name for new venues
     const venueId = editingVenue ? editingVenue.id : generateVenueId(form.name);
-    // Use form hex color, generate Tailwind-style classes
-    const hex = form.hexColor;
-
-    // Check if color has changed from original - preserve original if unchanged
-    const originalHex = originalColors?.color_text ? extractHexFromTailwind(originalColors.color_text) : null;
-    const colorChanged = !editingVenue || !originalColors || hex !== originalHex;
 
     const venueData = {
       id: venueId,
@@ -221,10 +159,7 @@ export function VenueManagement() {
       city: form.city.trim(),
       state: form.state.trim(),
       website_url: form.website_url.trim() || null,
-      // Preserve original colors if unchanged, otherwise use new hex format
-      color_bg: colorChanged ? `bg-[${hex}]/20` : originalColors!.color_bg,
-      color_text: colorChanged ? `text-[${hex}]` : originalColors!.color_text,
-      color_border: colorChanged ? `border-[${hex}]` : originalColors!.color_border,
+      color_hex: form.colorHex,
       active: form.active,
       aliases: form.aliases.length > 0 ? form.aliases : null,
     };
@@ -241,9 +176,7 @@ export function VenueManagement() {
             city: venueData.city,
             state: venueData.state,
             website_url: venueData.website_url,
-            color_bg: venueData.color_bg,
-            color_text: venueData.color_text,
-            color_border: venueData.color_border,
+            color_hex: venueData.color_hex,
             active: venueData.active,
             aliases: venueData.aliases,
           })
@@ -270,15 +203,6 @@ export function VenueManagement() {
     } finally {
       setSaving(false);
     }
-  };
-
-  // Get color classes for a venue
-  const getVenueColors = (venue: Venue) => {
-    return {
-      bg: venue.color_bg || "bg-gray-500/20",
-      text: venue.color_text || "text-gray-400",
-      border: venue.color_border || "border-gray-500",
-    };
   };
 
   return (
@@ -333,15 +257,21 @@ export function VenueManagement() {
       ) : (
         <div className="divide-y divide-gray-800">
           {filteredVenues.map((venue) => {
-            const colors = getVenueColors(venue);
+            const hex = venue.color_hex || "#6b7280";
             return (
               <div
                 key={venue.id}
                 onClick={() => openEditModal(venue)}
                 className="flex items-center gap-3 py-3 hover:bg-white/5 cursor-pointer transition-colors -mx-2 px-2"
               >
+                {/* Color swatch */}
+                <div
+                  className="w-4 h-4 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: hex }}
+                />
+
                 {/* Venue ID badge with color */}
-                <span className={`text-sm ${colors.text} flex-shrink-0 min-w-[100px]`}>
+                <span className="text-sm flex-shrink-0 min-w-[100px]" style={{ color: hex }}>
                   {venue.id}
                 </span>
 
@@ -547,29 +477,20 @@ export function VenueManagement() {
               {/* Color */}
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Color</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 flex gap-2">
-                    <input
-                      type="color"
-                      value={form.hexColor}
-                      onChange={(e) => updateForm("hexColor", e.target.value)}
-                      className="w-12 h-10 bg-gray-800 border border-gray-700 rounded-lg cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={form.hexColor}
-                      onChange={(e) => updateForm("hexColor", e.target.value)}
-                      placeholder="#6b7280"
-                      className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500 font-mono"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => updateForm("hexColor", COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)])}
-                    className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition-colors"
-                  >
-                    Generate
-                  </button>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={form.colorHex}
+                    onChange={(e) => updateForm("colorHex", e.target.value)}
+                    className="w-12 h-10 bg-gray-800 border border-gray-700 rounded-lg cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={form.colorHex}
+                    onChange={(e) => updateForm("colorHex", e.target.value)}
+                    placeholder="#6b7280"
+                    className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500 font-mono"
+                  />
                 </div>
                 {/* Preview */}
                 <div className="mt-2 flex items-center gap-2">
@@ -577,9 +498,9 @@ export function VenueManagement() {
                   <span
                     className="text-xs px-2 py-0.5 rounded border"
                     style={{
-                      backgroundColor: hexToRgba(form.hexColor, 0.2),
-                      color: form.hexColor,
-                      borderColor: form.hexColor,
+                      backgroundColor: hexToRgba(form.colorHex, 0.2),
+                      color: form.colorHex,
+                      borderColor: form.colorHex,
                     }}
                   >
                     {editingVenue?.id || generateVenueId(form.name) || "venue-id"}

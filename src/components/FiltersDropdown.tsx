@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import { trackFilterApplied } from "../analytics";
 
-type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+// VenueColors is now just venue_id -> hex color
+type VenueColors = Record<string, string>;
 
 export type TimeFilter = "all" | "today" | "week" | "just-added";
 export type HistoryTimeFilter = "all" | "30days" | "90days" | "year" | "this-year";
@@ -205,7 +206,7 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
         </div>
         <div className="space-y-1">
           {venues.map((v) => {
-            const colors = venueColors[v.id] || { bg: "bg-gray-500/20", text: "text-gray-400", border: "border-gray-500" };
+            const hexColor = venueColors[v.id] || "#9ca3af";
             const isEnabled = enabledVenues.has(v.id);
             return (
               <button
@@ -215,7 +216,7 @@ export function FiltersDropdown(props: FiltersDropdownProps) {
                   isEnabled ? "" : "opacity-40"
                 }`}
               >
-                <span className={isEnabled ? colors.text : "text-gray-500"}>
+                <span style={{ color: isEnabled ? hexColor : "#6b7280" }}>
                   {v.name}
                 </span>
                 {isEnabled && (

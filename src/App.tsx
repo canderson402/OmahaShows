@@ -22,23 +22,36 @@ type View = "events" | "history" | "calendar" | "submit" | "myshows";
 type Layout = "compact" | "full";
 type TimeFilter = "all" | "today" | "week" | "just-added";
 
-// Venue colors - matching the OMAHA gradient (amber -> rose -> purple)
-export const VENUE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  theslowdown: { bg: "bg-amber-500/20", text: "text-amber-400", border: "border-amber-500" },
-  waitingroom: { bg: "bg-orange-500/20", text: "text-orange-400", border: "border-orange-500" },
-  reverblounge: { bg: "bg-rose-500/20", text: "text-rose-400", border: "border-rose-500" },
-  bourbontheatre: { bg: "bg-pink-500/20", text: "text-pink-400", border: "border-pink-500" },
-  admiral: { bg: "bg-fuchsia-500/20", text: "text-fuchsia-400", border: "border-fuchsia-500" },
-  astrotheater: { bg: "bg-purple-500/20", text: "text-purple-400", border: "border-purple-500" },
-  steelhouse: { bg: "bg-cyan-500/20", text: "text-cyan-400", border: "border-cyan-500" },
-  baxterarena: { bg: "bg-red-500/20", text: "text-red-400", border: "border-red-500" },
-  stircove: { bg: "bg-yellow-500/20", text: "text-yellow-400", border: "border-yellow-500" },
-  other: { bg: "bg-emerald-500/20", text: "text-emerald-400", border: "border-emerald-500" },
-  holland: { bg: "bg-teal-500/20", text: "text-teal-400", border: "border-teal-500" },
-  orpheum: { bg: "bg-indigo-500/20", text: "text-indigo-400", border: "border-indigo-500" },
-  barnato: { bg: "bg-lime-500/20", text: "text-lime-400", border: "border-lime-500" },
-  ohmyomaha: { bg: "bg-sky-500/20", text: "text-sky-400", border: "border-sky-500" },
+// Venue colors type - hex string per venue
+export type VenueColors = Record<string, string>;
+
+// Default venue colors (fallback if database not loaded yet)
+const DEFAULT_VENUE_COLORS: VenueColors = {
+  theslowdown: "#f59e0b",
+  waitingroom: "#f97316",
+  reverblounge: "#f43f5e",
+  bourbontheatre: "#ec4899",
+  admiral: "#d946ef",
+  astrotheater: "#a855f7",
+  steelhouse: "#06b6d4",
+  baxterarena: "#ef4444",
+  stircove: "#eab308",
+  other: "#10b981",
+  holland: "#14b8a6",
+  orpheum: "#6366f1",
+  barnato: "#84cc16",
 };
+
+// Helper to convert hex to rgba for backgrounds
+export function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// For backwards compatibility - will be removed once all components use inline styles
+export const VENUE_COLORS = DEFAULT_VENUE_COLORS;
 
 // Build a set of recently added event IDs (within last 7 days, after launch date)
 const getRecentlyAddedIds = (events: Event[]): Set<string> => {
@@ -63,7 +76,7 @@ function MyShowsList({
   onToggleSave,
 }: {
   savedIds: string[];
-  venueColors: typeof VENUE_COLORS;
+  venueColors: VenueColors;
   onToggleSave: (id: string) => void;
 }) {
   const [savedEvents, setSavedEvents] = useState<Event[]>([]);
@@ -154,7 +167,7 @@ function MyShowsList({
           <div className="text-sm text-gray-500 font-medium mb-2">Past Shows</div>
           <div className="divide-y divide-gray-800/50">
             {pastShows.map((event) => {
-              const colors = venueColors[event.source] || { text: "text-gray-400" };
+              const venueHex = venueColors[event.source] || "#9ca3af";
               const formatDate = (dateStr: string) => {
                 const date = new Date(dateStr + "T00:00:00");
                 return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -163,7 +176,7 @@ function MyShowsList({
                 <div key={event.id} className="py-2 flex items-center gap-3 opacity-60">
                   <span className="text-xs text-gray-500 w-14 flex-shrink-0">{formatDate(event.date)}</span>
                   <span className="text-white flex-1 truncate">{event.title}</span>
-                  <span className={`text-xs ${colors.text} flex-shrink-0`}>{event.venue}</span>
+                  <span className="text-xs flex-shrink-0" style={{ color: venueHex }}>{event.venue}</span>
                   <button
                     onClick={() => onToggleSave(event.id)}
                     className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-green-500/90 text-white"
@@ -393,6 +406,15 @@ function HomePage() {
     return urls;
   }, [sources]);
 
+  // Build venue colors from database (with fallback to defaults)
+  const venueColors = useMemo(() => {
+    const colors: VenueColors = { ...DEFAULT_VENUE_COLORS };
+    for (const s of sources) {
+      if (s.colorHex) colors[s.id] = s.colorHex;
+    }
+    return colors;
+  }, [sources]);
+
   const justAddedIds = useMemo(() => getRecentlyAddedIds(events), [events]);
   const isJustAdded = useCallback((event: Event) => justAddedIds.has(event.id), [justAddedIds]);
   const justAddedCount = justAddedIds.size;
@@ -515,9 +537,9 @@ function HomePage() {
                         </div>
                       )}
                       {view === "history" ? (
-                        <FiltersDropdown mode="history" venues={venues} enabledVenues={enabledVenues} toggleVenue={toggleVenue} venueColors={VENUE_COLORS} timeFilter={historyTimeFilter} setTimeFilter={setHistoryTimeFilter} isOpen={filtersOpen} onOpenChange={setFiltersOpen} />
+                        <FiltersDropdown mode="history" venues={venues} enabledVenues={enabledVenues} toggleVenue={toggleVenue} venueColors={venueColors} timeFilter={historyTimeFilter} setTimeFilter={setHistoryTimeFilter} isOpen={filtersOpen} onOpenChange={setFiltersOpen} />
                       ) : (
-                        <FiltersDropdown venues={venues} enabledVenues={enabledVenues} toggleVenue={toggleVenue} venueColors={VENUE_COLORS} timeFilter={timeFilter} setTimeFilter={setTimeFilter} justAddedCount={justAddedCount} isOpen={filtersOpen} onOpenChange={setFiltersOpen} />
+                        <FiltersDropdown venues={venues} enabledVenues={enabledVenues} toggleVenue={toggleVenue} venueColors={venueColors} timeFilter={timeFilter} setTimeFilter={setTimeFilter} justAddedCount={justAddedCount} isOpen={filtersOpen} onOpenChange={setFiltersOpen} />
                       )}
                     </div>
                   </div>
@@ -536,19 +558,19 @@ function HomePage() {
                   </div>
 
                   {view === "events" ? (
-                    <EventList events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={VENUE_COLORS} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} isSaved={isSaved} onToggleSave={handleToggleSave} />
+                    <EventList events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={venueColors} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} isSaved={isSaved} onToggleSave={handleToggleSave} />
                   ) : view === "myshows" ? (
-                    <MyShowsList savedIds={savedIds} venueColors={VENUE_COLORS} onToggleSave={handleToggleSave} />
+                    <MyShowsList savedIds={savedIds} venueColors={venueColors} onToggleSave={handleToggleSave} />
                   ) : view === "history" ? (
                     loadingHistory && !historyLoaded ? (
                       <div className="flex justify-center py-12">
                         <div className="w-8 h-8 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
                       </div>
                     ) : (
-                      <HistoryList shows={historyShows} enabledVenues={enabledVenues} searchQuery={debouncedHistorySearch} venueColors={VENUE_COLORS} venueUrls={venueUrls} timeFilter={historyTimeFilter} hasMore={hasMoreHistory} loadingMore={loadingMoreHistory} onLoadMore={loadMoreHistory} />
+                      <HistoryList shows={historyShows} enabledVenues={enabledVenues} searchQuery={debouncedHistorySearch} venueColors={venueColors} venueUrls={venueUrls} timeFilter={historyTimeFilter} hasMore={hasMoreHistory} loadingMore={loadingMoreHistory} onLoadMore={loadMoreHistory} />
                     )
                   ) : (
-                    <CalendarView venueColors={VENUE_COLORS} enabledVenues={enabledVenues} />
+                    <CalendarView venueColors={venueColors} enabledVenues={enabledVenues} />
                   )}
                 </>
               )}

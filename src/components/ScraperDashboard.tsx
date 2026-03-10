@@ -6,7 +6,7 @@ import {
   getEventsByIds,
   type ScraperRun
 } from "../lib/supabase";
-import { VENUE_COLORS } from "../App";
+import { VENUE_COLORS, hexToRgba } from "../App";
 import { Toast } from "./Toast";
 
 // Scraper configuration matching the Python API
@@ -63,7 +63,7 @@ interface ScraperCardProps {
 }
 
 function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode, onRun, onViewResults }: ScraperCardProps) {
-  const colors = VENUE_COLORS[scraper.id] || VENUE_COLORS.other;
+  const venueHex = VENUE_COLORS[scraper.id] || VENUE_COLORS.other || "#10b981";
   const [expanded, setExpanded] = useState(false);
   const [newEvents, setNewEvents] = useState<{ id: string; title: string; date: string }[]>([]);
   const [changedEvents, setChangedEvents] = useState<{ id: string; title: string; date: string }[]>([]);
@@ -125,7 +125,7 @@ function ScraperCard({ scraper, latestRun, isRunning, isTriggered, isGitHubMode,
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={`text-sm font-medium ${colors.text}`}>
+            <span className="text-sm font-medium" style={{ color: venueHex }}>
               {scraper.name}
             </span>
             <span className={`text-xs ${status.color}`}>
@@ -269,7 +269,7 @@ interface ResultsModalProps {
 }
 
 function ResultsModal({ scraper, result, loading, error, onClose }: ResultsModalProps) {
-  const colors = VENUE_COLORS[scraper.id] || VENUE_COLORS.other;
+  const venueHex = VENUE_COLORS[scraper.id] || VENUE_COLORS.other || "#10b981";
   const [viewMode, setViewMode] = useState<'cards' | 'json'>('cards');
 
   return (
@@ -281,7 +281,10 @@ function ResultsModal({ scraper, result, loading, error, onClose }: ResultsModal
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
-            <span className={`text-xs px-2 py-0.5 rounded ${colors.bg} ${colors.text}`}>
+            <span
+              className="text-xs px-2 py-0.5 rounded"
+              style={{ backgroundColor: hexToRgba(venueHex, 0.2), color: venueHex }}
+            >
               {scraper.id}
             </span>
             <h3 className="text-lg font-semibold text-white">{scraper.name}</h3>

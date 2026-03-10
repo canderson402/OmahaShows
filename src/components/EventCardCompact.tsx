@@ -3,7 +3,8 @@ import { memo, useState } from "react";
 import type { Event } from "../types";
 import { outboundClickProps } from "../analytics";
 
-type VenueColors = Record<string, { bg: string; text: string; border: string }>;
+// VenueColors is now just venue_id -> hex color
+type VenueColors = Record<string, string>;
 
 interface EventCardCompactProps {
   event: Event;
@@ -208,12 +209,13 @@ export const EventCardCompact = memo(function EventCardCompact({
                 href={event.venueUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${venueColors?.[event.source]?.text || "text-gray-400"} hover:underline`}
+                className="hover:underline"
+                style={{ color: venueColors?.[event.source] || "#9ca3af" }}
               >
                 {event.venue}
               </a>
             ) : (
-              <span className={venueColors?.[event.source]?.text || "text-gray-400"}>
+              <span style={{ color: venueColors?.[event.source] || "#9ca3af" }}>
                 {event.venue}
               </span>
             )}
@@ -396,12 +398,13 @@ export const EventCardCompact = memo(function EventCardCompact({
                 href={event.venueUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${venueColors?.[event.source]?.text || "text-gray-400"} hover:underline`}
+                className="hover:underline"
+                style={{ color: venueColors?.[event.source] || "#9ca3af" }}
               >
                 {event.venue}
               </a>
             ) : (
-              <span className={venueColors?.[event.source]?.text || "text-gray-400"}>
+              <span style={{ color: venueColors?.[event.source] || "#9ca3af" }}>
                 {event.venue}
               </span>
             )}
