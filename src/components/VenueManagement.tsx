@@ -105,6 +105,12 @@ export function VenueManagement() {
   const [form, setForm] = useState<VenueForm>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Track original colors to preserve them if unchanged
+  const [originalColors, setOriginalColors] = useState<{
+    color_bg: string | null;
+    color_text: string | null;
+    color_border: string | null;
+  } | null>(null);
 
   // Fetch all venues (including inactive)
   const fetchVenues = useCallback(async () => {
@@ -146,6 +152,7 @@ export function VenueManagement() {
   const openAddModal = () => {
     setEditingVenue(null);
     setForm(DEFAULT_FORM);
+    setOriginalColors(null);
     setError(null);
     setModalOpen(true);
   };
@@ -164,6 +171,11 @@ export function VenueManagement() {
       active: venue.active,
       aliases: venue.aliases || [],
     });
+    setOriginalColors({
+      color_bg: venue.color_bg,
+      color_text: venue.color_text,
+      color_border: venue.color_border,
+    });
     setError(null);
     setModalOpen(true);
   };
@@ -173,6 +185,7 @@ export function VenueManagement() {
     setModalOpen(false);
     setEditingVenue(null);
     setForm(DEFAULT_FORM);
+    setOriginalColors(null);
     setError(null);
   };
 
@@ -196,6 +209,10 @@ export function VenueManagement() {
     // Use form hex color, generate Tailwind-style classes
     const hex = form.hexColor;
 
+    // Check if color has changed from original - preserve original if unchanged
+    const originalHex = originalColors?.color_text ? extractHexFromTailwind(originalColors.color_text) : null;
+    const colorChanged = !editingVenue || !originalColors || hex !== originalHex;
+
     const venueData = {
       id: venueId,
       name: form.name.trim(),
@@ -204,9 +221,10 @@ export function VenueManagement() {
       city: form.city.trim(),
       state: form.state.trim(),
       website_url: form.website_url.trim() || null,
-      color_bg: `bg-[${hex}]/20`,
-      color_text: `text-[${hex}]`,
-      color_border: `border-[${hex}]`,
+      // Preserve original colors if unchanged, otherwise use new hex format
+      color_bg: colorChanged ? `bg-[${hex}]/20` : originalColors!.color_bg,
+      color_text: colorChanged ? `text-[${hex}]` : originalColors!.color_text,
+      color_border: colorChanged ? `border-[${hex}]` : originalColors!.color_border,
       active: form.active,
       aliases: form.aliases.length > 0 ? form.aliases : null,
     };

@@ -4,6 +4,7 @@ A local music event aggregator that scrapes venue websites and displays upcoming
 
 ## Workflow Rules
 
+- **NEVER make decisions or take actions without asking first.** Always ask the user before implementing, creating, or changing anything. No exceptions.
 - **NEVER commit without explicit user permission.** Wait for "commit" or similar approval.
 - **NEVER deploy to production without explicit user permission.** Wait for "deploy" or similar approval.
 - Run `npm run build` to verify changes compile, but let the user run `npm run dev` and test.

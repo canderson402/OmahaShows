@@ -87,6 +87,8 @@ INSERT INTO venues (id, name, address, city, state, website_url, color_bg, color
   ('holland', 'Holland Center', '1200 Douglas St', 'Omaha', 'NE', 'https://omahaperformingarts.org', 'bg-teal-500/20', 'text-teal-400', 'border-teal-500'),
   ('orpheum', 'Orpheum Theater', '409 S 16th St', 'Omaha', 'NE', 'https://omahaperformingarts.org', 'bg-indigo-500/20', 'text-indigo-400', 'border-indigo-500'),
   ('barnato', 'Barnato', '6209 Maple St', 'Omaha', 'NE', 'https://barnatoomaha.com', 'bg-lime-500/20', 'text-lime-400', 'border-lime-500'),
+  ('baxterarena', 'Baxter Arena', '2425 S 67th St', 'Omaha', 'NE', 'https://www.baxterarena.com', 'bg-red-500/20', 'text-red-400', 'border-red-500'),
+  ('stircove', 'Stir Concert Cove', '1 Harrahs Blvd', 'Council Bluffs', 'IA', 'https://www.caesars.com/harrahs-council-bluffs/shows', 'bg-yellow-500/20', 'text-yellow-400', 'border-yellow-500'),
   ('other', 'Other', NULL, 'Omaha', 'NE', NULL, 'bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500');
 
 -- Updated at trigger

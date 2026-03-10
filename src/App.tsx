@@ -31,6 +31,8 @@ export const VENUE_COLORS: Record<string, { bg: string; text: string; border: st
   admiral: { bg: "bg-fuchsia-500/20", text: "text-fuchsia-400", border: "border-fuchsia-500" },
   astrotheater: { bg: "bg-purple-500/20", text: "text-purple-400", border: "border-purple-500" },
   steelhouse: { bg: "bg-cyan-500/20", text: "text-cyan-400", border: "border-cyan-500" },
+  baxterarena: { bg: "bg-red-500/20", text: "text-red-400", border: "border-red-500" },
+  stircove: { bg: "bg-yellow-500/20", text: "text-yellow-400", border: "border-yellow-500" },
   other: { bg: "bg-emerald-500/20", text: "text-emerald-400", border: "border-emerald-500" },
   holland: { bg: "bg-teal-500/20", text: "text-teal-400", border: "border-teal-500" },
   orpheum: { bg: "bg-indigo-500/20", text: "text-indigo-400", border: "border-indigo-500" },

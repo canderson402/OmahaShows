@@ -23,6 +23,9 @@ from scrapers.bourbontheatre import BourbonTheatreScraper
 from scrapers.admiral import AdmiralScraper
 from scrapers.astrotheater import AstroTheaterScraper
 from scrapers.steelhouse import SteelHouseScraper
+from scrapers.baxterarena import BaxterArenaScraper
+from scrapers.stircove import StirCoveScraper
+from scrapers.opa import OPAScraper
 from scrapers.omahaunderground import OtherVenuesScraper
 from scrapers.ohmyomaha import OhMyOmahaScraper
 from venue_matcher import VenueMatcher
@@ -47,6 +50,10 @@ SCRAPERS = {
     "admiral": AdmiralScraper(),
     "astrotheater": AstroTheaterScraper(),
     "steelhouse": SteelHouseScraper(),
+    "baxterarena": BaxterArenaScraper(),
+    "stircove": StirCoveScraper(),
+    "holland": OPAScraper("Holland Performing Arts Center", "holland"),
+    "orpheum": OPAScraper("Orpheum Theater", "orpheum"),
     "other": OtherVenuesScraper(),
     "ohmyomaha": OhMyOmahaScraper(),
 }
