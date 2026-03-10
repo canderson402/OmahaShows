@@ -134,16 +134,17 @@ function getRecentlyAddedCutoff(): string {
 }
 
 // Get upcoming events (date >= today) with pagination and search
-export async function getEvents(options?: { limit?: number; offset?: number; search?: string; timeFilter?: TimeFilter }): Promise<{ events: Event[]; hasMore: boolean }> {
+export async function getEvents(options?: { limit?: number; offset?: number; search?: string; timeFilter?: TimeFilter; venueIds?: string[] }): Promise<{ events: Event[]; hasMore: boolean }> {
   const today = getLocalDateString()
   const venues = await getVenues()
   const limit = options?.limit || 20
   const offset = options?.offset || 0
   const timeFilter = options?.timeFilter || 'all'
   const search = options?.search?.trim() || ''
+  const venueIds = options?.venueIds
 
-  // Cache non-search queries (search queries are too unique to cache effectively)
-  const cacheKey = search
+  // Cache non-search, non-venue-filtered queries
+  const cacheKey = (search || venueIds)
     ? null
     : getCacheKey('events', { today, limit, offset, timeFilter })
 
@@ -169,6 +170,11 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
   } else if (timeFilter === 'just-added') {
     const cutoff = getRecentlyAddedCutoff()
     query = query.gt('added_at', cutoff)
+  }
+
+  // Filter by venue IDs if provided
+  if (venueIds && venueIds.length > 0) {
+    query = query.in('venue_id', venueIds)
   }
 
   // Sort by added_at for recently added, otherwise by date

@@ -154,22 +154,7 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
     }
   }, [highlightedEventId, visibleEvents, hasMore, onLoadMore, loadingMore, loadMore]);
 
-  // Auto-load more events when filter results in zero matches but more events exist
-  useEffect(() => {
-    if (filtered.length === 0 && hasMoreFromDb && onLoadMore && !loadingMore) {
-      onLoadMore();
-    }
-  }, [filtered.length, hasMoreFromDb, onLoadMore, loadingMore]);
-
   if (filtered.length === 0) {
-    // Show loading spinner if we're still loading more events
-    if (loadingMore || hasMoreFromDb) {
-      return (
-        <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
-        </div>
-      );
-    }
     return (
       <div className="text-center py-12">
         <p className="text-gray-400">No upcoming shows found.</p>

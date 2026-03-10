@@ -285,6 +285,9 @@ function HomePage() {
     }
   }, []);
 
+  // Convert enabledVenues Set to array for API calls
+  const enabledVenueIds = useMemo(() => Array.from(enabledVenues), [enabledVenues]);
+
   const loadMoreEvents = useCallback(async () => {
     if (loadingMore || !hasMoreEvents) return;
     setLoadingMore(true);
@@ -294,6 +297,7 @@ function HomePage() {
         offset: events.length,
         search: debouncedEventSearch || undefined,
         timeFilter: timeFilter,
+        venueIds: enabledVenueIds.length > 0 ? enabledVenueIds : undefined,
       });
       setEvents(prev => [...prev, ...result.events]);
       setHasMoreEvents(result.hasMore);
@@ -302,9 +306,9 @@ function HomePage() {
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMoreEvents, events.length, debouncedEventSearch, timeFilter]);
+  }, [loadingMore, hasMoreEvents, events.length, debouncedEventSearch, timeFilter, enabledVenueIds]);
 
-  // Refetch events when search or time filter changes
+  // Refetch events when search, time filter, or venue filter changes
   useEffect(() => {
     if (!dataLoaded) return;
     const searchEvents = async () => {
@@ -314,6 +318,7 @@ function HomePage() {
           offset: 0,
           search: debouncedEventSearch || undefined,
           timeFilter: timeFilter,
+          venueIds: enabledVenueIds.length > 0 ? enabledVenueIds : undefined,
         });
         setEvents(result.events);
         setHasMoreEvents(result.hasMore);
@@ -322,7 +327,7 @@ function HomePage() {
       }
     };
     searchEvents();
-  }, [debouncedEventSearch, timeFilter, dataLoaded]);
+  }, [debouncedEventSearch, timeFilter, enabledVenueIds, dataLoaded]);
 
   const loadMoreHistory = useCallback(async () => {
     if (loadingMoreHistory || !hasMoreHistory) return;
