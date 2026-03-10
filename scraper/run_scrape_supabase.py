@@ -261,23 +261,29 @@ def run():
         else:
             # Filter to future events only
             future_events = [e for e in events if e.date >= today]
-            new_ids, changed_ids = upsert_events(future_events, scraper.id)
-            total_events += len(future_events)
-            total_new += len(new_ids)
-            total_changed += len(changed_ids)
-            print(f"OK - {len(future_events)} events ({len(new_ids)} new, {len(changed_ids)} changed)")
-            successful_scrapers.append(scraper.name)
-            log_scraper_run(
-                scraper.id,
-                scraper.name,
-                "success",
-                len(future_events),
-                new_count=len(new_ids),
-                changed_count=len(changed_ids),
-                new_event_ids=new_ids,
-                changed_event_ids=changed_ids,
-            )
-            scraper_results.append({"name": scraper.name, "newCount": len(new_ids), "changedCount": len(changed_ids)})
+            try:
+                new_ids, changed_ids = upsert_events(future_events, scraper.id)
+                total_events += len(future_events)
+                total_new += len(new_ids)
+                total_changed += len(changed_ids)
+                print(f"OK - {len(future_events)} events ({len(new_ids)} new, {len(changed_ids)} changed)")
+                successful_scrapers.append(scraper.name)
+                log_scraper_run(
+                    scraper.id,
+                    scraper.name,
+                    "success",
+                    len(future_events),
+                    new_count=len(new_ids),
+                    changed_count=len(changed_ids),
+                    new_event_ids=new_ids,
+                    changed_event_ids=changed_ids,
+                )
+                scraper_results.append({"name": scraper.name, "newCount": len(new_ids), "changedCount": len(changed_ids)})
+            except Exception as upsert_error:
+                print(f"UPSERT FAILED: {upsert_error}")
+                failed_scrapers.append((scraper.name, f"upsert error: {upsert_error}"))
+                log_scraper_run(scraper.id, scraper.name, "error", len(future_events), error=str(upsert_error))
+                scraper_results.append({"name": scraper.name, "newCount": 0, "changedCount": 0})
 
     # Send admin notification if there are pending items
     if total_new > 0 or total_changed > 0:

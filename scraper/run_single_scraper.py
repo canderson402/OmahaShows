@@ -2,10 +2,14 @@
 """Run a single scraper by ID - used by GitHub Actions"""
 import os
 import sys
+import requests
 from datetime import datetime, timezone, date
 from supabase import create_client
 from config import SCRAPERS
 from matching import find_existing_event
+
+SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
+SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
 
 COMPARE_FIELDS = ['title', 'date', 'time', 'event_url', 'ticket_url', 'image_url', 'price', 'age_restriction', 'supporting_artists']
 
@@ -43,6 +47,40 @@ def log_event_change(supabase, event_id: str, change_type: str, proposed_data: d
         "changed_fields": changed_fields,
         "status": "pending",
     }).execute()
+
+
+def notify_admin_pending(scraper_name: str, new_count: int, changed_count: int):
+    """Send email notification to admin about pending items."""
+    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+        print("! Notification skipped: missing Supabase credentials")
+        return
+
+    supabase_url = SUPABASE_URL.rstrip("/")
+    function_url = f"{supabase_url}/functions/v1/notify-admin-pending"
+
+    try:
+        response = requests.post(
+            function_url,
+            json={
+                "type": "scraper_complete",
+                "scraperSummary": {
+                    "totalNew": new_count,
+                    "totalChanged": changed_count,
+                    "scrapers": [{"name": scraper_name, "newCount": new_count, "changedCount": changed_count}],
+                }
+            },
+            headers={
+                "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
+                "Content-Type": "application/json",
+            },
+            timeout=10,
+        )
+        if response.ok:
+            print(f"✓ Admin notification sent")
+        else:
+            print(f"! Failed to send notification: {response.text}")
+    except Exception as e:
+        print(f"! Error sending notification: {e}")
 
 
 def main():
@@ -154,6 +192,10 @@ def main():
         }).execute()
 
         print(f'Success: {len(future_events)} events ({len(new_ids)} new, {len(changed_ids)} changed)')
+
+        # Send admin notification if there are pending items
+        if len(new_ids) > 0 or len(changed_ids) > 0:
+            notify_admin_pending(scraper.name, len(new_ids), len(changed_ids))
 
     except Exception as ex:
         supabase.table('scraper_runs').insert({
