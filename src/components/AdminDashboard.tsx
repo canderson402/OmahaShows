@@ -75,6 +75,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [eventSearch, setEventSearch] = useState("");
   const [venueFilter, setVenueFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<"approved" | "rejected">("approved");
   const [editingEvent, setEditingEvent] = useState<DbEvent | null>(null);
   const [editForm, setEditForm] = useState<Partial<DbEvent>>({});
   const [saving, setSaving] = useState(false);
@@ -95,15 +96,18 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   }, []);
 
-  const fetchCurrentEvents = useCallback(async (search?: string, venueId?: string, offset = 0) => {
-    const today = new Date().toISOString().split("T")[0];
-
+  const fetchCurrentEvents = useCallback(async (search?: string, venueId?: string, status: "approved" | "rejected" = "approved", offset = 0) => {
     let query = supabase
       .from("events")
       .select("*", { count: "exact" })
-      .gte("date", today)
-      .eq("status", "approved")
-      .order("date", { ascending: true });
+      .eq("status", status)
+      .order("date", { ascending: status === "approved" });
+
+    // Only filter by future date for approved events
+    if (status === "approved") {
+      const today = new Date().toISOString().split("T")[0];
+      query = query.gte("date", today);
+    }
 
     if (search && search.trim()) {
       query = query.ilike("title", `%${search.trim()}%`);
@@ -156,10 +160,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   // Search/filter with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchCurrentEvents(eventSearch, venueFilter, 0);
+      fetchCurrentEvents(eventSearch, venueFilter, statusFilter, 0);
     }, 300);
     return () => clearTimeout(timer);
-  }, [eventSearch, venueFilter, fetchCurrentEvents]);
+  }, [eventSearch, venueFilter, statusFilter, fetchCurrentEvents]);
 
   // Refresh pending when tab changes to pending
   useEffect(() => {
@@ -171,7 +175,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
   const loadMoreEvents = async () => {
     setLoadingMore(true);
-    await fetchCurrentEvents(eventSearch, venueFilter, currentEvents.length);
+    await fetchCurrentEvents(eventSearch, venueFilter, statusFilter, currentEvents.length);
     setLoadingMore(false);
   };
 
@@ -219,6 +223,41 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   };
 
+  const handleRestoreEvent = async (id: string) => {
+    setActionLoading(id);
+    try {
+      await supabase
+        .from("events")
+        .update({ status: "approved" })
+        .eq("id", id);
+      await fetchCurrentEvents(eventSearch, venueFilter, statusFilter, 0);
+      setToast({ message: "Event restored", type: "success" });
+    } catch (err) {
+      console.error("Failed to restore:", err);
+      setToast({ message: "Failed to restore event", type: "error" });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handlePermanentlyDeleteEvent = async (id: string) => {
+    if (!confirm("Are you sure you want to permanently delete this event? This cannot be undone.")) return;
+    setActionLoading(id);
+    try {
+      await supabase
+        .from("events")
+        .delete()
+        .eq("id", id);
+      await fetchCurrentEvents(eventSearch, venueFilter, statusFilter, 0);
+      setToast({ message: "Event deleted", type: "success" });
+    } catch (err) {
+      console.error("Failed to delete:", err);
+      setToast({ message: "Failed to delete event", type: "error" });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const openEditModal = (event: DbEvent) => {
     setEditingEvent(event);
     setEditForm({
@@ -261,7 +300,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       if (error) throw error;
 
       // Refresh data
-      await Promise.all([fetchPending(), fetchCurrentEvents(eventSearch, venueFilter, 0)]);
+      await Promise.all([fetchPending(), fetchCurrentEvents(eventSearch, venueFilter, statusFilter, 0)]);
       setEditingEvent(null);
     } catch (err) {
       console.error("Failed to save:", err);
@@ -281,7 +320,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
       if (error) throw error;
 
-      await Promise.all([fetchPending(), fetchCurrentEvents(eventSearch, venueFilter, 0)]);
+      await Promise.all([fetchPending(), fetchCurrentEvents(eventSearch, venueFilter, statusFilter, 0)]);
       setEditingEvent(null);
     } catch (err) {
       console.error("Failed to delete:", err);
@@ -800,6 +839,30 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           {/* Current Events Tab */}
           {tab === "events" && (
             <div>
+              {/* Status Toggle */}
+              <div className="mb-4 flex gap-2">
+                <button
+                  onClick={() => setStatusFilter("approved")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    statusFilter === "approved"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-800 text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Approved
+                </button>
+                <button
+                  onClick={() => setStatusFilter("rejected")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    statusFilter === "rejected"
+                      ? "bg-red-600 text-white"
+                      : "bg-gray-800 text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Rejected
+                </button>
+              </div>
+
               {/* Search and Venue Filter */}
               <div className="mb-4 flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
@@ -827,18 +890,23 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
               </div>
 
               <p className="text-gray-500 text-xs sm:text-sm mb-4">
-                Showing {currentEvents.length} upcoming events. Tap to edit.
+                Showing {currentEvents.length} {statusFilter === "approved" ? "upcoming" : "rejected"} events.
+                {statusFilter === "approved" ? " Tap to edit." : ""}
               </p>
 
               <div className="divide-y divide-gray-800">
                 {currentEvents.map((event) => {
                   const venueHex = VENUE_COLORS[event.venue_id] || VENUE_COLORS.other || "#10b981";
                   const venueName = venues.find(v => v.id === event.venue_id)?.name || event.venue_id;
+                  const isLoading = actionLoading === event.id;
+
                   return (
                     <div
                       key={event.id}
-                      onClick={() => openEditModal(event)}
-                      className="flex items-center justify-between gap-3 py-3 hover:bg-white/5 cursor-pointer transition-colors -mx-2 px-2"
+                      onClick={statusFilter === "approved" ? () => openEditModal(event) : undefined}
+                      className={`flex items-center justify-between gap-3 py-3 transition-colors -mx-2 px-2 ${
+                        statusFilter === "approved" ? "hover:bg-white/5 cursor-pointer" : ""
+                      }`}
                     >
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         <span className="text-xs sm:text-sm text-gray-500 flex-shrink-0">
@@ -849,21 +917,30 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                       <span className="text-xs sm:text-sm flex-shrink-0" style={{ color: venueHex }}>
                         {venueName}
                       </span>
-                      <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
-                        {event.status === "approved" ? (
+                      {statusFilter === "rejected" ? (
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRestoreEvent(event.id); }}
+                            disabled={isLoading}
+                            className="px-3 py-1 text-xs bg-green-600 hover:bg-green-500 text-white rounded transition-colors disabled:opacity-50"
+                          >
+                            {isLoading ? "..." : "Restore"}
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handlePermanentlyDeleteEvent(event.id); }}
+                            disabled={isLoading}
+                            className="px-3 py-1 text-xs bg-red-600 hover:bg-red-500 text-white rounded transition-colors disabled:opacity-50"
+                          >
+                            {isLoading ? "..." : "Delete"}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
                           <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
-                        ) : event.status === "pending" ? (
-                          <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                          </svg>
-                        ) : (
-                          <svg className="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </span>
+                        </span>
+                      )}
                     </div>
                   );
                 })}
