@@ -2,11 +2,14 @@
 import json
 import re
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
+import requests
+from bs4 import BeautifulSoup
 
 
 class StirCoveScraper(BaseScraper):
@@ -70,8 +73,10 @@ class StirCoveScraper(BaseScraper):
                 slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
                 event_id = f"stircove-{date_str}-{slug}"[:80]
 
-                # Look up image from JSON-LD data
+                # Look up image from JSON-LD data, fallback to detail page
                 image_url = image_map.get(title.lower().strip())
+                if not image_url and event_url:
+                    image_url = self._fetch_image_from_detail_page(event_url)
 
                 events.append(Event(
                     id=event_id,
@@ -152,3 +157,41 @@ class StirCoveScraper(BaseScraper):
                 continue
 
         return image_map
+
+    def _fetch_image_from_detail_page(self, url: str) -> str | None:
+        """Fetch event detail page and extract the promotional image."""
+        try:
+            time.sleep(0.3)  # Be polite
+            response = requests.get(url, timeout=15, headers={
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+            })
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            # Try JSON-LD first
+            for script in soup.select('script[type="application/ld+json"]'):
+                try:
+                    data = json.loads(script.string)
+                    items = data if isinstance(data, list) else [data]
+                    for item in items:
+                        if item.get("@type") == "Event":
+                            image = item.get("image", "")
+                            if image:
+                                return image
+                except (json.JSONDecodeError, TypeError, AttributeError):
+                    continue
+
+            # Try og:image meta tag
+            og_image = soup.select_one('meta[property="og:image"]')
+            if og_image and og_image.get("content"):
+                return og_image.get("content")
+
+            # Try to find performer/promo image in content
+            for img in soup.select('img[src*="performer"], img[src*="promo"]'):
+                src = img.get("src")
+                if src and "logo" not in src.lower() and "seating" not in src.lower():
+                    return src
+
+            return None
+        except Exception:
+            return None
