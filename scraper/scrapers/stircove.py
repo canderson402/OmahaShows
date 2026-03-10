@@ -1,28 +1,140 @@
 # scraper/scrapers/stircove.py
+"""
+Stir Concert Cove scraper.
+Uses stircoveamp.com for event data and Playwright to fetch images from caesars.com
+"""
 import json
 import re
 import sys
-import time
 from datetime import datetime
 from pathlib import Path
+from playwright.sync_api import sync_playwright
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
-import requests
-from bs4 import BeautifulSoup
 
 
 class StirCoveScraper(BaseScraper):
     name = "Stir Concert Cove"
     id = "stircove"
     url = "https://www.stircoveamp.com/events/"
+    caesars_url = "https://www.caesars.com/harrahs-council-bluffs/shows"
+
+    def scrape(self) -> list[Event]:
+        """Override to use Playwright for image fetching from Caesars."""
+        # First, fetch event data from stircoveamp.com (simple HTML)
+        html = self.fetch_html()
+        events = self.parse_events(html)
+
+        # Then use Playwright to get images from Caesars
+        image_map = self._fetch_caesars_images()
+
+        # Match images to events
+        for event in events:
+            if not event.imageUrl:
+                # Try to find matching image from Caesars
+                event_title_lower = event.title.lower().strip()
+                for caesars_title, image_url in image_map.items():
+                    # Fuzzy match - check if titles overlap
+                    if self._titles_match(event_title_lower, caesars_title):
+                        event.imageUrl = image_url
+                        break
+
+        return events
+
+    def _titles_match(self, title1: str, title2: str) -> bool:
+        """Check if two event titles likely refer to the same event."""
+        # Normalize titles
+        t1 = re.sub(r'[^a-z0-9\s]', '', title1.lower())
+        t2 = re.sub(r'[^a-z0-9\s]', '', title2.lower())
+
+        # Check if one contains the other
+        if t1 in t2 or t2 in t1:
+            return True
+
+        # Check for significant word overlap
+        words1 = set(t1.split())
+        words2 = set(t2.split())
+        # Remove common words
+        stopwords = {'the', 'a', 'an', 'and', 'or', 'with', 'at', 'in', 'on', 'for'}
+        words1 = words1 - stopwords
+        words2 = words2 - stopwords
+
+        if not words1 or not words2:
+            return False
+
+        overlap = words1 & words2
+        # If more than half the words match, consider it a match
+        return len(overlap) >= min(len(words1), len(words2)) * 0.5
+
+    def _fetch_caesars_images(self) -> dict[str, str]:
+        """Use Playwright to fetch images from Caesars site."""
+        image_map = {}
+
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                context = browser.new_context(
+                    user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                )
+                page = context.new_page()
+
+                # Navigate to Caesars shows page
+                page.goto(self.caesars_url, wait_until="networkidle", timeout=60000)
+                page.wait_for_timeout(3000)  # Wait for JS to render
+
+                # Try to find event cards/tiles with images
+                # Look for common patterns in event listings
+                cards = page.query_selector_all('[class*="event"], [class*="show"], [class*="card"], [class*="tile"]')
+
+                for card in cards:
+                    try:
+                        # Try to find title
+                        title_el = card.query_selector('h2, h3, h4, [class*="title"], [class*="name"]')
+                        if not title_el:
+                            continue
+                        title = title_el.inner_text().strip().lower()
+                        if not title:
+                            continue
+
+                        # Try to find image
+                        img_el = card.query_selector('img')
+                        if img_el:
+                            img_url = img_el.get_attribute('src') or img_el.get_attribute('data-src')
+                            if img_url and not any(x in img_url.lower() for x in ['logo', 'icon', 'placeholder']):
+                                image_map[title] = img_url
+                    except Exception:
+                        continue
+
+                # Also try to extract from JSON-LD or other structured data
+                scripts = page.query_selector_all('script[type="application/ld+json"]')
+                for script in scripts:
+                    try:
+                        content = script.inner_text()
+                        data = json.loads(content)
+                        items = data if isinstance(data, list) else [data]
+                        for item in items:
+                            if item.get("@type") == "Event":
+                                name = item.get("name", "").lower().strip()
+                                image = item.get("image", "")
+                                if name and image:
+                                    image_map[name] = image
+                    except Exception:
+                        continue
+
+                browser.close()
+        except Exception as e:
+            print(f"Warning: Failed to fetch Caesars images: {e}")
+
+        return image_map
 
     def parse_events(self, html: str) -> list[Event]:
         soup = self.get_soup(html)
         events = []
         current_year = datetime.now().year
 
-        # Extract images from JSON-LD structured data
+        # Extract images from JSON-LD structured data on stircoveamp.com
         image_map = self._extract_images_from_jsonld(soup)
 
         for card in soup.select("div.card"):
@@ -73,10 +185,8 @@ class StirCoveScraper(BaseScraper):
                 slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
                 event_id = f"stircove-{date_str}-{slug}"[:80]
 
-                # Look up image from JSON-LD data, fallback to detail page
+                # Look up image from JSON-LD data (will be supplemented by Caesars images in scrape())
                 image_url = image_map.get(title.lower().strip())
-                if not image_url and event_url:
-                    image_url = self._fetch_image_from_detail_page(event_url)
 
                 events.append(Event(
                     id=event_id,
@@ -157,41 +267,3 @@ class StirCoveScraper(BaseScraper):
                 continue
 
         return image_map
-
-    def _fetch_image_from_detail_page(self, url: str) -> str | None:
-        """Fetch event detail page and extract the promotional image."""
-        try:
-            time.sleep(0.3)  # Be polite
-            response = requests.get(url, timeout=15, headers={
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-            })
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, "html.parser")
-
-            # Try JSON-LD first
-            for script in soup.select('script[type="application/ld+json"]'):
-                try:
-                    data = json.loads(script.string)
-                    items = data if isinstance(data, list) else [data]
-                    for item in items:
-                        if item.get("@type") == "Event":
-                            image = item.get("image", "")
-                            if image:
-                                return image
-                except (json.JSONDecodeError, TypeError, AttributeError):
-                    continue
-
-            # Try og:image meta tag
-            og_image = soup.select_one('meta[property="og:image"]')
-            if og_image and og_image.get("content"):
-                return og_image.get("content")
-
-            # Try to find performer/promo image in content
-            for img in soup.select('img[src*="performer"], img[src*="promo"]'):
-                src = img.get("src")
-                if src and "logo" not in src.lower() and "seating" not in src.lower():
-                    return src
-
-            return None
-        except Exception:
-            return None
