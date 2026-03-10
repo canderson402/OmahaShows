@@ -1,4 +1,5 @@
 # scraper/scrapers/stircove.py
+import json
 import re
 import sys
 from datetime import datetime
@@ -17,6 +18,9 @@ class StirCoveScraper(BaseScraper):
         soup = self.get_soup(html)
         events = []
         current_year = datetime.now().year
+
+        # Extract images from JSON-LD structured data
+        image_map = self._extract_images_from_jsonld(soup)
 
         for card in soup.select("div.card"):
             try:
@@ -66,6 +70,9 @@ class StirCoveScraper(BaseScraper):
                 slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
                 event_id = f"stircove-{date_str}-{slug}"[:80]
 
+                # Look up image from JSON-LD data
+                image_url = image_map.get(title.lower().strip())
+
                 events.append(Event(
                     id=event_id,
                     title=title,
@@ -74,7 +81,7 @@ class StirCoveScraper(BaseScraper):
                     venue=self.name,
                     eventUrl=event_url,
                     ticketUrl=ticket_url,
-                    imageUrl=None,
+                    imageUrl=image_url,
                     price=None,
                     ageRestriction=None,
                     supportingArtists=None,
@@ -120,3 +127,28 @@ class StirCoveScraper(BaseScraper):
             return f"{year:04d}-{month:02d}-{day:02d}"
         except Exception:
             return None
+
+    def _extract_images_from_jsonld(self, soup) -> dict[str, str]:
+        """Extract event images from JSON-LD structured data.
+
+        Returns a dict mapping lowercase event name to image URL.
+        """
+        image_map = {}
+
+        for script in soup.select('script[type="application/ld+json"]'):
+            try:
+                data = json.loads(script.string)
+
+                # Handle both single objects and arrays
+                items = data if isinstance(data, list) else [data]
+
+                for item in items:
+                    if item.get("@type") == "Event":
+                        name = item.get("name", "").lower().strip()
+                        image = item.get("image", "")
+                        if name and image:
+                            image_map[name] = image
+            except (json.JSONDecodeError, TypeError, AttributeError):
+                continue
+
+        return image_map
