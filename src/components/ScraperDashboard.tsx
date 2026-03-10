@@ -18,6 +18,10 @@ const SCRAPERS = [
   { id: "admiral", name: "The Admiral", url: "https://admiralomaha.com" },
   { id: "astrotheater", name: "The Astro", url: "https://astrotheateromaha.com" },
   { id: "steelhouse", name: "Steelhouse Omaha", url: "https://steelhouseomaha.com" },
+  { id: "holland", name: "Holland Center", url: "https://ticketomaha.com" },
+  { id: "orpheum", name: "Orpheum Theater", url: "https://ticketomaha.com" },
+  { id: "baxterarena", name: "Baxter Arena", url: "https://www.baxterarena.com" },
+  { id: "stircove", name: "Stir Concert Cove", url: "https://www.caesars.com/harrahs-council-bluffs/shows" },
   { id: "other", name: "Other Venues", url: "https://omahaunderground.com" },
 ];
 
