@@ -13,14 +13,7 @@ import {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Create client - works on both server and client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: typeof window !== 'undefined',
-    autoRefreshToken: typeof window !== 'undefined',
-    detectSessionInUrl: typeof window !== 'undefined'
-  }
-})
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Re-export cache invalidation for use in admin actions
 export { invalidateEventCaches }
