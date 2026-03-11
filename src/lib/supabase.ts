@@ -10,23 +10,10 @@ import {
   invalidateEventCaches,
 } from './cache'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Debug: Log at module load time (will show in build logs AND browser console)
-const envDebug = {
-  urlDefined: typeof supabaseUrl === 'string' && supabaseUrl.length > 0,
-  keyDefined: typeof supabaseAnonKey === 'string' && supabaseAnonKey.length > 0,
-}
-console.log('[Supabase] Env check:', envDebug)
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('[Supabase] Missing env vars - client will not work')
-}
-
-export const supabase = (supabaseUrl && supabaseAnonKey)
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null as unknown as ReturnType<typeof createClient>
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Re-export cache invalidation for use in admin actions
 export { invalidateEventCaches }
