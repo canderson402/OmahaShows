@@ -26,10 +26,11 @@ interface EventListProps {
   highlightedEventId?: string | null;  // event to highlight and scroll to
   isSaved?: (id: string) => boolean;  // check if event is saved
   onToggleSave?: (id: string) => void;  // toggle save state
+  initialVisibleCount?: number;  // initial number of visible events (for scroll restoration)
 }
 
-export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId, isSaved, onToggleSave }: EventListProps) {
-  const [visibleCount, setVisibleCount] = useState(EVENTS_PER_PAGE);
+export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId, isSaved, onToggleSave, initialVisibleCount }: EventListProps) {
+  const [visibleCount, setVisibleCount] = useState(initialVisibleCount || EVENTS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const today = useMemo(() => {
     const now = new Date();

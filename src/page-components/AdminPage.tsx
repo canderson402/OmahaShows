@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "../hooks/useAuth";
 import { AdminDashboard, type AdminTab } from "../components/AdminDashboard";
 
 export function AdminPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { isAuthenticated, loading, logout } = useAuth();
   const [tab, setTabState] = useState<AdminTab>("pending");
 
@@ -15,13 +16,13 @@ export function AdminPage() {
   // Protected route - redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate("/login");
+      router.push("/login");
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading, router]);
 
   const handleLogout = async () => {
     await logout();
-    navigate("/");
+    router.push("/");
   };
 
   if (loading) {

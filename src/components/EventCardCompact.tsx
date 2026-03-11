@@ -1,6 +1,6 @@
 // web/src/components/EventCardCompact.tsx
 import { memo, useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import type { Event } from "../types";
 import { outboundClickProps } from "../analytics";
 
@@ -163,7 +163,7 @@ export const EventCardCompact = memo(function EventCardCompact({
             </p>
           </div>
           <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square">
-            <Link to={showPageUrl} className="block w-full h-full">
+            <Link href={showPageUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
               {event.imageUrl ? (
                 <EventImage src={event.imageUrl} alt={event.title} />
               ) : (
@@ -187,7 +187,9 @@ export const EventCardCompact = memo(function EventCardCompact({
         <div>
           {!isExpired ? (
             <Link
-              to={showPageUrl}
+              href={showPageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-xl font-bold text-white hover:text-blue-400 transition-colors"
             >
               {event.title}
@@ -334,7 +336,9 @@ export const EventCardCompact = memo(function EventCardCompact({
           </div>
         ) : (
           <Link
-            to={showPageUrl}
+            href={showPageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-[220px] flex-shrink-0 overflow-hidden block hover:opacity-90 transition-opacity"
           >
             <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
@@ -366,7 +370,9 @@ export const EventCardCompact = memo(function EventCardCompact({
         <div className="flex-1 pt-1 pr-52">
           {!isExpired ? (
             <Link
-              to={showPageUrl}
+              href={showPageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-xl font-bold text-white hover:text-blue-400 transition-colors"
             >
               {event.title}

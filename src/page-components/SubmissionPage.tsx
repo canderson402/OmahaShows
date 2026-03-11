@@ -1,18 +1,19 @@
 import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "../hooks/useAuth";
 import { SubmitShowForm } from "../components/SubmitShowForm";
 
 export function SubmissionPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { isAuthenticated, loading } = useAuth();
 
   // Protected route - redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate("/login");
+      router.push("/login");
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading, router]);
 
   if (loading) {
     return (
@@ -35,7 +36,7 @@ export function SubmissionPage() {
             <div className="text-center mb-8 -mx-6 -mt-6 px-6 pt-6 pb-6 bg-[#050506] md:rounded-t-2xl border-b border-gray-800/50">
               <div className="flex items-center justify-between mb-4">
                 <Link
-                  to="/admin"
+                  href="/admin"
                   className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

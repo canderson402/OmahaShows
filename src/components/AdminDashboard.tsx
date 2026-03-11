@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { supabase, approveEvent, rejectEvent, getVenues } from "../lib/supabase";
-import { VENUE_COLORS } from "../App";
+import { VENUE_COLORS } from "../lib/constants";
 import { ScraperDashboard } from "./ScraperDashboard";
 import { VenueManagement } from "./VenueManagement";
 import { Toast } from "./Toast";

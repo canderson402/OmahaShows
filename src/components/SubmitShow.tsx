@@ -1,7 +1,7 @@
 // web/src/components/SubmitShow.tsx
 import { useState, useMemo } from "react";
 import type { Event } from "../types";
-import { VENUE_COLORS } from "../App";
+import { VENUE_COLORS } from "../lib/constants";
 import { EventCardCompact } from "./EventCardCompact";
 
 interface SubmitShowProps {

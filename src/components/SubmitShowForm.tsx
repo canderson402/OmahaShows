@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import type { Event } from "../types";
-import { VENUE_COLORS } from "../App";
+import { VENUE_COLORS } from "../lib/constants";
 import { EventCardCompact } from "./EventCardCompact";
 import { submitEvent, supabase, type SubmitEventData } from "../lib/supabase";
 import { Toast } from "./Toast";
@@ -306,11 +306,11 @@ export function SubmitShowForm() {
 
       // Notify admin of new submission
       try {
-        await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-admin-pending`, {
+        await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/notify-admin-pending`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
           },
           body: JSON.stringify({
             type: "user_submission",

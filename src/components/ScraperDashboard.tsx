@@ -6,7 +6,7 @@ import {
   getEventsByIds,
   type ScraperRun
 } from "../lib/supabase";
-import { VENUE_COLORS, hexToRgba } from "../App";
+import { VENUE_COLORS, hexToRgba } from "../lib/constants";
 import { Toast } from "./Toast";
 
 // Scraper configuration matching the Python API
@@ -33,12 +33,12 @@ const DISCOVERY_SCRAPERS = [
 ];
 
 // API base URL - use localhost for development
-const API_BASE = import.meta.env.VITE_SCRAPER_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_SCRAPER_API_URL || "http://localhost:8000";
 
 // GitHub Actions config for triggering remote scrapes
-const GITHUB_OWNER = import.meta.env.VITE_GITHUB_OWNER || "";
-const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || "";
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN || "";
+const GITHUB_OWNER = process.env.NEXT_PUBLIC_GITHUB_OWNER || "";
+const GITHUB_REPO = process.env.NEXT_PUBLIC_GITHUB_REPO || "";
+const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN || "";
 const USE_GITHUB_ACTIONS = Boolean(GITHUB_OWNER && GITHUB_REPO && GITHUB_TOKEN);
 
 interface ScraperResult {

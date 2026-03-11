@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { signIn } from "../lib/supabase";
 import { useAuth } from "../hooks/useAuth";
 
 export function LoginPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,9 +15,9 @@ export function LoginPage() {
   // Redirect to admin if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      navigate("/admin");
+      router.push("/admin");
     }
-  }, [isAuthenticated, authLoading, navigate]);
+  }, [isAuthenticated, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +26,7 @@ export function LoginPage() {
 
     try {
       await signIn(email, password);
-      navigate("/admin");
+      router.push("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
