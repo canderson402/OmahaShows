@@ -15,9 +15,10 @@ A local music event aggregator that scrapes venue websites and displays upcoming
 ## Architecture
 
 ### Frontend (Vercel)
-- React + Vite + Tailwind
+- Next.js 16 (App Router) + React 19 + Tailwind
 - Hosted on Vercel with custom domain
 - Fetches data from Supabase
+- Uses @supabase/ssr for proper SSR/client auth handling
 
 ### Backend (Supabase)
 - PostgreSQL database for events, venues, scraper runs
@@ -35,9 +36,17 @@ A local music event aggregator that scrapes venue websites and displays upcoming
 
 ```
 ShowCal/
-├── web/                    # React + Vite + Tailwind frontend
+├── web/                    # Next.js App Router frontend
+│   ├── app/                # Next.js App Router pages
+│   │   ├── layout.tsx      # Root layout with metadata
+│   │   ├── page.tsx        # Home page
+│   │   ├── admin/page.tsx  # Admin dashboard
+│   │   ├── login/page.tsx  # Login page
+│   │   ├── submission/page.tsx  # Submit show form
+│   │   ├── show/[id]/page.tsx   # Individual show page (dynamic)
+│   │   ├── robots.ts       # SEO robots.txt
+│   │   └── sitemap.ts      # SEO sitemap
 │   ├── src/
-│   │   ├── App.tsx         # Main app with venue filters, layout
 │   │   ├── components/
 │   │   │   ├── EventCardCompact.tsx # Compact event card (primary view)
 │   │   │   ├── EventList.tsx        # Event list with infinite scroll
@@ -45,17 +54,19 @@ ShowCal/
 │   │   │   ├── ScraperDashboard.tsx # Scraper status and controls
 │   │   │   ├── SubmitShowForm.tsx   # Public show submission form
 │   │   │   └── Toast.tsx            # Toast notifications
-│   │   ├── lib/
-│   │   │   └── supabase.ts  # Supabase client and data fetching
-│   │   ├── pages/
+│   │   ├── page-components/         # Page-level components
 │   │   │   ├── AdminPage.tsx
 │   │   │   ├── LoginPage.tsx
+│   │   │   ├── ShowPage.tsx
 │   │   │   └── SubmissionPage.tsx
+│   │   ├── lib/
+│   │   │   ├── supabase.ts          # Supabase client and data fetching
+│   │   │   └── supabase-browser.ts  # Browser-only Supabase client (singleton)
 │   │   └── hooks/
 │   │       └── useAuth.ts   # Authentication hook
 │   ├── public/
 │   │   └── images/astro/    # Downloaded Astro Theater images
-│   └── vercel.json          # Vercel config with SPA rewrites
+│   └── vercel.json          # Vercel config for Next.js
 │
 ├── scraper/                # Python scrapers
 │   ├── scrapers/           # Individual venue scrapers
@@ -75,11 +86,11 @@ ShowCal/
 
 ### Vercel (web project)
 ```
-VITE_SUPABASE_URL=https://xxx.supabase.co
-VITE_SUPABASE_ANON_KEY=xxx
-VITE_GITHUB_OWNER=canderson402
-VITE_GITHUB_REPO=OmahaShows
-VITE_GITHUB_TOKEN=xxx  # For triggering scraper workflows
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
+NEXT_PUBLIC_GITHUB_OWNER=canderson402
+NEXT_PUBLIC_GITHUB_REPO=OmahaShows
+NEXT_PUBLIC_GITHUB_TOKEN=xxx  # For triggering scraper workflows
 ```
 
 ### GitHub Actions (repository secrets)
@@ -180,9 +191,15 @@ gh run view RUN_ID --repo canderson402/OmahaShows --log
 - Handled in `SubmitShowForm.tsx` and `AdminDashboard.tsx`
 
 ### Vercel Environment Variables
-- Must be prefixed with `VITE_` to be exposed to frontend
+- Must be prefixed with `NEXT_PUBLIC_` to be exposed to frontend (was VITE_ before migration)
 - Changes require redeploy to take effect
 - Make sure variables are enabled for "Production" environment
+
+### Next.js Migration Notes
+- Use `<Link href="/">` not `<Link to="/">` (Next.js vs React Router syntax)
+- Auth pages (login, admin, submission) use `dynamic()` with `ssr: false` to avoid SSR issues
+- Supabase client uses @supabase/ssr with createBrowserClient for proper hydration
+- supabase-browser.ts is a singleton to prevent multiple GoTrueClient instances
 
 ### GitHub Actions Mode
 - "View" button only works in local dev mode (fetches from localhost API)
