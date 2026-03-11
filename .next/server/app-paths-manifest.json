@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/show/[id]/page": "app/show/[id]/page.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/submission/page": "app/submission/page.js"
+}

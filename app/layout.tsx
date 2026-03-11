@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import './globals.css'
 
 export const viewport: Viewport = {
@@ -55,8 +56,25 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://i.ticketweb.com" />
+        <link rel="preconnect" href="https://prod-images.seetickets.us" />
+        <link rel="dns-prefetch" href="https://i.ticketweb.com" />
+        <link rel="dns-prefetch" href="https://prod-images.seetickets.us" />
       </head>
       <body className="bg-[#0d0d0f]">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-2FFB2TG70S"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-2FFB2TG70S');
+          `}
+        </Script>
         {children}
       </body>
     </html>
