@@ -10,20 +10,10 @@ import {
   invalidateEventCaches,
 } from './cache'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-console.log('Supabase init:', {
-  urlLength: supabaseUrl?.length || 0,
-  keyLength: supabaseAnonKey?.length || 0
-})
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(`Missing env vars: URL=${!!supabaseUrl}, KEY=${!!supabaseAnonKey}`)
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-console.log('Supabase client created:', { hasAuth: !!supabase?.auth })
 
 // Re-export cache invalidation for use in admin actions
 export { invalidateEventCaches }

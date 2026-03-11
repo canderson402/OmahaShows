@@ -94,7 +94,7 @@ export function LoginPage() {
           </form>
 
           <div className="mt-4 text-center">
-            <Link to="/" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+            <Link href="/" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
               ← Back to site
             </Link>
           </div>

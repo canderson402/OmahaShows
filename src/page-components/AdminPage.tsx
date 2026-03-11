@@ -41,7 +41,7 @@ export function AdminPage() {
     <div className="min-h-screen bg-texture">
       <div className="max-w-4xl mx-auto md:p-6">
         <div className="text-center py-4 md:py-0 md:mb-6 bg-[#050506] md:bg-transparent">
-          <Link to="/" className="inline-block">
+          <Link href="/" className="inline-block">
             <h1 className="text-3xl md:text-4xl font-black tracking-tight">
               <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-purple-500 bg-clip-text text-transparent">OMAHA</span>
               <span className="text-white ml-2">SHOWS</span>
