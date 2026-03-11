@@ -8,6 +8,8 @@ export function useAuth() {
   const intentionalLogout = useRef(false);
 
   useEffect(() => {
+    let subscription: { unsubscribe: () => void } | null = null;
+
     // Get initial session
     getSession().then((s) => {
       setSession(s);
@@ -17,19 +19,30 @@ export function useAuth() {
       setLoading(false);
     });
 
-    // Listen for auth changes - only update if it's a real auth event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
-      // Only clear session on explicit sign out, not on token refresh events
-      if (event === 'SIGNED_OUT' || intentionalLogout.current) {
-        setSession(null);
-        intentionalLogout.current = false;
-      } else if (newSession) {
-        setSession(newSession);
+    // Listen for auth changes - delay to avoid SSR issues
+    const setupSubscription = () => {
+      try {
+        const result = supabase.auth.onAuthStateChange((event, newSession) => {
+          if (event === 'SIGNED_OUT' || intentionalLogout.current) {
+            setSession(null);
+            intentionalLogout.current = false;
+          } else if (newSession) {
+            setSession(newSession);
+          }
+        });
+        subscription = result.data.subscription;
+      } catch (err) {
+        console.error('Failed to setup auth subscription:', err);
       }
-      // Ignore temporary null sessions during token refresh
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    // Small delay to ensure client-side hydration is complete
+    const timeout = setTimeout(setupSubscription, 0);
+
+    return () => {
+      clearTimeout(timeout);
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const logout = async () => {
