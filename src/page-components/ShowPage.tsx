@@ -426,7 +426,7 @@ export function ShowPage() {
       {/* Footer */}
       <footer className="relative z-10 px-4 py-8 mt-8 border-t border-white/5">
         <div className="max-w-6xl mx-auto text-center">
-          <Link to="/" className="inline-block">
+          <Link href="/" className="inline-block">
             <span className="text-2xl font-black tracking-tight">
               <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-purple-500 bg-clip-text text-transparent">OMAHA</span>
               <span className="text-white ml-2">SHOWS</span>

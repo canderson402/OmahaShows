@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 import { useAuth } from "../hooks/useAuth";
 
 export function LoginPage() {
@@ -25,7 +25,11 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await signIn(email, password);
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) throw signInError;
       router.push("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

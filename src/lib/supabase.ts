@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createBrowserClient } from './supabase-browser'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Event, EventCategory, HistoricalShow, SourceStatus } from '../types'
 import {
   eventCache,
@@ -13,7 +15,29 @@ import {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Lazy client - only created when first accessed
+let _client: SupabaseClient | null = null
+
+function getSupabase(): SupabaseClient {
+  if (!_client) {
+    if (typeof window !== 'undefined') {
+      _client = createBrowserClient()
+    } else {
+      _client = createClient(supabaseUrl, supabaseAnonKey)
+    }
+  }
+  return _client
+}
+
+// For backwards compatibility - use getSupabase() for new code
+export const supabase = {
+  get auth() { return getSupabase().auth },
+  get from() { return getSupabase().from.bind(getSupabase()) },
+  get storage() { return getSupabase().storage },
+  get functions() { return getSupabase().functions },
+  get realtime() { return getSupabase().realtime },
+  get rpc() { return getSupabase().rpc.bind(getSupabase()) },
+}
 
 // Re-export cache invalidation for use in admin actions
 export { invalidateEventCaches }
@@ -442,7 +466,6 @@ export async function signIn(email: string, password: string) {
     email,
     password,
   })
-
   if (error) throw error
   return data
 }

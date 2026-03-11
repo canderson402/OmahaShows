@@ -432,13 +432,13 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         <h2 className="text-xl sm:text-2xl font-bold text-white">Admin Dashboard</h2>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link
-            to="/"
+            href="/"
             className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
           >
             Back
           </Link>
           <Link
-            to="/submission"
+            href="/submission"
             className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
           >
             + Add

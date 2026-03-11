@@ -1,6 +1,8 @@
+'use client'
+
 import { useState, useEffect, useRef } from "react";
-import { supabase, getSession, signOut } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
@@ -8,46 +10,39 @@ export function useAuth() {
   const intentionalLogout = useRef(false);
 
   useEffect(() => {
-    let subscription: { unsubscribe: () => void } | null = null;
+    let mounted = true;
 
     // Get initial session
-    getSession().then((s) => {
-      setSession(s);
-      setLoading(false);
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      if (mounted) {
+        setSession(s);
+        setLoading(false);
+      }
     }).catch((err) => {
       console.error('Failed to get session:', err);
-      setLoading(false);
+      if (mounted) setLoading(false);
     });
 
-    // Listen for auth changes - delay to avoid SSR issues
-    const setupSubscription = () => {
-      try {
-        const result = supabase.auth.onAuthStateChange((event, newSession) => {
-          if (event === 'SIGNED_OUT' || intentionalLogout.current) {
-            setSession(null);
-            intentionalLogout.current = false;
-          } else if (newSession) {
-            setSession(newSession);
-          }
-        });
-        subscription = result.data.subscription;
-      } catch (err) {
-        console.error('Failed to setup auth subscription:', err);
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (!mounted) return;
+      if (event === 'SIGNED_OUT' || intentionalLogout.current) {
+        setSession(null);
+        intentionalLogout.current = false;
+      } else if (newSession) {
+        setSession(newSession);
       }
-    };
-
-    // Small delay to ensure client-side hydration is complete
-    const timeout = setTimeout(setupSubscription, 0);
+    });
 
     return () => {
-      clearTimeout(timeout);
-      subscription?.unsubscribe();
+      mounted = false;
+      subscription.unsubscribe();
     };
   }, []);
 
   const logout = async () => {
     intentionalLogout.current = true;
-    await signOut();
+    await supabase.auth.signOut();
     setSession(null);
   };
 
