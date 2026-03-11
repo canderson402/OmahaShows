@@ -64,6 +64,7 @@ class TicketmasterClient:
                 "city": city,
                 "stateCode": state,
                 "classificationName": "music",
+                "source": "ticketmaster,ticketweb,universe,frontgate",  # Exclude resale (tmr)
                 "size": 50,
                 "page": page,
                 "apikey": self.api_key,
