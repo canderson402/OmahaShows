@@ -8,9 +8,19 @@ export function useAuth() {
   const intentionalLogout = useRef(false);
 
   useEffect(() => {
+    // Safety check - if supabase client isn't ready, skip
+    if (!supabase?.auth) {
+      console.error('Supabase auth not available');
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     getSession().then((s) => {
       setSession(s);
+      setLoading(false);
+    }).catch((err) => {
+      console.error('Failed to get session:', err);
       setLoading(false);
     });
 
