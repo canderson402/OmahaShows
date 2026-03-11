@@ -32,6 +32,7 @@ interface DbVenue {
   address: string | null
   city: string
   state: string
+  zip: string | null
   website_url: string | null
   color_hex: string | null
 }
@@ -90,6 +91,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title,
     description,
+    alternates: {
+      canonical: `https://omahashows.com/show/${id}`,
+    },
     openGraph: {
       title: event.title,
       description: `${formatDate(event.date)} at ${venueName}`,
@@ -154,5 +158,57 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
     color_hex: venue.color_hex,
   } : null
 
-  return <ShowPageClient event={eventData} venue={venueData} />
+  // Generate JSON-LD structured data for Google Events
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicEvent',
+    name: event.title,
+    startDate: event.time
+      ? `${event.date}T${event.time}`
+      : event.date,
+    url: `https://omahashows.com/show/${id}`,
+    ...(event.image_url && { image: event.image_url }),
+    ...(event.ticket_url && {
+      offers: {
+        '@type': 'Offer',
+        url: event.ticket_url,
+        ...(event.price && { price: event.price }),
+        availability: 'https://schema.org/InStock',
+      },
+    }),
+    location: {
+      '@type': 'MusicVenue',
+      name: venueName,
+      ...(venue?.address && {
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: venue.address,
+          addressLocality: venue.city,
+          addressRegion: venue.state,
+          ...(venue.zip && { postalCode: venue.zip }),
+          addressCountry: 'US',
+        },
+      }),
+    },
+    performer: [
+      {
+        '@type': 'MusicGroup',
+        name: event.title,
+      },
+      ...(event.supporting_artists || []).map(artist => ({
+        '@type': 'MusicGroup',
+        name: artist,
+      })),
+    ],
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ShowPageClient event={eventData} venue={venueData} />
+    </>
+  )
 }
