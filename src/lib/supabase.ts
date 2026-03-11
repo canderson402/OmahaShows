@@ -134,7 +134,7 @@ function getRecentlyAddedCutoff(): string {
 }
 
 // Get upcoming events (date >= today) with pagination and search
-export async function getEvents(options?: { limit?: number; offset?: number; search?: string; timeFilter?: TimeFilter; venueIds?: string[] }): Promise<{ events: Event[]; hasMore: boolean }> {
+export async function getEvents(options?: { limit?: number; offset?: number; search?: string; timeFilter?: TimeFilter; venueIds?: string[] }): Promise<{ events: Event[]; hasMore: boolean; totalCount: number }> {
   const today = getLocalDateString()
   const venues = await getVenues()
   const limit = options?.limit || 20
@@ -149,7 +149,7 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
     : getCacheKey('events', { today, limit, offset, timeFilter })
 
   if (cacheKey) {
-    const cached = eventCache.get<{ events: Event[]; hasMore: boolean }>(cacheKey)
+    const cached = eventCache.get<{ events: Event[]; hasMore: boolean; totalCount: number }>(cacheKey)
     if (cached) return cached
   }
 
@@ -204,9 +204,10 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
 
   if (error) throw error
   const events = (data || []).map(e => toAppEvent(e, venues))
-  const hasMore = count ? offset + events.length < count : false
+  const totalCount = count || 0
+  const hasMore = totalCount > offset + events.length
 
-  const result = { events, hasMore }
+  const result = { events, hasMore, totalCount }
 
   // Cache the result if this was a cacheable query
   if (cacheKey) {
@@ -214,6 +215,20 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
   }
 
   return result
+}
+
+// Get total count of upcoming approved events (for display when no filters)
+export async function getTotalEventCount(): Promise<number> {
+  const today = getLocalDateString()
+
+  const { count, error } = await supabase
+    .from('events')
+    .select('*', { count: 'exact', head: true })
+    .gte('date', today)
+    .eq('status', 'approved')
+
+  if (error) throw error
+  return count || 0
 }
 
 // Get history (past events) with filter-based loading

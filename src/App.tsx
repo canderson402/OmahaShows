@@ -13,7 +13,7 @@ import { SubmitShowForm } from "./components/SubmitShowForm";
 import { useDebounce } from "./hooks/useDebounce";
 import { useSavedShows } from "./hooks/useSavedShows";
 import { trackViewChange } from "./analytics";
-import { getEvents, getHistory, getSources, getEventById, getFullEventsByIds, type HistoryFilter } from "./lib/supabase";
+import { getEvents, getHistory, getSources, getEventById, getFullEventsByIds, getTotalEventCount, type HistoryFilter } from "./lib/supabase";
 import { LoginPage } from "./pages/LoginPage";
 import { AdminPage } from "./pages/AdminPage";
 import { SubmissionPage } from "./pages/SubmissionPage";
@@ -199,6 +199,7 @@ function MyShowsList({
 function HomePage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [hasMoreEvents, setHasMoreEvents] = useState(true);
+  const [filteredTotalCount, setFilteredTotalCount] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [historyShows, setHistoryShows] = useState<HistoricalShow[]>([]);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
@@ -218,6 +219,7 @@ function HomePage() {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [totalEventCount, setTotalEventCount] = useState<number | null>(null);
 
   const debouncedEventSearch = useDebounce(eventSearch, 300);
   const { savedIds, isSaved, toggleSave } = useSavedShows();
@@ -254,6 +256,7 @@ function HomePage() {
           const result = await getEvents({ limit: EVENTS_PER_PAGE, offset: 0, search: event.title });
           setEvents(result.events);
           setHasMoreEvents(result.hasMore);
+          setFilteredTotalCount(result.totalCount);
         }
         // Clear the hash from URL
         window.history.replaceState(null, "", window.location.pathname);
@@ -268,15 +271,18 @@ function HomePage() {
   const fetchData = useCallback(async () => {
     try {
       // Only load events and sources initially - history is lazy loaded
-      const [eventsResult, sourcesData] = await Promise.all([
+      const [eventsResult, sourcesData, totalCount] = await Promise.all([
         getEvents({ limit: EVENTS_PER_PAGE, offset: 0 }),
         getSources(),
+        getTotalEventCount(),
       ]);
 
       setEvents(eventsResult.events);
       setHasMoreEvents(eventsResult.hasMore);
+      setFilteredTotalCount(eventsResult.totalCount);
       setSources(sourcesData);
       setEnabledVenues(new Set(sourcesData.map(s => s.id)));
+      setTotalEventCount(totalCount);
       setDataLoaded(true);
       setError(null);
     } catch (err) {
@@ -322,6 +328,7 @@ function HomePage() {
         });
         setEvents(result.events);
         setHasMoreEvents(result.hasMore);
+        setFilteredTotalCount(result.totalCount);
       } catch (err) {
         console.error("Failed to search events:", err);
       }
@@ -515,7 +522,31 @@ function HomePage() {
 
               {(view === "events" || view === "history" || view === "calendar" || view === "myshows") && (
                 <>
-                  <div className="flex items-center justify-end mb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    {/* Event count */}
+                    <div className="text-sm text-gray-400">
+                      {view === "events" && (() => {
+                        const hasFilters = debouncedEventSearch || timeFilter !== "all" || enabledVenues.size !== sources.length;
+                        if (hasFilters) {
+                          return (
+                            <span>
+                              <span className="font-medium text-white">{filteredTotalCount}</span> shows
+                            </span>
+                          );
+                        }
+                        return totalEventCount !== null ? (
+                          <span>
+                            <span className="font-medium text-white">{totalEventCount}</span> shows
+                          </span>
+                        ) : null;
+                      })()}
+                      {view === "history" && historyLoaded && (
+                        <span>
+                          <span className="font-medium text-white">{historyShows.length}</span>
+                          {hasMoreHistory && "+"} shows
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
                       {(view === "events" || view === "history") && (
                         <div className="relative">
