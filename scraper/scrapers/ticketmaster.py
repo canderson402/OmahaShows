@@ -106,6 +106,16 @@ class TicketmasterClient:
             if not title:
                 return None
 
+            # Skip travel/hotel package listings (not real events)
+            title_lower = title.lower()
+            if "ticket + hotel" in title_lower or "hotel deal" in title_lower:
+                return None
+
+            # Skip if URL is a travel package URL
+            event_url_check = tm_event.get("url", "")
+            if "travel.ticketmaster.com" in event_url_check:
+                return None
+
             # Date and time
             dates = tm_event.get("dates", {}).get("start", {})
             date = dates.get("localDate")
