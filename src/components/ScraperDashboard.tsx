@@ -22,6 +22,7 @@ const SCRAPERS = [
   { id: "orpheum", name: "Orpheum Theater", url: "https://ticketomaha.com" },
   { id: "baxterarena", name: "Baxter Arena", url: "https://www.baxterarena.com" },
   { id: "stircove", name: "Stir Concert Cove", url: "https://www.stircoveamp.com/events/" },
+  { id: "thesydney", name: "The Sydney", url: "https://thesydneybenson.com/events/" },
   { id: "other", name: "Other Venues", url: "https://omahaunderground.com" },
 ];
 

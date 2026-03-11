@@ -15,6 +15,7 @@ from scrapers.opa import OPAScraper
 from scrapers.omahaunderground import OtherVenuesScraper
 from scrapers.ohmyomaha import OhMyOmahaScraper
 from scrapers.ticketmaster import TicketmasterClient
+from scrapers.thesydney import TheSydneyScraper
 
 
 def get_scrapers(supabase_client=None, venue_matcher=None, api_keys=None):
@@ -34,6 +35,7 @@ def get_scrapers(supabase_client=None, venue_matcher=None, api_keys=None):
         StirCoveScraper(),
         OPAScraper("Holland Performing Arts Center", "holland"),
         OPAScraper("Orpheum Theater", "orpheum"),
+        TheSydneyScraper(),
         OtherVenuesScraper(supabase_client=supabase_client, venue_matcher=venue_matcher),
         OhMyOmahaScraper(supabase_client=supabase_client, venue_matcher=venue_matcher),
     ]
