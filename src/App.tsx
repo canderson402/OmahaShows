@@ -17,6 +17,7 @@ import { getEvents, getHistory, getSources, getEventById, getFullEventsByIds, ge
 import { LoginPage } from "./pages/LoginPage";
 import { AdminPage } from "./pages/AdminPage";
 import { SubmissionPage } from "./pages/SubmissionPage";
+import { ShowPage } from "./pages/ShowPage";
 
 type View = "events" | "history" | "calendar" | "submit" | "myshows";
 type Layout = "compact" | "full";
@@ -683,6 +684,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/show/:id" element={<ShowPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/submission" element={<SubmissionPage />} />

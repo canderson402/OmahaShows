@@ -1,5 +1,6 @@
 // web/src/components/EventCardCompact.tsx
 import { memo, useState } from "react";
+import { Link } from "react-router-dom";
 import type { Event } from "../types";
 import { outboundClickProps } from "../analytics";
 
@@ -135,7 +136,7 @@ export const EventCardCompact = memo(function EventCardCompact({
     return `${hour12}:${minutes} ${ampm}`;
   };
 
-  const listingUrl = event.eventUrl || event.ticketUrl;
+  const showPageUrl = `/show/${event.id}`;
 
   return (
     <div
@@ -162,18 +163,18 @@ export const EventCardCompact = memo(function EventCardCompact({
             </p>
           </div>
           <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square">
-            {event.imageUrl ? (
-              <EventImage src={event.imageUrl} alt={event.title} />
-            ) : (
-              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                <span className="text-gray-500 text-5xl">&#9834;</span>
-              </div>
-            )}
-            {listingUrl && (
-              <div className="absolute bottom-2 left-2 z-10">
-                <ShareButton url={listingUrl} title={event.title} />
-              </div>
-            )}
+            <Link to={showPageUrl} className="block w-full h-full">
+              {event.imageUrl ? (
+                <EventImage src={event.imageUrl} alt={event.title} />
+              ) : (
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                  <span className="text-gray-500 text-5xl">&#9834;</span>
+                </div>
+              )}
+            </Link>
+            <div className="absolute bottom-2 left-2 z-10">
+              <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />
+            </div>
             {onToggleSave && (
               <div className="absolute bottom-2 right-2 z-10">
                 <SaveButton isSaved={isSaved} onClick={() => onToggleSave(event.id)} />
@@ -184,16 +185,13 @@ export const EventCardCompact = memo(function EventCardCompact({
 
         {/* Content */}
         <div>
-          {listingUrl && !isExpired ? (
-            <a
-              href={listingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              {...outboundClickProps(event.venue, event.title, "info", listingUrl)}
+          {!isExpired ? (
+            <Link
+              to={showPageUrl}
               className="text-xl font-bold text-white hover:text-blue-400 transition-colors"
             >
               {event.title}
-            </a>
+            </Link>
           ) : (
             <h3 className="text-xl font-bold text-white">{event.title}</h3>
           )}
@@ -250,7 +248,7 @@ export const EventCardCompact = memo(function EventCardCompact({
                   target="_blank"
                   rel="noopener noreferrer"
                   {...outboundClickProps(event.venue, event.title, "tickets", event.ticketUrl!)}
-                  className="flex-1 text-center px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors"
+                  className="flex-1 text-center px-4 py-2.5 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-medium rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
                 >
                   Tickets
                 </a>
@@ -299,7 +297,7 @@ export const EventCardCompact = memo(function EventCardCompact({
                   target="_blank"
                   rel="noopener noreferrer"
                   {...outboundClickProps(event.venue, event.title, "tickets", event.ticketUrl!)}
-                  className="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors"
+                  className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-medium rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
                 >
                   Tickets
                 </a>
@@ -324,11 +322,9 @@ export const EventCardCompact = memo(function EventCardCompact({
                   <span className="text-gray-500 text-5xl">&#9834;</span>
                 </div>
               )}
-              {listingUrl && (
-                <div className="absolute bottom-2 left-2 z-10">
-                  <ShareButton url={listingUrl} title={event.title} />
-                </div>
-              )}
+              <div className="absolute bottom-2 left-2 z-10">
+                <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />
+              </div>
               {onToggleSave && (
                 <div className="absolute bottom-2 right-2 z-10">
                   <SaveButton isSaved={isSaved} onClick={() => onToggleSave(event.id)} />
@@ -337,11 +333,8 @@ export const EventCardCompact = memo(function EventCardCompact({
             </div>
           </div>
         ) : (
-          <a
-            href={listingUrl || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            {...(listingUrl ? outboundClickProps(event.venue, event.title, "image", listingUrl) : {})}
+          <Link
+            to={showPageUrl}
             className="w-[220px] flex-shrink-0 overflow-hidden block hover:opacity-90 transition-opacity"
           >
             <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
@@ -357,32 +350,27 @@ export const EventCardCompact = memo(function EventCardCompact({
                   <span className="text-gray-500 text-5xl">&#9834;</span>
                 </div>
               )}
-              {listingUrl && (
-                <div className="absolute bottom-2 left-2 z-10">
-                  <ShareButton url={listingUrl} title={event.title} />
-                </div>
-              )}
+              <div className="absolute bottom-2 left-2 z-10">
+                <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />
+              </div>
               {onToggleSave && (
                 <div className="absolute bottom-2 right-2 z-10">
                   <SaveButton isSaved={isSaved} onClick={() => onToggleSave(event.id)} />
                 </div>
               )}
             </div>
-          </a>
+          </Link>
         )}
 
         {/* Content */}
         <div className="flex-1 pt-1 pr-52">
-          {listingUrl && !isExpired ? (
-            <a
-              href={listingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              {...outboundClickProps(event.venue, event.title, "info", listingUrl)}
+          {!isExpired ? (
+            <Link
+              to={showPageUrl}
               className="text-xl font-bold text-white hover:text-blue-400 transition-colors"
             >
               {event.title}
-            </a>
+            </Link>
           ) : (
             <h3 className="text-xl font-bold text-white">{event.title}</h3>
           )}
