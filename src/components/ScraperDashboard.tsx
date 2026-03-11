@@ -28,6 +28,7 @@ const SCRAPERS = [
 // Discovery scrapers - create pending events for admin review
 const DISCOVERY_SCRAPERS = [
   { id: "ohmyomaha", name: "OhMyOmaha (Discovery)", url: "https://ohmyomaha.com/biggest-concerts-omaha/" },
+  { id: "ticketmaster", name: "Ticketmaster (Discovery)", url: "https://www.ticketmaster.com" },
 ];
 
 // API base URL - use localhost for development

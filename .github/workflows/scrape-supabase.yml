@@ -26,6 +26,7 @@ on:
           - stircove
           - other
           - ohmyomaha
+          - ticketmaster
 
 jobs:
   scrape:
@@ -33,6 +34,7 @@ jobs:
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
 
     steps:
       - name: Checkout

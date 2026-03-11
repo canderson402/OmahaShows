@@ -95,6 +95,12 @@ def main():
         run_ohmyomaha()
         return
 
+    # Special handling for ticketmaster - needs API key and venue matcher
+    if scraper_id == 'ticketmaster':
+        from run_ticketmaster import run as run_ticketmaster
+        run_ticketmaster()
+        return
+
     scraper = next((s for s in SCRAPERS if s.id == scraper_id), None)
     if not scraper:
         print(f'Unknown scraper: {scraper_id}')
