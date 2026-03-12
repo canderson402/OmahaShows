@@ -175,7 +175,16 @@ export default function ShowPageClient({ event, venue }: ShowPageClientProps) {
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center justify-end mb-6">
+            <div className="flex items-center justify-between mb-6">
+              <Link
+                href="/"
+                className="flex items-center gap-2 px-4 py-2 bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white rounded-full transition-all border border-white/10 text-sm font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                View All Shows
+              </Link>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleToggleSave}
