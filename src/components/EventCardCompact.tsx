@@ -157,8 +157,8 @@ export const EventCardCompact = memo(function EventCardCompact({
               Recently Added
             </span>
           )}
-          <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
-            <p className="text-white font-semibold text-center text-sm">
+          <div className="bg-slate-900 py-2 px-3 rounded-t-xl">
+            <p className="text-white font-bold text-center text-base">
               {formatDateOverlay(event.date)}
             </p>
           </div>
@@ -311,8 +311,8 @@ export const EventCardCompact = memo(function EventCardCompact({
         {/* Image with date header - clickable unless expired */}
         {isExpired ? (
           <div className="w-[220px] flex-shrink-0 overflow-hidden block">
-            <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
-              <p className="text-white font-semibold text-center text-sm">
+            <div className="bg-slate-900 py-2 px-3 rounded-t-xl">
+              <p className="text-white font-bold text-center text-base">
                 {formatDateOverlay(event.date)}
               </p>
             </div>
@@ -341,8 +341,8 @@ export const EventCardCompact = memo(function EventCardCompact({
             rel="noopener noreferrer"
             className="w-[220px] flex-shrink-0 overflow-hidden block hover:opacity-90 transition-opacity"
           >
-            <div className="bg-slate-900 py-1.5 px-3 rounded-t-xl">
-              <p className="text-white font-semibold text-center text-sm">
+            <div className="bg-slate-900 py-2 px-3 rounded-t-xl">
+              <p className="text-white font-bold text-center text-base">
                 {formatDateOverlay(event.date)}
               </p>
             </div>

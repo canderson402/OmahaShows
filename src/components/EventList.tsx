@@ -6,6 +6,30 @@ import { EventCardCompact } from "./EventCardCompact";
 
 const EVENTS_PER_PAGE = 15;
 
+// Format date for day separator
+function formatDaySeparator(dateStr: string, today: string, tomorrow: string): string {
+  if (dateStr === today) return "Today";
+  if (dateStr === tomorrow) return "Tomorrow";
+
+  const date = new Date(dateStr + "T00:00:00");
+  const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
+  const month = date.toLocaleDateString("en-US", { month: "long" });
+  const day = date.getDate();
+
+  return `${weekday}, ${month} ${day}`;
+}
+
+// Day separator component
+function DaySeparator({ label }: { label: string }) {
+  return (
+    <div className="bg-gray-800 py-3 px-4 -mx-6 flex items-center justify-center border-y border-gray-700">
+      <span className="text-white font-bold text-base tracking-wide">
+        {label}
+      </span>
+    </div>
+  );
+}
+
 // VenueColors is now just venue_id -> hex color
 type VenueColors = Record<string, string>;
 
@@ -32,9 +56,13 @@ interface EventListProps {
 export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId, isSaved, onToggleSave, initialVisibleCount }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount || EVENTS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const today = useMemo(() => {
+  const { today, tomorrow } = useMemo(() => {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const tom = new Date(now);
+    tom.setDate(tom.getDate() + 1);
+    const tomorrowStr = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, '0')}-${String(tom.getDate()).padStart(2, '0')}`;
+    return { today: todayStr, tomorrow: tomorrowStr };
   }, []);
 
   // Reset visible count when filters change
@@ -165,20 +193,36 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
   }
 
   if (layout === "compact") {
+    let lastDate: string | null = null;
+
     return (
       <div>
-        <div className="divide-y divide-gray-700">
-          {visibleEvents.map((event) => (
-            <EventCardCompact
-              key={event.id}
-              event={event}
-              venueColors={venueColors}
-              isJustAdded={isJustAdded?.(event)}
-              isHighlighted={event.id === highlightedEventId}
-              isSaved={isSaved?.(event.id)}
-              onToggleSave={onToggleSave}
-            />
-          ))}
+        <div>
+          {visibleEvents.map((event, index) => {
+            const isNewDay = event.date !== lastDate;
+            const showDaySeparator = isNewDay; // Show for first event too
+            const showDivider = index > 0 && !isNewDay;
+            lastDate = event.date;
+
+            return (
+              <div key={event.id}>
+                {showDaySeparator && (
+                  <DaySeparator label={formatDaySeparator(event.date, today, tomorrow)} />
+                )}
+                {showDivider && (
+                  <div className="border-t border-gray-700" />
+                )}
+                <EventCardCompact
+                  event={event}
+                  venueColors={venueColors}
+                  isJustAdded={isJustAdded?.(event)}
+                  isHighlighted={event.id === highlightedEventId}
+                  isSaved={isSaved?.(event.id)}
+                  onToggleSave={onToggleSave}
+                />
+              </div>
+            );
+          })}
         </div>
         {/* Invisible sentinel for infinite scroll */}
         {(hasMore || loadingMore) && (
@@ -190,12 +234,30 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
     );
   }
 
+  // Full layout with day separators
+  let lastDateFull: string | null = null;
+
   return (
     <div>
-      <div className="divide-y divide-gray-700">
-        {visibleEvents.map((event) => (
-          <EventCard key={event.id} event={event} venueColors={venueColors} />
-        ))}
+      <div>
+        {visibleEvents.map((event, index) => {
+          const isNewDay = event.date !== lastDateFull;
+          const showDaySeparator = isNewDay; // Show for first event too
+          const showDivider = index > 0 && !isNewDay;
+          lastDateFull = event.date;
+
+          return (
+            <div key={event.id}>
+              {showDaySeparator && (
+                <DaySeparator label={formatDaySeparator(event.date, today, tomorrow)} />
+              )}
+              {showDivider && (
+                <div className="border-t border-gray-700" />
+              )}
+              <EventCard event={event} venueColors={venueColors} />
+            </div>
+          );
+        })}
       </div>
       {/* Invisible sentinel for infinite scroll */}
       {(hasMore || loadingMore) && (
