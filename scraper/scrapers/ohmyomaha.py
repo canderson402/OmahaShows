@@ -2,11 +2,13 @@
 """
 Ohmyomaha scraper - discovers shows we might be missing.
 Manual-trigger only, creates pending events for admin review.
+Uses Playwright to bypass bot protection.
 """
 import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from playwright.sync_api import sync_playwright
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
@@ -58,6 +60,32 @@ class OhMyOmahaScraper(BaseScraper):
         super().__init__()
         self.supabase = supabase_client
         self.venue_matcher = venue_matcher
+
+    def scrape(self) -> list[Event]:
+        """Use Playwright to bypass bot protection."""
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(
+                    headless=True,
+                    args=['--disable-blink-features=AutomationControlled']
+                )
+                context = browser.new_context(
+                    viewport={'width': 1920, 'height': 1080},
+                    user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                )
+                page = context.new_page()
+                page.add_init_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined});')
+
+                page.goto(self.url, wait_until="domcontentloaded", timeout=30000)
+                page.wait_for_timeout(3000)  # Wait for content to load
+
+                html = page.content()
+                browser.close()
+
+                return self.parse_events(html)
+        except Exception as e:
+            print(f"Error scraping OhMyOmaha with Playwright: {e}")
+            return []
 
     def parse_events(self, html: str) -> list[Event]:
         soup = self.get_soup(html)
