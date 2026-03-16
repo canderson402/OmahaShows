@@ -86,7 +86,7 @@ INSERT INTO venues (id, name, address, city, state, website_url, color_hex) VALU
   ('orpheum', 'Orpheum Theater', '409 S 16th St', 'Omaha', 'NE', 'https://omahaperformingarts.org', '#6366f1'),
   ('barnato', 'Barnato', '6209 Maple St', 'Omaha', 'NE', 'https://barnatoomaha.com', '#84cc16'),
   ('baxterarena', 'Baxter Arena', '2425 S 67th St', 'Omaha', 'NE', 'https://www.baxterarena.com', '#ef4444'),
-  ('stircove', 'Stir Concert Cove', '1 Harrahs Blvd', 'Council Bluffs', 'IA', 'https://www.stircoveamp.com', '#eab308'),
+  ('stircove', 'Stir Concert Cove', '1 Harrahs Blvd', 'Council Bluffs', 'IA', 'https://www.caesars.com/harrahs-council-bluffs/shows', '#eab308'),
   ('other', 'Other', NULL, 'Omaha', 'NE', NULL, '#10b981');
 
 -- Updated at trigger
