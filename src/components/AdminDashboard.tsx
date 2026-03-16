@@ -356,13 +356,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
       if (updateError) throw updateError;
 
-      // Mark change as approved
+      // Delete the change request (no need to keep it)
       const { error: changeError } = await supabase
         .from("event_changes")
-        .update({
-          status: "approved",
-          resolved_at: new Date().toISOString(),
-        })
+        .delete()
         .eq("id", change.id);
 
       if (changeError) throw changeError;
@@ -386,13 +383,10 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     if (!confirm("Are you sure you want to reject this change?")) return;
     setActionLoading(change.id);
     try {
-      // Mark change as rejected
+      // Delete the change request (no need to keep it)
       const { error } = await supabase
         .from("event_changes")
-        .update({
-          status: "rejected",
-          resolved_at: new Date().toISOString(),
-        })
+        .delete()
         .eq("id", change.id);
 
       if (error) throw error;
