@@ -104,16 +104,8 @@ class StirCoveScraper(BaseScraper):
             if ticket_el:
                 ticket_url = ticket_el.get_attribute('href')
 
-            # Try to get event info link
+            # Stir Cove doesn't have individual event pages, only ticket links
             event_url = None
-            link_el = card.query_selector('a[href*="shows"], a[href*="event"]')
-            if link_el:
-                href = link_el.get_attribute('href')
-                if href and not 'ticketmaster' in href:
-                    if href.startswith('/'):
-                        event_url = f"https://www.caesars.com{href}"
-                    else:
-                        event_url = href
 
             # Generate ID
             slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
@@ -200,7 +192,7 @@ class StirCoveScraper(BaseScraper):
                 date=date_str,
                 time=None,
                 venue=self.name,
-                eventUrl=f"https://www.caesars.com/harrahs-council-bluffs/shows",
+                eventUrl=None,  # Stir Cove has no individual event pages
                 ticketUrl=ticket_url,
                 imageUrl=img_url,
                 price=None,
