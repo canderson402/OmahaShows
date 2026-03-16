@@ -659,6 +659,11 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                             <span className="text-xs text-gray-500">
                               Submitted {new Date(event.created_at).toLocaleDateString()}
                             </span>
+                            {event.source && (
+                              <span className="text-xs px-2 py-0.5 bg-purple-600/30 text-purple-400 rounded">
+                                from: {event.source}
+                              </span>
+                            )}
                             {(() => {
                               const change = getChangeForEvent(event.id);
                               return change ? (
@@ -776,6 +781,11 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                               <span className="text-xs text-gray-500">
                                 Submitted {new Date(event.created_at).toLocaleDateString()}
                               </span>
+                              {event.source && (
+                                <span className="text-xs px-2 py-0.5 bg-purple-600/30 text-purple-400 rounded">
+                                  from: {event.source}
+                                </span>
+                              )}
                               {(() => {
                                 const change = getChangeForEvent(event.id);
                                 return change ? (
