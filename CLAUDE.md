@@ -6,6 +6,7 @@ A local music event aggregator that scrapes venue websites and displays upcoming
 
 - **NEVER make decisions or take actions without asking first.** Always ask the user before implementing, creating, or changing anything. No exceptions.
 - **NEVER commit without explicit user permission.** Wait for "commit" or similar approval.
+- **ALWAYS push after committing (when user requests commit).** Vercel deploys from local, but GitHub Actions (scrapers) pulls from GitHub. If you don't push, scraper changes won't take effect.
 - **NEVER deploy to production without explicit user permission.** Wait for "deploy" or similar approval.
 - Run `npm run build` to verify changes compile, but let the user run `npm run dev` and test.
 - Always confirm before taking destructive or irreversible actions.

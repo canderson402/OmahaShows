@@ -2,12 +2,15 @@
 """
 Stir Concert Cove scraper.
 Scrapes event data directly from the official Caesars/Harrah's website.
+Uses Ticketmaster API to fetch prices.
 """
+import os
 import re
 import sys
 from datetime import datetime
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+import requests
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
@@ -18,6 +21,48 @@ class StirCoveScraper(BaseScraper):
     name = "Stir Concert Cove"
     id = "stircove"
     url = "https://www.caesars.com/harrahs-council-bluffs/shows"
+
+    def __init__(self):
+        self.tm_api_key = os.environ.get("TICKETMASTER_API_KEY")
+
+    def _get_price_from_ticketmaster(self, ticket_url: str) -> str | None:
+        """Fetch price from Ticketmaster API using event URL."""
+        if not self.tm_api_key or not ticket_url:
+            return None
+
+        # Extract event ID from URL like https://www.ticketmaster.com/event/06006123A5C53B87
+        match = re.search(r'/event/([A-Z0-9]+)', ticket_url, re.I)
+        if not match:
+            return None
+
+        event_id = match.group(1)
+
+        try:
+            response = requests.get(
+                f"https://app.ticketmaster.com/discovery/v2/events/{event_id}.json",
+                params={"apikey": self.tm_api_key},
+                timeout=10
+            )
+            if response.status_code != 200:
+                return None
+
+            data = response.json()
+            price_ranges = data.get("priceRanges", [])
+            if price_ranges:
+                pr = price_ranges[0]
+                min_price = pr.get("min")
+                max_price = pr.get("max")
+                if min_price and max_price:
+                    if min_price == max_price:
+                        return f"${min_price:.0f}"
+                    else:
+                        return f"${min_price:.0f}-${max_price:.0f}"
+                elif min_price:
+                    return f"${min_price:.0f}+"
+        except Exception:
+            pass
+
+        return None
 
     def scrape(self) -> list[Event]:
         """Use Playwright to scrape events from the official Caesars site."""
@@ -107,6 +152,9 @@ class StirCoveScraper(BaseScraper):
             # Stir Cove doesn't have individual event pages, only ticket links
             event_url = None
 
+            # Fetch price from Ticketmaster API
+            price = self._get_price_from_ticketmaster(ticket_url)
+
             # Generate ID
             slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
             event_id = f"stircove-{date_str}-{slug}"[:80]
@@ -120,7 +168,7 @@ class StirCoveScraper(BaseScraper):
                 eventUrl=event_url,
                 ticketUrl=ticket_url,
                 imageUrl=image_url,
-                price=None,
+                price=price,
                 ageRestriction=None,
                 supportingArtists=None,
                 source=self.id
@@ -182,6 +230,9 @@ class StirCoveScraper(BaseScraper):
             if not date_str:
                 continue
 
+            # Fetch price from Ticketmaster API
+            price = self._get_price_from_ticketmaster(ticket_url)
+
             # Generate ID
             slug = re.sub(r'[^a-z0-9]+', '-', artist_name.lower()).strip('-')
             event_id = f"stircove-{date_str}-{slug}"[:80]
@@ -195,7 +246,7 @@ class StirCoveScraper(BaseScraper):
                 eventUrl=None,  # Stir Cove has no individual event pages
                 ticketUrl=ticket_url,
                 imageUrl=img_url,
-                price=None,
+                price=price,
                 ageRestriction=None,
                 supportingArtists=None,
                 source=self.id
