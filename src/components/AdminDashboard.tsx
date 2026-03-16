@@ -550,6 +550,11 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                               <p className="text-xs text-gray-500">
                                 {new Date(change.created_at).toLocaleDateString()}
                               </p>
+                              {change.proposed_data.source && (
+                                <span className="text-xs px-2 py-0.5 bg-purple-600/30 text-purple-400 rounded">
+                                  from: {change.proposed_data.source}
+                                </span>
+                              )}
                               {(change.proposed_data.event_url || change.original_data?.event_url) && (
                                 <a
                                   href={change.proposed_data.event_url || change.original_data?.event_url || ''}
@@ -557,7 +562,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                   rel="noopener noreferrer"
                                   className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
                                 >
-                                  Source →
+                                  View Source →
                                 </a>
                               )}
                             </div>
@@ -1232,9 +1237,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
             {/* Changes */}
             <div className="p-3 sm:p-4 overflow-y-auto flex-1">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                <p className="text-xs sm:text-sm text-gray-400">
-                  Event: <span className="text-white block sm:inline truncate">{viewingChange.original_data?.title || viewingChange.proposed_data.title}</span>
-                </p>
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-400">
+                    Event: <span className="text-white block sm:inline truncate">{viewingChange.original_data?.title || viewingChange.proposed_data.title}</span>
+                  </p>
+                  {viewingChange.proposed_data.source && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Scraper: <span className="text-purple-400 font-medium">{viewingChange.proposed_data.source}</span>
+                    </p>
+                  )}
+                </div>
                 {(viewingChange.proposed_data.event_url || viewingChange.original_data?.event_url) && (
                   <a
                     href={viewingChange.proposed_data.event_url || viewingChange.original_data?.event_url || ''}
