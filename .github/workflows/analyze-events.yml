@@ -1,0 +1,85 @@
+name: Analyze New Events
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC (4 AM Central Daylight Time) - 1 hour after scrapers
+    - cron: '0 9 * * *'
+  workflow_dispatch:  # Manual trigger button
+    inputs:
+      batch_size:
+        description: 'Number of events to analyze per batch'
+        required: false
+        default: '10'
+        type: string
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    env:
+      API_URL: https://omahashows.com/api/admin/bulk-analyze
+      ANALYZE_API_KEY: ${{ secrets.ANALYZE_API_KEY }}
+
+    steps:
+      - name: Analyze unanalyzed events
+        run: |
+          echo "## Event Analysis Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          BATCH_SIZE="${{ inputs.batch_size || '10' }}"
+          TOTAL_PROCESSED=0
+          TOTAL_WITH_ARTISTS=0
+          BATCH_NUM=0
+          MAX_BATCHES=20  # Safety limit
+
+          while [ $BATCH_NUM -lt $MAX_BATCHES ]; do
+            BATCH_NUM=$((BATCH_NUM + 1))
+            echo "Running batch $BATCH_NUM..."
+
+            # Check how many need analysis
+            STATUS=$(curl -s "$API_URL")
+            NEEDS_ANALYSIS=$(echo "$STATUS" | jq -r '.needsAnalysis // 0')
+
+            if [ "$NEEDS_ANALYSIS" = "0" ] || [ "$NEEDS_ANALYSIS" = "null" ]; then
+              echo "No more events need analysis."
+              break
+            fi
+
+            echo "Events needing analysis: $NEEDS_ANALYSIS"
+
+            # Run analysis batch
+            RESULT=$(curl -s -X POST "$API_URL" \
+              -H "Content-Type: application/json" \
+              -d "{\"batchSize\": $BATCH_SIZE}")
+
+            PROCESSED=$(echo "$RESULT" | jq -r '.processed // 0')
+
+            if [ "$PROCESSED" = "0" ] || [ "$PROCESSED" = "null" ]; then
+              echo "No events processed in this batch."
+              break
+            fi
+
+            # Count events with artists found
+            WITH_ARTISTS=$(echo "$RESULT" | jq '[.results[] | select(.artistName != null)] | length')
+
+            TOTAL_PROCESSED=$((TOTAL_PROCESSED + PROCESSED))
+            TOTAL_WITH_ARTISTS=$((TOTAL_WITH_ARTISTS + WITH_ARTISTS))
+
+            echo "Batch $BATCH_NUM: Processed $PROCESSED events ($WITH_ARTISTS with artists)"
+
+            # Small delay between batches
+            sleep 2
+          done
+
+          echo "**Total events analyzed:** $TOTAL_PROCESSED" >> $GITHUB_STEP_SUMMARY
+          echo "**Events with artists found:** $TOTAL_WITH_ARTISTS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ $BATCH_NUM -ge $MAX_BATCHES ]; then
+            echo "⚠️ Reached maximum batch limit ($MAX_BATCHES). Some events may still need analysis." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All events have been analyzed and are pending approval." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Summary
+        run: |
+          echo "Analysis complete. Check the Pending tab in the admin dashboard to approve artist matches."

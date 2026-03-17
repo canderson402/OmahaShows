@@ -37,7 +37,23 @@ interface DbVenue {
   color_hex: string | null
 }
 
-async function getEvent(id: string): Promise<{ event: DbEvent; venue: DbVenue | null } | null> {
+interface DbArtist {
+  id: string
+  name: string
+  spotify_url: string | null
+  instagram_url: string | null
+  website_url: string | null
+  image_url: string | null
+  genres: string[]
+}
+
+interface EventArtist {
+  role: string
+  billing_order: number
+  artists: DbArtist
+}
+
+async function getEvent(id: string): Promise<{ event: DbEvent; venue: DbVenue | null; artists: EventArtist[] } | null> {
   const { data: event, error } = await supabase
     .from('events')
     .select('*')
@@ -58,7 +74,16 @@ async function getEvent(id: string): Promise<{ event: DbEvent; venue: DbVenue | 
     venue = venueData
   }
 
-  return { event, venue }
+  // Get linked artists
+  const { data: artistLinks } = await supabase
+    .from('event_artists')
+    .select('role, billing_order, artists(*)')
+    .eq('event_id', id)
+    .order('billing_order', { ascending: true })
+
+  const artists = (artistLinks || []) as unknown as EventArtist[]
+
+  return { event, venue, artists }
 }
 
 function getLocalDateString(): string {
@@ -119,7 +144,7 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
     notFound()
   }
 
-  const { event, venue } = data
+  const { event, venue, artists } = data
 
   // Check if event is in the past - redirect to home
   const today = getLocalDateString()
@@ -157,6 +182,17 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
     website_url: venue.website_url,
     color_hex: venue.color_hex,
   } : null
+
+  // Transform artists for the client
+  const artistsData = artists.map(a => ({
+    name: a.artists.name,
+    role: a.role as 'headliner' | 'supporting' | 'co-headliner',
+    spotify_url: a.artists.spotify_url,
+    instagram_url: a.artists.instagram_url,
+    website_url: a.artists.website_url,
+    image_url: a.artists.image_url,
+    genres: a.artists.genres || [],
+  }))
 
   // Generate JSON-LD structured data for Google Events
   const jsonLd = {
@@ -208,7 +244,7 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ShowPageClient event={eventData} venue={venueData} />
+      <ShowPageClient event={eventData} venue={venueData} artists={artistsData} />
     </>
   )
 }

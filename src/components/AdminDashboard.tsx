@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { supabase, approveEvent, rejectEvent, getVenues } from "../lib/supabase";
 import { VENUE_COLORS } from "../lib/constants";
+import { GENRES, GENRE_LABELS } from "../lib/genres";
 import { ScraperDashboard } from "./ScraperDashboard";
 import { VenueManagement } from "./VenueManagement";
+import { ArtistManagement } from "./ArtistManagement";
 import { Toast } from "./Toast";
+import { AnalysisModal } from "./AnalysisModal";
 
 function normalizeUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -17,7 +20,7 @@ function normalizeUrl(url: string | null | undefined): string | null {
   return url;
 }
 
-export type AdminTab = "pending" | "scrapers" | "events" | "venues";
+export type AdminTab = "pending" | "scrapers" | "events" | "venues" | "artists";
 
 const EVENTS_PER_PAGE = 50;
 
@@ -84,6 +87,58 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [viewingChange, setViewingChange] = useState<EventChange | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  // AI Analysis state
+  const [analyzingEvent, setAnalyzingEvent] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<{
+    eventId: string;
+    eventTitle: string;
+    result: {
+      artists: Array<{
+        name: string;
+        role: "headliner" | "supporting" | "co-headliner";
+        genres: string[];
+        spotify_url: string | null;
+        instagram_url: string | null;
+        website_url: string | null;
+      }>;
+      duplicate_of: string | null;
+      duplicate_confidence: "high" | "medium" | "low" | null;
+    };
+  } | null>(null);
+  const [acceptingAnalysis, setAcceptingAnalysis] = useState(false);
+
+  // Bulk analysis state
+  const [bulkAnalyzing, setBulkAnalyzing] = useState(false);
+  const [analyzedEventIds, setAnalyzedEventIds] = useState<Set<string>>(new Set());
+
+  // Pending artist analyses state
+  interface PendingArtistAnalysis {
+    id: string;
+    event_id: string;
+    artists: Array<{
+      name: string;
+      role: "headliner" | "supporting" | "co-headliner";
+      genres: string[];
+      spotify_url: string | null;
+      instagram_url: string | null;
+      website_url: string | null;
+    }>;
+    created_at: string;
+    status: string;
+    events: {
+      id: string;
+      title: string;
+      date: string;
+      time: string | null;
+      venue_id: string;
+      venue_name: string | null;
+      image_url: string | null;
+      venues: { name: string } | null;
+    } | null;
+  }
+  const [pendingArtistAnalyses, setPendingArtistAnalyses] = useState<PendingArtistAnalysis[]>([]);
+  const [viewingPendingAnalysis, setViewingPendingAnalysis] = useState<PendingArtistAnalysis | null>(null);
+
   const fetchPending = useCallback(async () => {
     const { data, error } = await supabase
       .from("events")
@@ -148,14 +203,38 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   }, []);
 
+  const fetchAnalyzedEvents = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("events")
+      .select("id")
+      .eq("status", "approved")
+      .not("analyzed_at", "is", null);
+
+    if (!error && data) {
+      setAnalyzedEventIds(new Set(data.map(e => e.id)));
+    }
+  }, []);
+
+  const fetchPendingArtistAnalyses = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/pending-analyses");
+      if (response.ok) {
+        const data = await response.json();
+        setPendingArtistAnalyses(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch pending artist analyses:", err);
+    }
+  }, []);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      await Promise.all([fetchPending(), fetchCurrentEvents(), fetchVenues(), fetchEventChanges()]);
+      await Promise.all([fetchPending(), fetchCurrentEvents(), fetchVenues(), fetchEventChanges(), fetchAnalyzedEvents(), fetchPendingArtistAnalyses()]);
       setLoading(false);
     };
     load();
-  }, [fetchPending, fetchCurrentEvents, fetchVenues, fetchEventChanges]);
+  }, [fetchPending, fetchCurrentEvents, fetchVenues, fetchEventChanges, fetchAnalyzedEvents, fetchPendingArtistAnalyses]);
 
   // Search/filter with debounce
   useEffect(() => {
@@ -170,8 +249,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     if (tab === "pending") {
       fetchPending();
       fetchEventChanges();
+      fetchPendingArtistAnalyses();
     }
-  }, [tab, fetchPending, fetchEventChanges]);
+  }, [tab, fetchPending, fetchEventChanges, fetchPendingArtistAnalyses]);
 
   const loadMoreEvents = async () => {
     setLoadingMore(true);
@@ -406,6 +486,181 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   };
 
+  // AI Analysis handlers
+  const handleAnalyze = async (event: { id: string; title: string }) => {
+    setAnalyzingEvent(event.id);
+    try {
+      const response = await fetch("/api/admin/analyze-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: event.id }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Analysis failed");
+      }
+
+      const result = await response.json();
+
+      // If artists were found, refresh pending list and show toast
+      if (result.artists && result.artists.length > 0) {
+        const headliner = result.artists.find((a: { role: string }) => a.role === "headliner");
+        setToast({
+          message: `Found ${result.artists.length} artist(s): ${headliner?.name || result.artists[0]?.name}. Check Pending tab to approve.`,
+          type: "success",
+        });
+        await fetchPendingArtistAnalyses();
+      } else {
+        setToast({
+          message: "No artists found in event title",
+          type: "success",
+        });
+      }
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Analysis failed",
+        type: "error",
+      });
+    } finally {
+      setAnalyzingEvent(null);
+    }
+  };
+
+  const handleAcceptAnalysis = async () => {
+    if (!analysisResult) return;
+
+    setAcceptingAnalysis(true);
+    try {
+      const response = await fetch("/api/admin/accept-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId: analysisResult.eventId,
+          artists: analysisResult.result.artists,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to save");
+      }
+
+      setToast({ message: "Analysis saved successfully", type: "success" });
+      setAnalysisResult(null);
+      await Promise.all([fetchAnalyzedEvents(), fetchPendingArtistAnalyses()]); // Refresh
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Failed to save",
+        type: "error",
+      });
+    } finally {
+      setAcceptingAnalysis(false);
+    }
+  };
+
+  const handleRejectAnalysis = () => {
+    setAnalysisResult(null);
+  };
+
+  const handleRejectPendingAnalysis = async (analysisId: string) => {
+    if (!confirm("Are you sure you want to reject this artist analysis?")) return;
+    setActionLoading(analysisId);
+    try {
+      const response = await fetch(`/api/admin/pending-analyses?id=${analysisId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to reject");
+      }
+      setPendingArtistAnalyses(prev => prev.filter(a => a.id !== analysisId));
+      setViewingPendingAnalysis(null);
+      setToast({ message: "Analysis rejected", type: "success" });
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Failed to reject",
+        type: "error",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleAcceptPendingAnalysis = async (analysis: typeof pendingArtistAnalyses[0]) => {
+    setActionLoading(analysis.id);
+    try {
+      const response = await fetch("/api/admin/accept-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId: analysis.event_id,
+          artists: analysis.artists,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to save");
+      }
+
+      setPendingArtistAnalyses(prev => prev.filter(a => a.id !== analysis.id));
+      setViewingPendingAnalysis(null);
+      setToast({ message: "Artist analysis saved successfully", type: "success" });
+      await fetchAnalyzedEvents();
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Failed to save",
+        type: "error",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Bulk analysis handler - runs just one batch of 10
+  const handleBulkAnalyze = async () => {
+    setBulkAnalyzing(true);
+
+    try {
+      // First get the status
+      const statusRes = await fetch("/api/admin/bulk-analyze");
+      const status = await statusRes.json();
+
+      if (status.needsAnalysis === 0) {
+        setToast({ message: "All events have been analyzed!", type: "success" });
+        setBulkAnalyzing(false);
+        return;
+      }
+
+      // Run one batch of 10
+      const res = await fetch("/api/admin/bulk-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batchSize: 10 }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Batch failed");
+      }
+
+      const result = await res.json();
+      const withArtists = result.results.filter((r: { artistName?: string }) => r.artistName).length;
+
+      setToast({
+        message: `Analyzed ${result.processed} events (${withArtists} with artists found). Check Pending tab to approve.`,
+        type: "success",
+      });
+      await Promise.all([fetchAnalyzedEvents(), fetchPendingArtistAnalyses()]);
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Bulk analysis failed",
+        type: "error",
+      });
+    } finally {
+      setBulkAnalyzing(false);
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
     return date.toLocaleDateString("en-US", {
@@ -456,7 +711,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
               : "text-gray-400 hover:text-white"
           }`}
         >
-          Pending ({pendingEvents.length + eventChanges.filter(c => c.change_type === 'update').length})
+          Pending ({pendingEvents.length + eventChanges.filter(c => c.change_type === 'update').length + pendingArtistAnalyses.length})
         </button>
         <button
           onClick={() => setTab("events")}
@@ -487,6 +742,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           }`}
         >
           Venues
+        </button>
+        <button
+          onClick={() => setTab("artists")}
+          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+            tab === "artists"
+              ? "bg-white/10 text-white"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Artists
         </button>
       </div>
 
@@ -590,11 +855,96 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 </div>
               )}
 
-              {pendingEvents.length === 0 && eventChanges.filter(c => c.change_type === 'update').length === 0 ? (
+              {/* Pending Artist Analyses */}
+              {pendingArtistAnalyses.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-3">Pending Artist Matches ({pendingArtistAnalyses.length})</h3>
+                  <div className="space-y-3">
+                    {pendingArtistAnalyses.map((analysis) => {
+                      const venueHex = analysis.events?.venue_id ? (VENUE_COLORS[analysis.events.venue_id] || VENUE_COLORS.other || "#10b981") : "#10b981";
+                      const venueName = analysis.events?.venues?.name || analysis.events?.venue_name || "Unknown Venue";
+                      const headliner = analysis.artists.find(a => a.role === "headliner");
+                      return (
+                        <div
+                          key={analysis.id}
+                          className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-3 sm:p-4"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                {analysis.events?.image_url && (
+                                  <img src={analysis.events.image_url} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" />
+                                )}
+                                <div className="min-w-0">
+                                  <p className="text-white font-medium text-sm sm:text-base truncate">{analysis.events?.title || "Unknown Event"}</p>
+                                  <p className="text-xs text-gray-400">
+                                    {analysis.events?.date && formatDate(analysis.events.date)} · <span style={{ color: venueHex }}>{venueName}</span>
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="mt-2">
+                                <p className="text-xs text-gray-500 mb-1">Found Artists:</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {analysis.artists.map((artist, idx) => (
+                                    <span
+                                      key={idx}
+                                      className={`px-2 py-0.5 text-xs rounded ${
+                                        artist.role === "headliner"
+                                          ? "bg-amber-600/30 text-amber-400"
+                                          : artist.role === "co-headliner"
+                                          ? "bg-orange-600/30 text-orange-400"
+                                          : "bg-gray-700 text-gray-300"
+                                      }`}
+                                    >
+                                      {artist.name}
+                                      {artist.spotify_url && (
+                                        <a href={artist.spotify_url} target="_blank" rel="noopener noreferrer" className="ml-1 text-green-400 hover:text-green-300">♫</a>
+                                      )}
+                                    </span>
+                                  ))}
+                                </div>
+                                {headliner && headliner.genres.length > 0 && (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Genres: {headliner.genres.join(", ")}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-2 sm:flex-nowrap flex-shrink-0">
+                              <button
+                                onClick={() => setViewingPendingAnalysis(analysis)}
+                                className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-purple-400 hover:text-purple-300 border border-purple-600/30 rounded-lg hover:border-purple-500/50 transition-colors"
+                              >
+                                View
+                              </button>
+                              <button
+                                onClick={() => handleRejectPendingAnalysis(analysis.id)}
+                                disabled={actionLoading === analysis.id}
+                                className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                              >
+                                Reject
+                              </button>
+                              <button
+                                onClick={() => handleAcceptPendingAnalysis(analysis)}
+                                disabled={actionLoading === analysis.id}
+                                className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                              >
+                                {actionLoading === analysis.id ? "..." : "Accept"}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {pendingEvents.length === 0 && eventChanges.filter(c => c.change_type === 'update').length === 0 && pendingArtistAnalyses.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-400">No pending submissions or changes</p>
+                  <p className="text-gray-400">No pending submissions, changes, or artist analyses</p>
                   <p className="text-gray-500 text-sm mt-2">
-                    Events submitted by users and scraper changes will appear here for approval.
+                    Events submitted by users, scraper changes, and artist analyses will appear here for approval.
                   </p>
                 </div>
               ) : pendingEvents.length === 0 ? null : (
@@ -848,28 +1198,52 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           {/* Current Events Tab */}
           {tab === "events" && (
             <div>
-              {/* Status Toggle */}
-              <div className="mb-4 flex gap-2">
-                <button
-                  onClick={() => setStatusFilter("approved")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    statusFilter === "approved"
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-800 text-gray-400 hover:text-white"
-                  }`}
-                >
-                  Approved
-                </button>
-                <button
-                  onClick={() => setStatusFilter("rejected")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    statusFilter === "rejected"
-                      ? "bg-red-600 text-white"
-                      : "bg-gray-800 text-gray-400 hover:text-white"
-                  }`}
-                >
-                  Rejected
-                </button>
+              {/* Status Toggle & Bulk Actions */}
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setStatusFilter("approved")}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      statusFilter === "approved"
+                        ? "bg-green-600 text-white"
+                        : "bg-gray-800 text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Approved
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter("rejected")}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      statusFilter === "rejected"
+                        ? "bg-red-600 text-white"
+                        : "bg-gray-800 text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Rejected
+                  </button>
+                </div>
+
+                {statusFilter === "approved" && (
+                  <button
+                    onClick={handleBulkAnalyze}
+                    disabled={bulkAnalyzing}
+                    className="px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white rounded-lg disabled:opacity-50 transition-colors flex items-center gap-2"
+                  >
+                    {bulkAnalyzing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Analyze Next 10
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
 
               {/* Search and Venue Filter */}
@@ -944,11 +1318,34 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                           </button>
                         </div>
                       ) : (
-                        <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
-                          <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {/* Analyzed indicator */}
+                          <span
+                            className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                              analyzedEventIds.has(event.id)
+                                ? "bg-green-500/20"
+                                : "bg-gray-700"
+                            }`}
+                            title={analyzedEventIds.has(event.id) ? "Analyzed (headliner)" : "Not analyzed"}
+                          >
+                            {analyzedEventIds.has(event.id) ? (
+                              <svg className="w-3 h-3 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            ) : (
+                              <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            )}
+                          </span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleAnalyze({ id: event.id, title: event.title }); }}
+                            disabled={analyzingEvent === event.id}
+                            className="px-2 py-1 text-xs bg-purple-600/80 hover:bg-purple-600 text-white rounded transition-colors disabled:opacity-50"
+                          >
+                            {analyzingEvent === event.id ? "..." : "Analyze"}
+                          </button>
+                        </div>
                       )}
                     </div>
                   );
@@ -981,6 +1378,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
           {/* Venues Tab */}
           {tab === "venues" && <VenueManagement />}
+
+          {/* Artists Tab */}
+          {tab === "artists" && <ArtistManagement />}
         </>
       )}
 
@@ -1347,6 +1747,268 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           type={toast.type}
           onClose={() => setToast(null)}
         />
+      )}
+
+      {/* AI Analysis Modal */}
+      {analysisResult && (
+        <AnalysisModal
+          eventId={analysisResult.eventId}
+          eventTitle={analysisResult.eventTitle}
+          result={analysisResult.result}
+          onAccept={handleAcceptAnalysis}
+          onReject={handleRejectAnalysis}
+          isLoading={acceptingAnalysis}
+        />
+      )}
+
+      {/* Pending Artist Analysis Detail Modal */}
+      {viewingPendingAnalysis && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          onClick={() => setViewingPendingAnalysis(null)}
+        >
+          <div
+            className="w-full sm:max-w-lg max-h-[85vh] sm:max-h-[90vh] bg-gray-900 border-t sm:border border-gray-700 rounded-t-2xl sm:rounded-xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-800">
+              <h3 className="text-base sm:text-lg font-semibold text-white">Edit Artist Analysis</h3>
+              <button
+                onClick={() => setViewingPendingAnalysis(null)}
+                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-3 sm:p-4 overflow-y-auto flex-1">
+              {/* Event Info */}
+              <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  {viewingPendingAnalysis.events?.image_url && (
+                    <img src={viewingPendingAnalysis.events.image_url} alt="" className="w-16 h-16 rounded object-cover flex-shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-white font-medium truncate">{viewingPendingAnalysis.events?.title || "Unknown Event"}</p>
+                    <p className="text-sm text-gray-400">
+                      {viewingPendingAnalysis.events?.date && formatDate(viewingPendingAnalysis.events.date)}
+                      {viewingPendingAnalysis.events?.time && ` at ${viewingPendingAnalysis.events.time}`}
+                    </p>
+                    <p className="text-sm" style={{ color: viewingPendingAnalysis.events?.venue_id ? (VENUE_COLORS[viewingPendingAnalysis.events.venue_id] || "#10b981") : "#10b981" }}>
+                      {viewingPendingAnalysis.events?.venues?.name || viewingPendingAnalysis.events?.venue_name || "Unknown Venue"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Editable Artists */}
+              <h4 className="text-sm font-semibold text-white mb-2">Artists ({viewingPendingAnalysis.artists.length})</h4>
+              <div className="space-y-4">
+                {viewingPendingAnalysis.artists.map((artist, idx) => (
+                  <div key={idx} className="p-3 bg-gray-800/50 rounded-lg space-y-3">
+                    {/* Name */}
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Name</label>
+                      <input
+                        type="text"
+                        value={artist.name}
+                        onChange={(e) => {
+                          const updated = [...viewingPendingAnalysis.artists];
+                          updated[idx] = { ...updated[idx], name: e.target.value };
+                          setViewingPendingAnalysis({ ...viewingPendingAnalysis, artists: updated });
+                        }}
+                        className="w-full px-2 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-gray-500"
+                      />
+                    </div>
+
+                    {/* Role */}
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Role</label>
+                      <select
+                        value={artist.role}
+                        onChange={(e) => {
+                          const updated = [...viewingPendingAnalysis.artists];
+                          updated[idx] = { ...updated[idx], role: e.target.value as "headliner" | "supporting" | "co-headliner" };
+                          setViewingPendingAnalysis({ ...viewingPendingAnalysis, artists: updated });
+                        }}
+                        className="w-full px-2 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-gray-500"
+                      >
+                        <option value="headliner">Headliner</option>
+                        <option value="co-headliner">Co-Headliner</option>
+                        <option value="supporting">Supporting</option>
+                      </select>
+                    </div>
+
+                    {/* Genres */}
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Genres</label>
+                      <div className="flex flex-wrap gap-1.5 p-2 bg-gray-700 border border-gray-600 rounded max-h-32 overflow-y-auto">
+                        {GENRES.map((genre) => (
+                          <button
+                            key={genre}
+                            type="button"
+                            onClick={() => {
+                              const updated = [...viewingPendingAnalysis.artists];
+                              const currentGenres = updated[idx].genres;
+                              if (currentGenres.includes(genre)) {
+                                updated[idx] = { ...updated[idx], genres: currentGenres.filter(g => g !== genre) };
+                              } else {
+                                updated[idx] = { ...updated[idx], genres: [...currentGenres, genre] };
+                              }
+                              setViewingPendingAnalysis({ ...viewingPendingAnalysis, artists: updated });
+                            }}
+                            className={`px-2 py-0.5 text-xs rounded transition-colors ${
+                              artist.genres.includes(genre)
+                                ? "bg-purple-600 text-white"
+                                : "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                            }`}
+                          >
+                            {GENRE_LABELS[genre]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Spotify URL + Preview */}
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Spotify URL</label>
+                      <input
+                        type="text"
+                        value={artist.spotify_url || ""}
+                        onChange={(e) => {
+                          const updated = [...viewingPendingAnalysis.artists];
+                          updated[idx] = { ...updated[idx], spotify_url: e.target.value || null };
+                          setViewingPendingAnalysis({ ...viewingPendingAnalysis, artists: updated });
+                        }}
+                        placeholder="https://open.spotify.com/artist/..."
+                        className="w-full px-2 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                      />
+                      {/* Spotify Preview Player */}
+                      {artist.spotify_url && (() => {
+                        const match = artist.spotify_url.match(/artist\/([a-zA-Z0-9]+)/);
+                        if (!match) return null;
+                        const artistId = match[1];
+                        return (
+                          <iframe
+                            src={`https://open.spotify.com/embed/artist/${artistId}?utm_source=generator&theme=0`}
+                            width="100%"
+                            height="152"
+                            frameBorder="0"
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                            className="mt-2 rounded-lg"
+                          />
+                        );
+                      })()}
+                    </div>
+
+                    {/* Instagram URL */}
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Instagram URL</label>
+                      <input
+                        type="text"
+                        value={artist.instagram_url || ""}
+                        onChange={(e) => {
+                          const updated = [...viewingPendingAnalysis.artists];
+                          updated[idx] = { ...updated[idx], instagram_url: e.target.value || null };
+                          setViewingPendingAnalysis({ ...viewingPendingAnalysis, artists: updated });
+                        }}
+                        placeholder="https://instagram.com/..."
+                        className="w-full px-2 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                      />
+                    </div>
+
+                    {/* Website URL */}
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Website URL</label>
+                      <input
+                        type="text"
+                        value={artist.website_url || ""}
+                        onChange={(e) => {
+                          const updated = [...viewingPendingAnalysis.artists];
+                          updated[idx] = { ...updated[idx], website_url: e.target.value || null };
+                          setViewingPendingAnalysis({ ...viewingPendingAnalysis, artists: updated });
+                        }}
+                        placeholder="https://..."
+                        className="w-full px-2 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
+                      />
+                    </div>
+
+                    {/* Remove artist button */}
+                    {viewingPendingAnalysis.artists.length > 1 && (
+                      <button
+                        onClick={() => {
+                          const updated = viewingPendingAnalysis.artists.filter((_, i) => i !== idx);
+                          setViewingPendingAnalysis({ ...viewingPendingAnalysis, artists: updated });
+                        }}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Remove artist
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Add artist button */}
+              <button
+                onClick={() => {
+                  const newArtist = {
+                    name: "",
+                    role: "supporting" as const,
+                    genres: [],
+                    spotify_url: null,
+                    instagram_url: null,
+                    website_url: null,
+                  };
+                  setViewingPendingAnalysis({
+                    ...viewingPendingAnalysis,
+                    artists: [...viewingPendingAnalysis.artists, newArtist],
+                  });
+                }}
+                className="mt-3 text-sm text-purple-400 hover:text-purple-300"
+              >
+                + Add another artist
+              </button>
+
+              <p className="text-xs text-gray-500 mt-4">
+                Analyzed {new Date(viewingPendingAnalysis.created_at).toLocaleString()}
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div
+              className="flex flex-wrap items-center justify-end gap-2 p-3 sm:p-4 border-t border-gray-800"
+              style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0.75rem)' }}
+            >
+              <button
+                onClick={() => setViewingPendingAnalysis(null)}
+                className="px-3 sm:px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleRejectPendingAnalysis(viewingPendingAnalysis.id)}
+                disabled={actionLoading === viewingPendingAnalysis.id}
+                className="px-3 sm:px-4 py-2 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => handleAcceptPendingAnalysis(viewingPendingAnalysis)}
+                disabled={actionLoading === viewingPendingAnalysis.id}
+                className="px-3 sm:px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+              >
+                {actionLoading === viewingPendingAnalysis.id ? "..." : "Save & Accept"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

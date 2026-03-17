@@ -17,6 +17,7 @@ export interface Event {
   source: string;
   addedAt?: string;  // ISO timestamp when first seen
   category?: EventCategory;
+  headlinerSpotifyUrl?: string;  // Spotify URL for the headliner artist
 }
 
 export interface SourceStatus {

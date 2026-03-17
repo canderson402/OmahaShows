@@ -62,6 +62,7 @@ interface DbEvent {
   status: string
   added_at: string
   category: string | null
+  headliner_spotify_url?: string | null  // From joined artist data
 }
 
 interface DbVenue {
@@ -119,6 +120,7 @@ function toAppEvent(dbEvent: DbEvent, venues: DbVenue[]): Event {
     source: dbEvent.venue_id, // Use venue_id as source for filtering
     addedAt: dbEvent.added_at,
     category: dbEvent.category as EventCategory | undefined,
+    headlinerSpotifyUrl: dbEvent.headliner_spotify_url || undefined,
   }
 }
 
@@ -223,9 +225,14 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
   const { data, error, count } = await query
 
   if (error) throw error
-  const events = (data || []).map(e => toAppEvent(e, venues))
+  let events = (data || []).map(e => toAppEvent(e, venues))
   const totalCount = count || 0
   const hasMore = totalCount > offset + events.length
+
+  // Enrich with Spotify URLs (only if we have events)
+  if (events.length > 0) {
+    events = await enrichEventsWithSpotify(events)
+  }
 
   const result = { events, hasMore, totalCount }
 
@@ -235,6 +242,37 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
   }
 
   return result
+}
+
+// Fetch headliner Spotify URLs for a list of event IDs
+async function enrichEventsWithSpotify(events: Event[]): Promise<Event[]> {
+  if (events.length === 0) return events
+
+  const eventIds = events.map(e => e.id)
+
+  // Query event_artists joined with artists to get headliner spotify URLs
+  const { data, error } = await supabase
+    .from('event_artists')
+    .select('event_id, artists(spotify_url)')
+    .in('event_id', eventIds)
+    .eq('role', 'headliner')
+
+  if (error || !data) return events
+
+  // Build a map of event_id -> spotify_url
+  const spotifyMap: Record<string, string> = {}
+  for (const row of data) {
+    const artist = row.artists as { spotify_url: string | null } | null
+    if (artist?.spotify_url) {
+      spotifyMap[row.event_id] = artist.spotify_url
+    }
+  }
+
+  // Enrich events with Spotify URLs
+  return events.map(event => ({
+    ...event,
+    headlinerSpotifyUrl: spotifyMap[event.id] || event.headlinerSpotifyUrl,
+  }))
 }
 
 // Get total count of upcoming approved events (for display when no filters)
@@ -669,7 +707,11 @@ export async function getEventById(id: string): Promise<Event | null> {
     .single()
 
   if (error || !data) return null
-  return toAppEvent(data, venues)
+  const event = toAppEvent(data, venues)
+
+  // Enrich with Spotify URL
+  const enriched = await enrichEventsWithSpotify([event])
+  return enriched[0]
 }
 
 // Submit a new event (goes to pending status)

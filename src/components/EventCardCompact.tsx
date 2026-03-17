@@ -80,6 +80,28 @@ function ShareButton({ url, title }: { url: string; title: string }) {
   );
 }
 
+// Spotify embed component (compact)
+function SpotifyEmbed({ spotifyUrl }: { spotifyUrl: string }) {
+  // Extract artist ID from URL like https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb
+  const match = spotifyUrl.match(/artist\/([a-zA-Z0-9]+)/);
+  if (!match) return null;
+
+  const artistId = match[1];
+  const embedUrl = `https://open.spotify.com/embed/artist/${artistId}?utm_source=generator&theme=0`;
+
+  return (
+    <iframe
+      src={embedUrl}
+      width="100%"
+      height="80"
+      frameBorder="0"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy"
+      className="rounded-lg"
+    />
+  );
+}
+
 // Save button component
 function SaveButton({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) {
   return (
@@ -258,6 +280,13 @@ export const EventCardCompact = memo(function EventCardCompact({
             </>
           )}
         </div>
+
+        {/* Spotify Player (Mobile) */}
+        {event.headlinerSpotifyUrl && (
+          <div className="mt-3">
+            <SpotifyEmbed spotifyUrl={event.headlinerSpotifyUrl} />
+          </div>
+        )}
       </div>
 
       {/* Desktop Layout */}
@@ -405,6 +434,13 @@ export const EventCardCompact = memo(function EventCardCompact({
           </p>
           {event.price && (
             <p className="text-gray-500 text-sm mt-1">{event.price}</p>
+          )}
+
+          {/* Spotify Player - bottom right */}
+          {event.headlinerSpotifyUrl && (
+            <div className="absolute bottom-0 right-0 w-[300px]">
+              <SpotifyEmbed spotifyUrl={event.headlinerSpotifyUrl} />
+            </div>
           )}
         </div>
       </div>
