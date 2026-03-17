@@ -79,13 +79,18 @@ export async function POST(request: NextRequest) {
         }
 
         // Save to pending_artist_analyses instead of auto-accepting
-        await supabase
+        const { error: insertError } = await supabase
           .from("pending_artist_analyses")
           .insert({
             event_id: event.id,
             artists: analysis.artists,
             status: "pending",
           });
+
+        if (insertError) {
+          console.error("Failed to insert pending analysis:", insertError);
+          throw new Error(`Failed to save pending analysis: ${insertError.message}`);
+        }
 
         const headliner = analysis.artists.find(a => a.role === "headliner");
         results.push({

@@ -81,7 +81,10 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error("Failed to save pending analysis:", insertError);
-      // Still return the result even if save fails
+      return NextResponse.json(
+        { error: `Failed to save pending analysis: ${insertError.message}` },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(result);
