@@ -133,44 +133,37 @@ export async function GET(request: NextRequest) {
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    // Build base queries
-    let totalQuery = supabase
+    // Get events that already have pending analyses
+    const { data: pendingAnalyses } = await supabase
+      .from("pending_artist_analyses")
+      .select("event_id")
+      .eq("status", "pending");
+    const pendingEventIds = pendingAnalyses?.map(p => p.event_id) || [];
+
+    // Get all events based on filters
+    let eventsQuery = supabase
       .from("events")
-      .select("id", { count: "exact", head: true })
+      .select("id, analyzed_at")
       .eq("status", "approved")
       .gte("date", todayStr);
 
-    let analyzedQuery = supabase
-      .from("events")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "approved")
-      .gte("date", todayStr)
-      .not("analyzed_at", "is", null);
-
-    let needsQuery = supabase
-      .from("events")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "approved")
-      .gte("date", todayStr)
-      .is("analyzed_at", null);
-
-    // If onlyNew, filter to events created today
     if (onlyNew) {
-      totalQuery = totalQuery.gte("created_at", todayStr);
-      analyzedQuery = analyzedQuery.gte("created_at", todayStr);
-      needsQuery = needsQuery.gte("created_at", todayStr);
+      eventsQuery = eventsQuery.gte("created_at", todayStr);
     }
 
-    const [{ count: total }, { count: analyzed }, { count: needsAnalysis }] = await Promise.all([
-      totalQuery,
-      analyzedQuery,
-      needsQuery,
-    ]);
+    const { data: events } = await eventsQuery;
+
+    const total = events?.length || 0;
+    const analyzed = events?.filter(e => e.analyzed_at !== null).length || 0;
+    // Events need analysis if: not analyzed AND not already in pending
+    const needsAnalysis = events?.filter(e =>
+      e.analyzed_at === null && !pendingEventIds.includes(e.id)
+    ).length || 0;
 
     return NextResponse.json({
-      total: total || 0,
-      analyzed: analyzed || 0,
-      needsAnalysis: needsAnalysis || 0,
+      total,
+      analyzed,
+      needsAnalysis,
     });
   } catch (error) {
     console.error("Bulk analyze status error:", error);
