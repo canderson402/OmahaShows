@@ -18,12 +18,17 @@ from scrapers.ticketmaster import TicketmasterClient
 from scrapers.thesydney import TheSydneyScraper
 
 
-def get_scrapers(supabase_client=None, venue_matcher=None, api_keys=None):
-    """Get list of scrapers, optionally with Supabase client for dedup."""
+def get_scrapers(supabase_client=None, venue_matcher=None, api_keys=None, include_on_demand=False):
+    """Get list of scrapers, optionally with Supabase client for dedup.
+
+    Args:
+        include_on_demand: If True, include scrapers that should only run on-demand
+                          (ohmyomaha, ticketmaster). Default False for daily runs.
+    """
     api_keys = api_keys or {}
 
     scrapers = [
-        # Primary scrapers - run first, their data is preferred
+        # Primary scrapers - run daily
         SlowdownScraper(),
         WaitingRoomScraper(),
         ReverbLoungeScraper(),
@@ -37,17 +42,20 @@ def get_scrapers(supabase_client=None, venue_matcher=None, api_keys=None):
         OPAScraper("Orpheum Theater", "orpheum"),
         TheSydneyScraper(),
         OtherVenuesScraper(supabase_client=supabase_client, venue_matcher=venue_matcher),
-        OhMyOmahaScraper(supabase_client=supabase_client, venue_matcher=venue_matcher),
     ]
 
-    # Ticketmaster runs last - catches events we missed, dedupes against existing
-    ticketmaster_key = api_keys.get("ticketmaster") or os.environ.get("TICKETMASTER_API_KEY")
-    if ticketmaster_key:
-        scrapers.append(TicketmasterClient(
-            supabase_client=supabase_client,
-            venue_matcher=venue_matcher,
-            api_key=ticketmaster_key
-        ))
+    # On-demand only scrapers (discovery/aggregator scrapers)
+    if include_on_demand:
+        scrapers.append(OhMyOmahaScraper(supabase_client=supabase_client, venue_matcher=venue_matcher))
+
+        # Ticketmaster - catches events we missed, dedupes against existing
+        ticketmaster_key = api_keys.get("ticketmaster") or os.environ.get("TICKETMASTER_API_KEY")
+        if ticketmaster_key:
+            scrapers.append(TicketmasterClient(
+                supabase_client=supabase_client,
+                venue_matcher=venue_matcher,
+                api_key=ticketmaster_key
+            ))
 
     return scrapers
 
