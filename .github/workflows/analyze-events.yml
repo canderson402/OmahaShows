@@ -36,7 +36,7 @@ jobs:
             echo "Running batch $BATCH_NUM..."
 
             # Check how many need analysis (only new events from today)
-            STATUS=$(curl -s "$API_URL?onlyNew=true")
+            STATUS=$(curl -sL "$API_URL?onlyNew=true")
             NEEDS_ANALYSIS=$(echo "$STATUS" | jq -r '.needsAnalysis // 0')
 
             if [ "$NEEDS_ANALYSIS" = "0" ] || [ "$NEEDS_ANALYSIS" = "null" ]; then
@@ -47,7 +47,7 @@ jobs:
             echo "Events needing analysis: $NEEDS_ANALYSIS"
 
             # Run analysis batch (onlyNew=true for automated workflow)
-            RESULT=$(curl -s -X POST "$API_URL" \
+            RESULT=$(curl -sL -X POST "$API_URL" \
               -H "Content-Type: application/json" \
               -d "{\"batchSize\": $BATCH_SIZE, \"onlyNew\": true}")
 
