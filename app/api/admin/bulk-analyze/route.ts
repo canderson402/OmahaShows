@@ -11,20 +11,26 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { batchSize = 10 } = await request.json();
+    const { batchSize = 10, onlyNew = false } = await request.json();
 
     // Get today's date for filtering
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    // Get upcoming approved events that haven't been analyzed yet
-    // Also exclude events that already have a pending analysis
-    const { data: eventsToAnalyze, error: eventsError } = await supabase
+    // Build query for unanalyzed events
+    let query = supabase
       .from("events")
-      .select("id, title, date, venue_id, venues(name)")
+      .select("id, title, date, venue_id, created_at, venues(name)")
       .eq("status", "approved")
       .is("analyzed_at", null)
-      .gte("date", todayStr)
+      .gte("date", todayStr);
+
+    // If onlyNew flag is set, only get events created today (for automated workflow)
+    if (onlyNew) {
+      query = query.gte("created_at", todayStr);
+    }
+
+    const { data: eventsToAnalyze, error: eventsError } = await query
       .order("date", { ascending: true })
       .limit(batchSize);
 
@@ -118,38 +124,52 @@ export async function POST(request: NextRequest) {
 }
 
 // GET endpoint to check how many events need analysis
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const onlyNew = searchParams.get("onlyNew") === "true";
+
     // Get today's date for filtering
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    // Count total upcoming approved events
-    const { count: totalApproved } = await supabase
+    // Build base queries
+    let totalQuery = supabase
       .from("events")
       .select("id", { count: "exact", head: true })
       .eq("status", "approved")
       .gte("date", todayStr);
 
-    // Count analyzed upcoming events
-    const { count: analyzedCount } = await supabase
+    let analyzedQuery = supabase
       .from("events")
       .select("id", { count: "exact", head: true })
       .eq("status", "approved")
       .gte("date", todayStr)
       .not("analyzed_at", "is", null);
 
-    // Count upcoming events needing analysis
-    const { count: needsAnalysis } = await supabase
+    let needsQuery = supabase
       .from("events")
       .select("id", { count: "exact", head: true })
       .eq("status", "approved")
       .gte("date", todayStr)
       .is("analyzed_at", null);
 
+    // If onlyNew, filter to events created today
+    if (onlyNew) {
+      totalQuery = totalQuery.gte("created_at", todayStr);
+      analyzedQuery = analyzedQuery.gte("created_at", todayStr);
+      needsQuery = needsQuery.gte("created_at", todayStr);
+    }
+
+    const [{ count: total }, { count: analyzed }, { count: needsAnalysis }] = await Promise.all([
+      totalQuery,
+      analyzedQuery,
+      needsQuery,
+    ]);
+
     return NextResponse.json({
-      total: totalApproved || 0,
-      analyzed: analyzedCount || 0,
+      total: total || 0,
+      analyzed: analyzed || 0,
       needsAnalysis: needsAnalysis || 0,
     });
   } catch (error) {
