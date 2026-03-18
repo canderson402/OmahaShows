@@ -617,43 +617,43 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   };
 
-  // Bulk analysis handler - runs just one batch of 10
+  // Bulk analysis handler - analyzes new events only
   const handleBulkAnalyze = async () => {
     setBulkAnalyzing(true);
 
     try {
-      // First get the status
-      const statusRes = await fetch("/api/admin/bulk-analyze");
+      // First get the status (only new events)
+      const statusRes = await fetch("/api/admin/bulk-analyze?onlyNew=true");
       const status = await statusRes.json();
 
       if (status.needsAnalysis === 0) {
-        setToast({ message: "All events have been analyzed!", type: "success" });
+        setToast({ message: "No new events to analyze!", type: "success" });
         setBulkAnalyzing(false);
         return;
       }
 
-      // Run one batch of 10
+      // Analyze new events
       const res = await fetch("/api/admin/bulk-analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ batchSize: 10 }),
+        body: JSON.stringify({ batchSize: 20, onlyNew: true }),
       });
 
       if (!res.ok) {
-        throw new Error("Batch failed");
+        throw new Error("Analysis failed");
       }
 
       const result = await res.json();
       const withArtists = result.results.filter((r: { artistName?: string }) => r.artistName).length;
 
       setToast({
-        message: `Analyzed ${result.processed} events (${withArtists} with artists found). Check Pending tab to approve.`,
+        message: `Analyzed ${result.processed} new events (${withArtists} with artists). Check Pending tab to approve.`,
         type: "success",
       });
       await Promise.all([fetchAnalyzedEvents(), fetchPendingArtistAnalyses()]);
     } catch (err) {
       setToast({
-        message: err instanceof Error ? err.message : "Bulk analysis failed",
+        message: err instanceof Error ? err.message : "Analysis failed",
         type: "error",
       });
     } finally {
@@ -1239,7 +1239,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        Analyze Next 10
+                        Analyze New
                       </>
                     )}
                   </button>

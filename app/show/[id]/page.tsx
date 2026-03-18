@@ -146,7 +146,11 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
 
   const { event, venue, artists } = data
 
-  // Note: We no longer redirect past events - let users view them if they have the URL
+  // Redirect past events to history - use string comparison to avoid timezone issues
+  const todayStr = getLocalDateString()
+  if (event.date < todayStr) {
+    redirect('/?view=history')
+  }
 
   // Transform to the format the client component expects
   const venueName = venue?.name || event.venue_name || ''

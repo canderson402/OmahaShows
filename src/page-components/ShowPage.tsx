@@ -58,13 +58,12 @@ export function ShowPage() {
         return;
       }
 
-      // Check if event is in the past
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const eventDate = new Date(eventData.date + "T00:00:00");
+      // Check if event is in the past - use string comparison to avoid timezone issues
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-      if (eventDate < today) {
-        // Redirect to history tab
+      if (eventData.date < todayStr) {
+        // Redirect to history tab - past events are not kept
         navigate("/?view=history", { replace: true });
         return;
       }
