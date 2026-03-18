@@ -23,9 +23,7 @@ function EventImage({ src, alt }: { src: string; alt: string }) {
 
   if (hasError) {
     return (
-      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-        <span className="text-gray-500 text-5xl">&#9834;</span>
-      </div>
+      <div className="w-full h-full bg-gray-800" />
     );
   }
 
@@ -189,9 +187,7 @@ export const EventCardCompact = memo(function EventCardCompact({
               {event.imageUrl ? (
                 <EventImage src={event.imageUrl} alt={event.title} />
               ) : (
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                  <span className="text-gray-500 text-5xl">&#9834;</span>
-                </div>
+                <div className="w-full h-full bg-gray-800" />
               )}
             </Link>
             <div className="absolute bottom-2 left-2 z-10">
@@ -349,9 +345,7 @@ export const EventCardCompact = memo(function EventCardCompact({
               {event.imageUrl ? (
                 <EventImage src={event.imageUrl} alt={event.title} />
               ) : (
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                  <span className="text-gray-500 text-5xl">&#9834;</span>
-                </div>
+                <div className="w-full h-full bg-gray-800" />
               )}
               <div className="absolute bottom-2 left-2 z-10">
                 <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />
@@ -379,9 +373,7 @@ export const EventCardCompact = memo(function EventCardCompact({
               {event.imageUrl ? (
                 <EventImage src={event.imageUrl} alt={event.title} />
               ) : (
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                  <span className="text-gray-500 text-5xl">&#9834;</span>
-                </div>
+                <div className="w-full h-full bg-gray-800" />
               )}
               <div className="absolute bottom-2 left-2 z-10">
                 <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />

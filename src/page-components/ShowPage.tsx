@@ -149,12 +149,6 @@ export function ShowPage() {
     }
   };
 
-  const getGoogleMapsUrl = () => {
-    if (!venue?.address) return null;
-    const query = encodeURIComponent(`${venue.address}, ${venue.city}, ${venue.state}`);
-    return `https://www.google.com/maps/search/?api=1&query=${query}`;
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0d0d0f] flex flex-col items-center justify-center gap-6">
@@ -368,19 +362,6 @@ export function ShowPage() {
                     )}
                     {venue?.description && (
                       <p className="text-gray-500 mt-2 text-sm">{venue.description}</p>
-                    )}
-                    {getGoogleMapsUrl() && (
-                      <a
-                        href={getGoogleMapsUrl()!}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white mt-3 transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                        </svg>
-                        Get Directions
-                      </a>
                     )}
                   </div>
                 </div>
