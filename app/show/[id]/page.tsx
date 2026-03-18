@@ -146,11 +146,7 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
 
   const { event, venue, artists } = data
 
-  // Check if event is in the past - redirect to home
-  const today = getLocalDateString()
-  if (event.date < today) {
-    redirect('/?view=history')
-  }
+  // Note: We no longer redirect past events - let users view them if they have the URL
 
   // Transform to the format the client component expects
   const venueName = venue?.name || event.venue_name || ''
