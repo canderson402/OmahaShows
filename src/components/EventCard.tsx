@@ -62,9 +62,7 @@ export function EventCard({ event, venueColors }: EventCardProps) {
             className="w-full h-auto"
           />
         ) : (
-          <div className="w-full aspect-video bg-gray-800 flex items-center justify-center rounded-2xl">
-            <span className="text-gray-600 text-6xl">&#9834;</span>
-          </div>
+          <div className="w-full aspect-video bg-gray-800 rounded-2xl" />
         )}
 
         {/* Date badge - top left */}

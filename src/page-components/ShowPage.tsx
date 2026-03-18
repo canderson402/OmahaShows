@@ -149,6 +149,12 @@ export function ShowPage() {
     }
   };
 
+  const getGoogleMapsUrl = () => {
+    if (!venue?.address) return null;
+    const query = encodeURIComponent(`${venue.address}, ${venue.city}, ${venue.state}`);
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0d0d0f] flex flex-col items-center justify-center gap-6">
@@ -329,18 +335,8 @@ export function ShowPage() {
 
               {/* Venue section */}
               <div className="mt-8 p-6 rounded-2xl bg-white/5 border border-white/10">
-                <div className="flex items-start gap-4">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: venueColor + "20" }}
-                  >
-                    <svg className="w-6 h-6" style={{ color: venueColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    {event.venueUrl ? (
+                <div>
+                  {event.venueUrl ? (
                       <a
                         href={event.venueUrl}
                         target="_blank"
@@ -363,7 +359,19 @@ export function ShowPage() {
                     {venue?.description && (
                       <p className="text-gray-500 mt-2 text-sm">{venue.description}</p>
                     )}
-                  </div>
+                    {getGoogleMapsUrl() && (
+                      <a
+                        href={getGoogleMapsUrl()!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white mt-3 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                        </svg>
+                        Get Directions
+                      </a>
+                    )}
                 </div>
               </div>
 
