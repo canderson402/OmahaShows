@@ -50,12 +50,12 @@ NOT music events (return empty artists array):
 - Sports events, wrestling, UFC
 - Podcast recordings, speaking events
 - DJ-only events with no featured artists
+- Tribute bands (e.g. "Led Zeppelin tribute", "The Pink Floyd Experience")
 
 IS a music event (extract artists):
-- Concerts with named bands/artists
-- Music festivals
+- Concerts with named original bands/artists
+- Music festivals with original artists
 - Album release shows
-- Tribute bands playing music
 
 Tasks:
 1. If NOT a music event, return empty artists array
