@@ -34,29 +34,48 @@ export async function analyzeEvent(
       ? existingEvents.map((e) => `- "${e.title}" on ${e.date} (id: ${e.id})`).join("\n")
       : "None";
 
-  const prompt = `Analyze this concert event and extract artist information.
+  const prompt = `Analyze this event and determine if it's a MUSIC event with real musical artists.
 
 Event title: "${title}"
 Venue: ${venueName} (Omaha, NE)
 Date: ${date}
 
+First, determine if this is a MUSIC event featuring real musical artists/bands.
+
+NOT music events (return empty artists array):
+- Comedy shows (stand-up comedians like Dusty Slay, etc.)
+- Movie screenings ("in Concert" films like Ghostbusters in Concert)
+- Theatrical productions, plays, musicals
+- Talent shows, variety shows, burlesque
+- Sports events, wrestling, UFC
+- Podcast recordings, speaking events
+- DJ-only events with no featured artists
+
+IS a music event (extract artists):
+- Concerts with named bands/artists
+- Music festivals
+- Album release shows
+- Tribute bands playing music
+
 Tasks:
-1. Extract all artists from the event title (headliner first, then supporting acts)
-2. For each artist, provide:
-   - Name (properly capitalized)
+1. If NOT a music event, return empty artists array
+2. If IS a music event, extract artists from the title (headliner first, then supporting)
+3. For each artist, provide:
+   - Name (properly capitalized, the actual artist/band name)
    - Role (headliner, supporting, or co-headliner)
    - Genres: Pick 1-3 from ONLY this list: ${genreList}
-
-3. Check if this is a duplicate of existing events listed below.
+4. Check for duplicates in existing events below
 
 Existing events (same venue, ±1 day):
 ${existingList}
 
 IMPORTANT:
+- If unsure whether it's a music event, return empty artists array
 - Use ONLY genres from the provided list above
 - Do NOT try to find URLs - we will look those up separately
+- Comedians are NOT artists, even if performing at a music venue
 
-Return ONLY valid JSON, nothing else. No markdown, no explanations, no notes, no commentary before or after the JSON:
+Return ONLY valid JSON, nothing else:
 {
   "artists": [
     {
