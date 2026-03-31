@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       processed: results.length,
-      remaining: eventsToAnalyze ? eventsToAnalyze.length - eventsToProcess.length : 0,
+      remaining: batch.length - eventsToProcess.length,
       results,
     });
   } catch (error) {
