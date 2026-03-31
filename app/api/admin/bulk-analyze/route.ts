@@ -20,42 +20,32 @@ export async function POST(request: NextRequest) {
     let batch: { id: string; title: string; date: string; venue_id: string; venues?: { name: string } | null }[] = [];
 
     if (onlyNew) {
-      // Get NEW events: those with pending entries in event_changes OR pending status
-      // 1. Get event IDs from event_changes that are pending (new from scrapers)
+      // Get ONLY events that were added TODAY via scraper
+      // These are identified by event_changes with change_type='new' created today
       const { data: newEventChanges } = await supabase
         .from("event_changes")
-        .select("event_id")
-        .eq("status", "pending");
+        .select("event_id, created_at")
+        .eq("status", "pending")
+        .eq("change_type", "new")
+        .gte("created_at", todayStr);
 
       const newEventIds = newEventChanges?.map(e => e.event_id) || [];
 
-      // 2. Get pending events (status='pending', not yet approved)
-      const { data: pendingEvents } = await supabase
-        .from("events")
-        .select("id, title, date, venue_id, venues(name)")
-        .eq("status", "pending")
-        .gte("date", todayStr)
-        .is("analyzed_at", null)
-        .limit(batchSize);
+      if (newEventIds.length === 0) {
+        // No new events today, nothing to analyze
+        batch = [];
+      } else {
+        // Get the events that were added today (regardless of approval status)
+        const { data: newEvents } = await supabase
+          .from("events")
+          .select("id, title, date, venue_id, venues(name)")
+          .in("id", newEventIds)
+          .gte("date", todayStr)
+          .is("analyzed_at", null)
+          .limit(batchSize);
 
-      // 3. Get approved events that have pending changes (newly added by scrapers)
-      const { data: approvedNewEvents } = await supabase
-        .from("events")
-        .select("id, title, date, venue_id, venues(name)")
-        .eq("status", "approved")
-        .in("id", newEventIds.length > 0 ? newEventIds : ['__none__'])
-        .gte("date", todayStr)
-        .is("analyzed_at", null)
-        .limit(batchSize);
-
-      // Combine and dedupe
-      const allEvents = [...(pendingEvents || []), ...(approvedNewEvents || [])];
-      const seen = new Set<string>();
-      batch = allEvents.filter(e => {
-        if (seen.has(e.id)) return false;
-        seen.add(e.id);
-        return true;
-      }).slice(0, batchSize);
+        batch = newEvents || [];
+      }
     } else {
       // Get ALL unanalyzed upcoming approved events
       const { data: eventsToAnalyze, error: eventsError } = await supabase
@@ -179,44 +169,33 @@ export async function GET(request: NextRequest) {
     const pendingAnalysisEventIds = new Set(pendingAnalyses?.map(p => p.event_id) || []);
 
     if (onlyNew) {
-      // Get NEW events: those with pending entries in event_changes OR pending status
+      // Get ONLY events that were added TODAY via scraper
+      // These are identified by event_changes with change_type='new' created today
       const { data: newEventChanges } = await supabase
         .from("event_changes")
         .select("event_id")
-        .eq("status", "pending");
-      const newEventIds = new Set(newEventChanges?.map(e => e.event_id) || []);
-
-      // Get pending events
-      const { data: pendingEvents } = await supabase
-        .from("events")
-        .select("id, analyzed_at")
         .eq("status", "pending")
-        .gte("date", todayStr);
+        .eq("change_type", "new")
+        .gte("created_at", todayStr);
 
-      // Get approved events that have pending changes
-      const { data: approvedNewEvents } = await supabase
+      const newEventIds = newEventChanges?.map(e => e.event_id) || [];
+
+      if (newEventIds.length === 0) {
+        return NextResponse.json({ total: 0, analyzed: 0, needsAnalysis: 0 });
+      }
+
+      // Get the events that were added today
+      const { data: newEvents } = await supabase
         .from("events")
         .select("id, analyzed_at")
-        .eq("status", "approved")
+        .in("id", newEventIds)
         .gte("date", todayStr);
 
-      // Filter approved events to only those with pending changes
-      const approvedNew = (approvedNewEvents || []).filter(e => newEventIds.has(e.id));
-
-      // Combine
-      const allEvents = [...(pendingEvents || []), ...approvedNew];
-      const seen = new Set<string>();
-      const uniqueEvents = allEvents.filter(e => {
-        if (seen.has(e.id)) return false;
-        seen.add(e.id);
-        return true;
-      });
-
-      const total = uniqueEvents.length;
-      const analyzed = uniqueEvents.filter(e => e.analyzed_at !== null).length;
-      const needsAnalysis = uniqueEvents.filter(e =>
+      const total = newEvents?.length || 0;
+      const analyzed = newEvents?.filter(e => e.analyzed_at !== null).length || 0;
+      const needsAnalysis = newEvents?.filter(e =>
         e.analyzed_at === null && !pendingAnalysisEventIds.has(e.id)
-      ).length;
+      ).length || 0;
 
       return NextResponse.json({ total, analyzed, needsAnalysis });
     } else {

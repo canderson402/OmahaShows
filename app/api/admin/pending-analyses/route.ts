@@ -54,12 +54,35 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "id is required" }, { status: 400 });
     }
 
+    // First get the event_id so we can mark it as analyzed
+    const { data: analysis } = await supabase
+      .from("pending_artist_analyses")
+      .select("event_id")
+      .eq("id", id)
+      .single();
+
+    // Delete the pending analysis
     const { error } = await supabase
       .from("pending_artist_analyses")
       .delete()
       .eq("id", id);
 
     if (error) throw error;
+
+    // Mark the event as analyzed so it won't be re-analyzed
+    // Also clean up any event_changes entries for this event
+    if (analysis?.event_id) {
+      await supabase
+        .from("events")
+        .update({ analyzed_at: new Date().toISOString() })
+        .eq("id", analysis.event_id);
+
+      // Delete any event_changes entries so it won't be picked up again
+      await supabase
+        .from("event_changes")
+        .delete()
+        .eq("event_id", analysis.event_id);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

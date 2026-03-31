@@ -466,6 +466,12 @@ export async function approveEvent(id: string) {
 
   if (error) throw error
 
+  // Clean up any event_changes entries for this event (they're no longer needed)
+  await supabase
+    .from('event_changes')
+    .delete()
+    .eq('event_id', id)
+
   // Invalidate caches since event list changed
   invalidateEventCaches()
 
@@ -493,6 +499,12 @@ export async function rejectEvent(id: string) {
     .eq('id', id)
 
   if (error) throw error
+
+  // Clean up any event_changes entries for this event (they're no longer needed)
+  await supabase
+    .from('event_changes')
+    .delete()
+    .eq('event_id', id)
 
   // Invalidate caches since event list changed
   invalidateEventCaches()

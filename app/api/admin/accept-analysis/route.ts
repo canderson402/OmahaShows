@@ -106,6 +106,12 @@ export async function POST(request: NextRequest) {
       .delete()
       .eq("event_id", eventId);
 
+    // Clean up any event_changes entries for this event
+    await supabase
+      .from("event_changes")
+      .delete()
+      .eq("event_id", eventId);
+
     return NextResponse.json({
       success: true,
       artistsCreated,
