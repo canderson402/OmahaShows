@@ -125,6 +125,20 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
   const visibleShows = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
   const hasMore = visibleCount < filtered.length || hasMoreFromDb;
 
+  // Counts per month/day from ALL loaded shows (not just the visible slice), so the
+  // header counts don't bounce as you scroll through the client-side pagination.
+  const countsByMonth = useMemo(() => {
+    const counts: { [monthKey: string]: { total: number; days: { [dayKey: string]: number } } } = {};
+    filtered.forEach((show) => {
+      const date = new Date(show.date + "T00:00:00");
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      if (!counts[monthKey]) counts[monthKey] = { total: 0, days: {} };
+      counts[monthKey].total++;
+      counts[monthKey].days[show.date] = (counts[monthKey].days[show.date] || 0) + 1;
+    });
+    return counts;
+  }, [filtered]);
+
   const getVenueId = (venueName: string) => venueNameToId[venueName] || "other";
 
   const formatDayLabel = (dateStr: string) => {
@@ -175,23 +189,44 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
       });
   }, [visibleShows]);
 
-  // Only expand current month by default
-  const initialCollapsed = useMemo(() => {
+  // Reset collapse state on filter change; when new months appear via load-more,
+  // only collapse those new keys (don't override user's manual toggles on existing months).
+  const filterKey = `${enabledVenues.size}|${searchQuery}|${timeFilter}`;
+  const prevFilterKeyRef = useRef(filterKey);
+  const seenMonthsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const currentKeys = groupedByMonth.map((g) => g.key);
+    const filterChanged = prevFilterKeyRef.current !== filterKey;
 
-    const collapsed = new Set<string>();
-    for (const group of groupedByMonth) {
-      if (group.key !== currentMonth) collapsed.add(group.key);
+    if (filterChanged) {
+      const collapsed = new Set<string>();
+      for (const key of currentKeys) {
+        if (key !== currentMonth) collapsed.add(key);
+      }
+      setCollapsedMonths(collapsed);
+      setCollapsedDays(new Set());
+      seenMonthsRef.current = new Set(currentKeys);
+      prevFilterKeyRef.current = filterKey;
+      return;
     }
-    return collapsed;
-  }, [groupedByMonth]);
 
-  // Reset collapsed state when filters change
-  useEffect(() => {
-    setCollapsedMonths(initialCollapsed);
-    setCollapsedDays(new Set());
-  }, [initialCollapsed]);
+    const newKeys = currentKeys.filter((k) => !seenMonthsRef.current.has(k));
+    if (newKeys.length === 0) return;
+
+    setCollapsedMonths((prev) => {
+      const next = new Set(prev);
+      for (const key of newKeys) {
+        if (key !== currentMonth) next.add(key);
+      }
+      return next;
+    });
+    for (const key of newKeys) {
+      seenMonthsRef.current.add(key);
+    }
+  }, [groupedByMonth, filterKey]);
 
   const toggleMonth = (key: string) => {
     setCollapsedMonths((prev) => {
@@ -234,7 +269,7 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
             >
               <span>{group.label}</span>
               <span className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 font-normal">{group.shows.length} shows</span>
+                <span className="text-xs text-gray-500 font-normal">{countsByMonth[group.key]?.total ?? group.shows.length} shows</span>
                 <svg
                   className={`w-4 h-4 text-gray-500 transition-transform ${isCollapsed ? "" : "rotate-180"}`}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -255,7 +290,7 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
                       >
                         <span className="text-sm text-gray-400 font-medium">{day.label}</span>
                         <span className="flex items-center gap-2">
-                          <span className="text-xs text-gray-600">{day.shows.length}</span>
+                          <span className="text-xs text-gray-600">{countsByMonth[group.key]?.days[day.key] ?? day.shows.length}</span>
                           <svg
                             className={`w-3 h-3 text-gray-600 transition-transform ${isDayCollapsed ? "" : "rotate-180"}`}
                             fill="none" stroke="currentColor" viewBox="0 0 24 24"

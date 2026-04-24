@@ -69,11 +69,22 @@ def log_event_change(event_id: str, change_type: str, proposed_data: dict, origi
     }).execute()
 
 
-def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list[str]]:
+def get_auto_approve_events() -> bool:
+    """Read the auto_approve_events flag from app_settings. Defaults to False if missing."""
+    try:
+        result = supabase.table("app_settings").select("value").eq("key", "auto_approve_events").maybe_single().execute()
+        if result and result.data:
+            return bool(result.data.get("value"))
+    except Exception as e:
+        print(f"! Failed to read auto_approve_events setting, defaulting to False: {e}")
+    return False
+
+
+def upsert_events(events: list[Event], scraper_id: str, auto_approve: bool = False) -> tuple[list[str], list[str]]:
     """Upsert events to Supabase using fuzzy matching.
 
-    - New events: inserted with status='pending'
-    - Changed events: NOT updated directly, change logged to event_changes
+    - New events: inserted with status='approved' when auto_approve is True, else 'pending'
+    - Changed events: updated directly (scraper updates are trusted)
     - Unchanged events: skipped
 
     Returns tuple of (new_event_ids, changed_event_ids).
@@ -82,6 +93,7 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
         return [], []
 
     now = datetime.now(timezone.utc).isoformat()
+    new_status = "approved" if auto_approve else "pending"
     new_ids: list[str] = []
     changed_ids: list[str] = []
 
@@ -132,14 +144,10 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
                     changed_fields.append(field)
 
             if changed_fields:
-                # Log the proposed change (don't update event directly)
-                log_event_change(
-                    event_id=existing["id"],
-                    change_type="update",
-                    proposed_data=event_data,
-                    original_data={f: existing.get(f) for f in compare_fields},
-                    changed_fields=changed_fields,
-                )
+                # Auto-apply the update directly — scraper updates are trusted
+                update_data = {f: event_data[f] for f in changed_fields if f in event_data}
+                update_data["updated_at"] = now
+                supabase.table("events").update(update_data).eq("id", existing["id"]).execute()
                 changed_ids.append(existing["id"])
         else:
             # No match found - check if event ID already exists (safety check)
@@ -148,8 +156,8 @@ def upsert_events(events: list[Event], scraper_id: str) -> tuple[list[str], list
                 # Event already exists by ID, skip
                 continue
 
-            # New event - insert as pending
-            event_data["status"] = "pending"
+            # New event - insert with status based on auto_approve setting
+            event_data["status"] = new_status
             event_data["added_at"] = now
             event_data["updated_at"] = now
             supabase.table("events").insert(event_data).execute()
@@ -243,8 +251,11 @@ def run():
     # Get scrapers with Supabase client and venue matcher
     scrapers = get_scrapers(supabase_client=supabase, venue_matcher=venue_matcher)
 
+    auto_approve = get_auto_approve_events()
+
     print(f"\n{'='*60}")
     print(f"SUPABASE SCRAPE - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
+    print(f"Auto-approve new events: {auto_approve}")
     print(f"{'='*60}\n")
 
     # Run all scrapers and collect results
@@ -262,7 +273,7 @@ def run():
             # Filter to future events only
             future_events = [e for e in events if e.date >= today]
             try:
-                new_ids, changed_ids = upsert_events(future_events, scraper.id)
+                new_ids, changed_ids = upsert_events(future_events, scraper.id, auto_approve=auto_approve)
                 total_events += len(future_events)
                 total_new += len(new_ids)
                 total_changed += len(changed_ids)

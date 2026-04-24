@@ -296,7 +296,7 @@ export async function getHistory(options?: {
   filter?: HistoryFilter
   limit?: number
   offset?: number
-}): Promise<{ shows: HistoricalShow[]; hasMore: boolean }> {
+}): Promise<{ shows: HistoricalShow[]; hasMore: boolean; totalCount: number }> {
   const today = new Date()
   const todayStr = getLocalDateString()
 
@@ -306,7 +306,7 @@ export async function getHistory(options?: {
 
   // Check cache first (history is cached for 5 minutes)
   const cacheKey = getCacheKey('history', { todayStr, filter, limit, offset })
-  const cached = historyCache.get<{ shows: HistoricalShow[]; hasMore: boolean }>(cacheKey)
+  const cached = historyCache.get<{ shows: HistoricalShow[]; hasMore: boolean; totalCount: number }>(cacheKey)
   if (cached) return cached
 
   const venues = await getVenues()
@@ -348,8 +348,9 @@ export async function getHistory(options?: {
   if (error) throw error
 
   const shows = (data || []).map(e => toHistoricalShow(e, venues))
-  const hasMore = count ? offset + shows.length < count : false
-  const result = { shows, hasMore }
+  const totalCount = count || 0
+  const hasMore = totalCount > offset + shows.length
+  const result = { shows, hasMore, totalCount }
 
   // Cache the result
   historyCache.set(cacheKey, result)

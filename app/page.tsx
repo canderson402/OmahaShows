@@ -170,6 +170,7 @@ export default function HomePage() {
   const [filteredTotalCount, setFilteredTotalCount] = useState(0)
   const [loadingMore, setLoadingMore] = useState(false)
   const [historyShows, setHistoryShows] = useState<HistoricalShow[]>([])
+  const [historyTotalCount, setHistoryTotalCount] = useState(0)
   const [hasMoreHistory, setHasMoreHistory] = useState(true)
   const [loadingMoreHistory, setLoadingMoreHistory] = useState(false)
   const [sources, setSources] = useState<SourceStatus[]>([])
@@ -331,6 +332,7 @@ export default function HomePage() {
       })
       setHistoryShows(prev => [...prev, ...result.shows])
       setHasMoreHistory(result.hasMore)
+      setHistoryTotalCount(result.totalCount)
     } catch (err) {
       console.error("Failed to load more history:", err)
     } finally {
@@ -348,11 +350,12 @@ export default function HomePage() {
       try {
         const result = await getHistory({
           filter: historyTimeFilter as HistoryFilter,
-          limit: 50,
+          limit: 10000,
           offset: 0
         })
         setHistoryShows(result.shows)
         setHasMoreHistory(result.hasMore)
+        setHistoryTotalCount(result.totalCount)
         setHistoryLoaded(true)
       } catch (err) {
         console.error("Failed to load history:", err)
@@ -526,8 +529,7 @@ export default function HomePage() {
                       })()}
                       {view === "history" && historyLoaded && (
                         <span>
-                          <span className="font-medium text-white">{historyShows.length}</span>
-                          {hasMoreHistory && "+"} shows
+                          <span className="font-medium text-white">{historyTotalCount}</span> shows
                         </span>
                       )}
                     </div>

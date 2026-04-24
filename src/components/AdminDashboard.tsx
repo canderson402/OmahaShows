@@ -139,6 +139,97 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [pendingArtistAnalyses, setPendingArtistAnalyses] = useState<PendingArtistAnalysis[]>([]);
   const [viewingPendingAnalysis, setViewingPendingAnalysis] = useState<PendingArtistAnalysis | null>(null);
 
+  // Auto-approve new scraped events toggle (persisted in app_settings)
+  const [autoApproveEvents, setAutoApproveEvents] = useState(false);
+  const [savingAutoApprove, setSavingAutoApprove] = useState(false);
+
+  // Auto-approved events log — event_changes "new" rows whose event is already approved
+  interface AutoApprovedLogEntry {
+    id: string;
+    event_id: string;
+    created_at: string;
+    events: {
+      id: string;
+      title: string;
+      date: string;
+      venue_id: string;
+    } | null;
+  }
+  const [autoApprovedLog, setAutoApprovedLog] = useState<AutoApprovedLogEntry[]>([]);
+  const [clearingAutoApproved, setClearingAutoApproved] = useState(false);
+
+  const fetchAutoApproveSetting = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "auto_approve_events")
+      .maybeSingle();
+    if (!error && data) {
+      setAutoApproveEvents(Boolean(data.value));
+    }
+  }, []);
+
+  const fetchAutoApprovedLog = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("event_changes")
+      .select("id, event_id, created_at, events!inner(id, title, date, venue_id, status)")
+      .eq("change_type", "new")
+      .eq("status", "pending")
+      .eq("events.status", "approved")
+      .order("created_at", { ascending: false });
+    if (!error && data) {
+      setAutoApprovedLog(data as unknown as AutoApprovedLogEntry[]);
+    }
+  }, []);
+
+  const handleDismissAutoApproved = async (changeId: string) => {
+    const prev = autoApprovedLog;
+    setAutoApprovedLog(prev.filter((e) => e.id !== changeId));
+    const { error } = await supabase.from("event_changes").delete().eq("id", changeId);
+    if (error) {
+      setAutoApprovedLog(prev);
+      setToast({ message: `Failed to dismiss: ${error.message}`, type: "error" });
+    }
+  };
+
+  const handleClearAllAutoApproved = async () => {
+    if (autoApprovedLog.length === 0) return;
+    setClearingAutoApproved(true);
+    const ids = autoApprovedLog.map((e) => e.id);
+    const prev = autoApprovedLog;
+    setAutoApprovedLog([]);
+    const { error } = await supabase.from("event_changes").delete().in("id", ids);
+    setClearingAutoApproved(false);
+    if (error) {
+      setAutoApprovedLog(prev);
+      setToast({ message: `Failed to clear: ${error.message}`, type: "error" });
+      return;
+    }
+    setToast({ message: "Auto-approved log cleared", type: "success" });
+  };
+
+  const handleToggleAutoApprove = async (next: boolean) => {
+    setSavingAutoApprove(true);
+    const prev = autoApproveEvents;
+    setAutoApproveEvents(next);
+    const { error } = await supabase
+      .from("app_settings")
+      .upsert(
+        { key: "auto_approve_events", value: next, updated_at: new Date().toISOString() },
+        { onConflict: "key" },
+      );
+    setSavingAutoApprove(false);
+    if (error) {
+      setAutoApproveEvents(prev);
+      setToast({ message: `Failed to save: ${error.message}`, type: "error" });
+      return;
+    }
+    setToast({
+      message: next ? "Auto-approve enabled" : "Auto-approve disabled",
+      type: "success",
+    });
+  };
+
   const fetchPending = useCallback(async () => {
     const { data, error } = await supabase
       .from("events")
@@ -230,11 +321,11 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      await Promise.all([fetchPending(), fetchCurrentEvents(), fetchVenues(), fetchEventChanges(), fetchAnalyzedEvents(), fetchPendingArtistAnalyses()]);
+      await Promise.all([fetchPending(), fetchCurrentEvents(), fetchVenues(), fetchEventChanges(), fetchAnalyzedEvents(), fetchPendingArtistAnalyses(), fetchAutoApproveSetting(), fetchAutoApprovedLog()]);
       setLoading(false);
     };
     load();
-  }, [fetchPending, fetchCurrentEvents, fetchVenues, fetchEventChanges, fetchAnalyzedEvents, fetchPendingArtistAnalyses]);
+  }, [fetchPending, fetchCurrentEvents, fetchVenues, fetchEventChanges, fetchAnalyzedEvents, fetchPendingArtistAnalyses, fetchAutoApproveSetting, fetchAutoApprovedLog]);
 
   // Search/filter with debounce
   useEffect(() => {
@@ -250,8 +341,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       fetchPending();
       fetchEventChanges();
       fetchPendingArtistAnalyses();
+      fetchAutoApprovedLog();
     }
-  }, [tab, fetchPending, fetchEventChanges, fetchPendingArtistAnalyses]);
+  }, [tab, fetchPending, fetchEventChanges, fetchPendingArtistAnalyses, fetchAutoApprovedLog]);
 
   const loadMoreEvents = async () => {
     setLoadingMore(true);
@@ -764,6 +856,68 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           {/* Pending Tab */}
           {tab === "pending" && (
             <div>
+              <label className="flex items-center gap-2 mb-4 text-sm text-gray-300 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={autoApproveEvents}
+                  disabled={savingAutoApprove}
+                  onChange={(e) => handleToggleAutoApprove(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500/50 focus:ring-offset-0"
+                />
+                Auto-approve new scraped events
+                {savingAutoApprove && (
+                  <span className="text-xs text-gray-500">saving…</span>
+                )}
+              </label>
+
+              {autoApprovedLog.length > 0 && (
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-white">
+                      Recently Auto-Approved ({autoApprovedLog.length})
+                    </h3>
+                    <button
+                      onClick={handleClearAllAutoApproved}
+                      disabled={clearingAutoApproved}
+                      className="px-3 py-1.5 text-xs sm:text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50 transition-colors"
+                    >
+                      {clearingAutoApproved ? "Clearing…" : "Clear All"}
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {autoApprovedLog.map((entry) => {
+                      const venue = venues.find((v) => v.id === entry.events?.venue_id);
+                      return (
+                        <div
+                          key={entry.id}
+                          className="flex items-center justify-between gap-3 bg-green-900/10 border border-green-700/20 rounded-lg px-3 py-2"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <Link
+                              href={`/show/${entry.event_id}`}
+                              className="text-white text-sm font-medium truncate hover:underline block"
+                            >
+                              {entry.events?.title || entry.event_id}
+                            </Link>
+                            <p className="text-xs text-gray-400 truncate">
+                              {entry.events?.date ? formatDate(entry.events.date) : ""}
+                              {venue ? ` · ${venue.name}` : ""}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleDismissAutoApproved(entry.id)}
+                            className="text-gray-500 hover:text-white text-sm px-2 py-1"
+                            aria-label="Dismiss"
+                            title="Dismiss from log"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <p className="text-gray-500 text-xs sm:text-sm">
                   {pendingEvents.length} pending submission{pendingEvents.length !== 1 ? "s" : ""}
