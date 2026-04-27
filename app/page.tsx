@@ -527,11 +527,28 @@ export default function HomePage() {
                           </span>
                         ) : null
                       })()}
-                      {view === "history" && historyLoaded && (
-                        <span>
-                          <span className="font-medium text-white">{historyTotalCount}</span> shows
-                        </span>
-                      )}
+                      {view === "history" && historyLoaded && (() => {
+                        const historyFilterLabels: Record<HistoryTimeFilter, string> = {
+                          "30days": "Last 30 days",
+                          "90days": "Last 90 days",
+                          "this-year": "This year",
+                          "year": "Last 12 months",
+                          "all": "All history",
+                        }
+                        return (
+                          <span>
+                            <span className="font-medium text-white">{historyTotalCount}</span> shows
+                            <span className="text-gray-500"> · </span>
+                            <button
+                              onClick={() => setFiltersOpen(true)}
+                              className="underline decoration-dotted underline-offset-4 hover:text-white transition-colors"
+                              title="Click to change time range"
+                            >
+                              {historyFilterLabels[historyTimeFilter]}
+                            </button>
+                          </span>
+                        )
+                      })()}
                     </div>
                     <div className="flex items-center gap-2">
                       {(view === "events" || view === "history") && (
