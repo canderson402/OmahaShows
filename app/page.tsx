@@ -517,13 +517,13 @@ export default function HomePage() {
                         if (hasFilters) {
                           return (
                             <span>
-                              <span className="font-medium text-white">{filteredTotalCount}</span> shows
+                              <span className="font-medium text-white">{filteredTotalCount}</span> upcoming shows
                             </span>
                           )
                         }
                         return totalEventCount !== null ? (
                           <span>
-                            <span className="font-medium text-white">{totalEventCount}</span> shows
+                            <span className="font-medium text-white">{totalEventCount}</span> upcoming shows
                           </span>
                         ) : null
                       })()}
