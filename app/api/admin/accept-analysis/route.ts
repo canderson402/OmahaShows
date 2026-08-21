@@ -37,7 +37,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify event exists
     const { data: event, error: eventError } = await supabase
       .from("events")
       .select("id")
@@ -52,15 +51,12 @@ export async function POST(request: NextRequest) {
     let artistsUpdated = 0;
     let headlinerGenres: string[] = [];
 
-    // Process each artist
     for (let i = 0; i < artists.length; i++) {
       const artistInput = artists[i];
 
-      // Check if artist exists
       let artist = await findArtistByName(artistInput.name);
 
       if (artist) {
-        // Update existing artist with new data (don't overwrite with nulls)
         artist = await updateArtist(artist.id, {
           genres: artistInput.genres.length > 0 ? artistInput.genres : undefined,
           spotify_url: artistInput.spotify_url,
@@ -69,7 +65,6 @@ export async function POST(request: NextRequest) {
         });
         artistsUpdated++;
       } else {
-        // Create new artist
         artist = await createArtist({
           name: artistInput.name,
           genres: artistInput.genres,
