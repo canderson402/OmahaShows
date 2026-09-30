@@ -64,6 +64,18 @@ function SpotifyPlayer({ id, title }: { id: string; title: string }) {
   );
 }
 
+/** One short line that helps tell same-named artists apart: genres and albums Spotify reports. */
+function profileHint(p: LinkProposal): string | null {
+  const bits: string[] = [];
+  for (const e of p.evidence) {
+    const g = e.match(/^genres: (.+)$/);
+    if (g) bits.push(g[1]);
+    const a = e.match(/^albums found for name "[^"]*" \(may include same-name artists\): (.+)$/) ?? e.match(/^albums: (.+)$/);
+    if (a) bits.push(`releases: ${a[1]}`);
+  }
+  return bits.length ? bits.join(" · ") : null;
+}
+
 /** Keep only candidates whose name plausibly matches; drop unrelated search noise. */
 function plausible(alts: LinkProposal[]) {
   return alts.filter((a) => (a.name_similarity ?? 1) >= 0.5);
@@ -78,7 +90,6 @@ function ArtistCheck({ name, decision, choice, onChange }: {
   const [mode, setMode] = useState<"right" | "wrong" | "none">(
     current.action === "proposed" ? "right" : current.action === "none" && proposed ? "none" : "wrong",
   );
-  const [preview, setPreview] = useState<string | null>(null);
   const showOthers = !proposed || mode === "wrong";
   const btn = (active: boolean) =>
     `px-3 py-1.5 text-sm rounded-lg border transition-colors ${active ? "bg-white text-gray-900 border-white" : "bg-gray-800 text-gray-300 border-gray-700 hover:border-gray-500"}`;
@@ -93,6 +104,7 @@ function ArtistCheck({ name, decision, choice, onChange }: {
               {pct(proposed.confidence)} match confidence
             </span>
             <span className="text-gray-400">{proposed.reason}</span>
+            {profileHint(proposed) && <span className="basis-full text-xs text-gray-500">{profileHint(proposed)}</span>}
           </div>
           <div className="flex flex-wrap gap-2" role="group" aria-label={`Is this ${name}?`}>
             <button type="button" className={btn(mode === "right")} onClick={() => { setMode("right"); onChange({ action: "proposed" }); }}>
@@ -117,19 +129,18 @@ function ArtistCheck({ name, decision, choice, onChange }: {
           <p className="text-xs text-gray-400">
             {alternatives.length > 0 ? "Pick the right one, or paste a link. If you do neither, the artist is saved with no Spotify link." : "Paste the right link, or leave it empty to save the artist with no Spotify link."}
           </p>
-          {alternatives.map((a) => {
+          {alternatives.map((a, n) => {
             const selected = current.action === "alternative" && current.external_id === a.external_id;
+            const hint = profileHint(a);
             return (
-              <div key={a.external_id} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <button type="button" className={btn(selected)} onClick={() => onChange({ action: "alternative", external_id: a.external_id })}>
-                    {selected ? "Using " : "Use "}{a.display_name}
-                  </button>
-                  <button type="button" className="text-xs text-gray-400 hover:text-white underline" onClick={() => setPreview(preview === a.external_id ? null : a.external_id)}>
-                    {preview === a.external_id ? "Hide preview" : "Preview"}
+              <div key={a.external_id} className={`rounded-lg border p-2 space-y-2 ${selected ? "border-green-500 bg-green-950/20" : "border-gray-700"}`}>
+                <SpotifyPlayer id={a.external_id} title={a.display_name} />
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs text-gray-400 min-w-0">{`Option ${n + 1}: ${a.display_name}`}{hint ? ` (${hint})` : ""}</span>
+                  <button type="button" className={btn(selected)} onClick={() => onChange(selected ? { action: "none" } : { action: "alternative", external_id: a.external_id })}>
+                    {selected ? "Selected" : "This is them"}
                   </button>
                 </div>
-                {preview === a.external_id && <SpotifyPlayer id={a.external_id} title={a.display_name} />}
               </div>
             );
           })}
