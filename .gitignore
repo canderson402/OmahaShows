@@ -31,6 +31,9 @@ scraper/venv
 .venv
 *.egg-info
 
+# Artist pipeline dry-run reports
+reports/
+
 # Claude Code
 .claude/
 .vercel
