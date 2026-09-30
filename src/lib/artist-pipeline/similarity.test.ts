@@ -20,4 +20,16 @@ describe("nameSimilarity", () => {
     expect(nameSimilarity("Slumbering Sun", "The Sun")).toBeLessThan(HIGH_SIMILARITY);
   });
   test("empty input is 0", () => expect(nameSimilarity("", "abc")).toBe(0));
+  test("symmetry", () => {
+    expect(nameSimilarity("Surfer Girl", "Surfer Blood")).toBe(
+      nameSimilarity("Surfer Blood", "Surfer Girl")
+    );
+  });
+  test("single-token near-miss stays below high threshold", () => {
+    expect(nameSimilarity("Wildwoods", "Wildwood")).toBeLessThan(HIGH_SIMILARITY);
+  });
+  test("punctuation/case/the variant is exact", () => {
+    expect(nameSimilarity("The Mumford & Sons", "mumford and sons")).toBe(1);
+  });
+  test("both empty is 0", () => expect(nameSimilarity("", "")).toBe(0));
 });
