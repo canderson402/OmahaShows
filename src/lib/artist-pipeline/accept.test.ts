@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { acceptAnalysis, AcceptError, parseSpotifyArtistId, validateDecisions, type AcceptStore, type PendingAnalysisV2 } from "./accept";
+import { acceptAnalysis, AcceptError, parseSpotifyArtistId, reviewChanged, validateDecisions, type AcceptStore, type PendingAnalysisV2 } from "./accept";
 import type { LinkProposal } from "./types";
 
 const ID_A = "4eN6auE38LEQDQ1ntJkCtT";
@@ -17,6 +17,7 @@ function memStore() {
   const aliases = new Map<string, string>();
   const links: { artist_id: string; external_id: string; status: string; source?: string }[] = [];
   const writes: string[] = [];
+  const reviews: { tier: string; changed: boolean }[] = [];
   let n = 0;
   artists.set("old1", { id: "old1", name: "Surfer Girl", genres: ["indie"], spotify_id: null, spotify_url: null });
   aliases.set("surfer girl", "old1");
@@ -45,9 +46,9 @@ function memStore() {
     },
     async replaceEventArtists(ev, rows) { writes.push(`lineup ${ev}: ${rows.map((r) => `${r.artist_id}/${r.role}/${r.billing_order}`).join(", ")}`); },
     async updateEvent(ev, p) { writes.push(`event ${ev}: ${p.category} [${p.genres.join(",")}]`); },
-    async markAnalysis(id, s) { writes.push(`analysis ${id}: ${s}`); },
+    async markAnalysis(id, s, r) { writes.push(`analysis ${id}: ${s}`); reviews.push(r); },
   };
-  return { store, artists, aliases, links, writes };
+  return { store, artists, aliases, links, writes, reviews };
 }
 
 const analysis = (): PendingAnalysisV2 => ({
@@ -66,7 +67,7 @@ describe("acceptAnalysis", () => {
   test("no decisions = accept proposals: creates new artist + alias, verifies proposed link, skips non-artists", async () => {
     const m = memStore();
     const r = await acceptAnalysis({ analysis: analysis(), decisions: [] }, m.store, () => "T");
-    expect(r).toEqual({ artistsCreated: 1, linksVerified: 1, lineup: 2 });
+    expect(r).toEqual({ artistsCreated: 1, linksVerified: 1, lineup: 2, tier: "review", changed: false });
     expect(m.aliases.get("joby")).toBe("new1");
     expect(m.artists.get("new1")!.spotify_id).toBe(ID_A);
     expect(m.links).toEqual([{ artist_id: "new1", external_id: ID_A, status: "verified", source: "auto" }]);
@@ -194,4 +195,27 @@ test("parseSpotifyArtistId", () => {
   expect(parseSpotifyArtistId(`https://evil.example/open.spotify.com/artist/${ID_A}`)).toBeNull(); // host anchored
   expect(parseSpotifyArtistId("spotify:artist:short")).toBeNull();
   expect(parseSpotifyArtistId("https://open.spotify.com/album/" + ID_A)).toBeNull();
+});
+
+
+describe("review tracking", () => {
+  test("approving as shown records changed=false with the tier", async () => {
+    const m = memStore();
+    const r = await acceptAnalysis({ analysis: analysis(), decisions: [] }, m.store);
+    expect(r.changed).toBe(false);
+    // the sample show has an "unsure" act (Catsclaw), so it was a needs-review proposal
+    expect(m.reviews).toEqual([{ tier: "review", changed: false }]);
+  });
+  test.each([
+    ["a different Spotify pick", [{ index: 1, spotify: { action: "alternative" as const, external_id: ID_B } }], undefined],
+    ["saying 'none' to a proposed link", [{ index: 1, spotify: { action: "none" as const } }], undefined],
+    ["dropping an act", [{ index: 1, exclude: true }], undefined],
+    ["adding a dropped act", [{ index: 2, realArtist: true }], undefined],
+    ["changing the category", [], "comedy" as const],
+  ])("%s counts as changed", (_n, decisions, category) => {
+    expect(reviewChanged(analysis(), decisions, category)).toBe(true);
+  });
+  test("re-confirming the proposal or the same category is not a change", () => {
+    expect(reviewChanged(analysis(), [{ index: 1, spotify: { action: "proposed" } }], "music")).toBe(false);
+  });
 });

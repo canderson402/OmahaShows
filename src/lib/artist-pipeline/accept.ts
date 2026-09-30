@@ -1,6 +1,7 @@
 import { normalizeArtistName } from "./normalize";
 import { spotifyArtistUrl } from "./clients/spotify";
 import type { EventCategory, EventClassification, LineupEntry, LinkDecision } from "./types";
+import { confidenceTier, type ConfidenceTier } from "./tier";
 
 /** What the admin decided for one lineup entry (by index). Missing decision = accept the proposal as shown. */
 export interface AcceptDecision {
@@ -45,7 +46,8 @@ export interface AcceptStore {
   /** Set the event's lineup to exactly these rows (new rows written before stale rows are removed). */
   replaceEventArtists(eventId: string, rows: { artist_id: string; role: string; billing_order: number }[]): Promise<void>;
   updateEvent(eventId: string, patch: { genres: string[]; category: EventCategory; analyzed_at: string }): Promise<void>;
-  markAnalysis(id: string, status: "approved"): Promise<void>;
+  /** Mark approved and record how it was reviewed (tier at review time, and whether the admin changed anything). */
+  markAnalysis(id: string, status: "approved", review: { tier: ConfidenceTier; changed: boolean }): Promise<void>;
 }
 
 export class AcceptError extends Error {
@@ -124,6 +126,22 @@ interface PlannedAct {
   spotify: Resolved | null;     // null = no Spotify decision to apply for this act
 }
 
+/** True when the admin's decisions differ from approving the proposal exactly as shown. */
+export function reviewChanged(analysis: PendingAnalysisV2, decisions: AcceptDecision[], category?: EventCategory): boolean {
+  if (category && category !== (analysis.event?.category ?? "music")) return true;
+  for (const d of decisions) {
+    const entry = analysis.artists[d.index];
+    if (!entry) continue;
+    if (d.exclude || d.realArtist) return true;
+    if (!d.spotify || d.spotify.action === "proposed") continue;
+    const proposed = entry.kind === "new" ? entry.spotify.chosen : entry.kind === "existing" ? entry.new_links?.spotify?.chosen ?? null : null;
+    // Choosing "none" where nothing was proposed is the same as accepting the proposal.
+    if (d.spotify.action === "none" && !proposed) continue;
+    return true;
+  }
+  return false;
+}
+
 /**
  * Applies an admin-approved analysis. Everything that can be refused (malformed decisions, bad or
  * nonexistent Spotify links, a profile owned by another artist, a vanished artist) is checked before
@@ -133,7 +151,7 @@ export async function acceptAnalysis(
   input: { analysis: PendingAnalysisV2; decisions: unknown; category?: EventCategory },
   store: AcceptStore,
   now: () => string = () => new Date().toISOString(),
-): Promise<{ artistsCreated: number; linksVerified: number; lineup: number }> {
+): Promise<{ artistsCreated: number; linksVerified: number; lineup: number; tier: ConfidenceTier; changed: boolean }> {
   const { analysis } = input;
   const decisions = validateDecisions(input.decisions, analysis);
   const byIndex = new Map(decisions.map((d) => [d.index, d]));
@@ -219,6 +237,8 @@ export async function acceptAnalysis(
 
   await store.replaceEventArtists(analysis.event_id, lineup);
   await store.updateEvent(analysis.event_id, { genres, category, analyzed_at: now() });
-  await store.markAnalysis(analysis.id, "approved");
-  return { artistsCreated, linksVerified, lineup: lineup.length };
+  const tier = confidenceTier(analysis);
+  const changed = reviewChanged(analysis, decisions, input.category);
+  await store.markAnalysis(analysis.id, "approved", { tier, changed });
+  return { artistsCreated, linksVerified, lineup: lineup.length, tier, changed };
 }

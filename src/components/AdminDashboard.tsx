@@ -12,6 +12,7 @@ import { ArtistProposalReview, type ProposalV2 } from "./ArtistProposalReview";
 import { adminFetch } from "../lib/admin-fetch";
 import type { EventCategory, EventClassification } from "../lib/artist-pipeline/types";
 import type { AcceptDecision } from "../lib/artist-pipeline/accept";
+import { confidenceTier } from "../lib/artist-pipeline/tier";
 
 function normalizeUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -724,7 +725,19 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     id: a.id, artists: a.artists as unknown as ProposalV2["artists"], event: a.event ?? null, overall_confidence: a.overall_confidence ?? null,
   });
 
-  const handleAcceptV2 = async (analysis: PendingArtistAnalysis, decisions: AcceptDecision[], category?: EventCategory) => {
+  const tierOf = (a: PendingArtistAnalysis) => (isV2(a) ? confidenceTier({ artists: toProposal(a).artists, event: a.event ?? null }) : "review");
+  const [artistTab, setArtistTab] = useState<"high" | "review">("high");
+  const [approvingAll, setApprovingAll] = useState(false);
+  const [reviewStats, setReviewStats] = useState<{ available: boolean; window?: number; reviewed?: number; unchanged?: number } | null>(null);
+  const fetchReviewStats = useCallback(async () => {
+    try {
+      const res = await adminFetch("/api/admin/artist-review-stats");
+      if (res.ok) setReviewStats(await res.json());
+    } catch { /* stats are optional */ }
+  }, []);
+  useEffect(() => { fetchReviewStats(); }, [fetchReviewStats]);
+
+  const handleAcceptV2 = async (analysis: PendingArtistAnalysis, decisions: AcceptDecision[], category?: EventCategory, quiet = false): Promise<boolean> => {
     setActionLoading(analysis.id);
     try {
       const response = await adminFetch("/api/admin/accept-analysis", {
@@ -736,13 +749,35 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       if (!response.ok) throw new Error(body.error || "Failed to save");
       setPendingArtistAnalyses(prev => prev.filter(a => a.id !== analysis.id));
       setViewingPendingAnalysis(null);
-      setToast({ message: `Approved: ${body.lineup} artist(s) linked to the show, ${body.linksVerified} Spotify link(s) verified, ${body.artistsCreated} new artist(s).`, type: "success" });
-      await fetchAnalyzedEvents();
+      if (!quiet) {
+        setToast({ message: `Approved: ${body.lineup} artist(s) linked to the show, ${body.linksVerified} Spotify link(s) verified, ${body.artistsCreated} new artist(s).`, type: "success" });
+        await Promise.all([fetchAnalyzedEvents(), fetchReviewStats()]);
+      }
+      return true;
     } catch (err) {
-      setToast({ message: err instanceof Error ? err.message : "Failed to save", type: "error" });
+      if (!quiet) setToast({ message: err instanceof Error ? err.message : "Failed to save", type: "error" });
+      return false;
     } finally {
       setActionLoading(null);
     }
+  };
+
+  // Approve every high-confidence match exactly as proposed.
+  const handleApproveAllHigh = async (list: PendingArtistAnalysis[]) => {
+    if (!confirm(`Approve all ${list.length} high-confidence match(es) exactly as proposed? Their Spotify links go live on the site.`)) return;
+    setApprovingAll(true);
+    let ok = 0;
+    const failed: string[] = [];
+    for (const a of list) {
+      if (await handleAcceptV2(a, [], a.event?.category, true)) ok++;
+      else failed.push(a.events?.title || a.event_id);
+    }
+    setApprovingAll(false);
+    await Promise.all([fetchAnalyzedEvents(), fetchReviewStats(), fetchPendingArtistAnalyses()]);
+    setToast({
+      message: `Approved ${ok} show(s).${failed.length ? ` ${failed.length} could not be approved and are still in the queue: ${failed.slice(0, 3).join(", ")}${failed.length > 3 ? "…" : ""}` : ""}`,
+      type: failed.length ? "error" : "success",
+    });
   };
 
   // Analyze the next 10 upcoming shows that haven't been analyzed yet (soonest first).
@@ -1078,11 +1113,46 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
               )}
 
               {/* Pending Artist Analyses */}
-              {pendingArtistAnalyses.length > 0 && (
+              {pendingArtistAnalyses.length > 0 && (() => {
+                const highList = pendingArtistAnalyses.filter((a) => tierOf(a) === "high");
+                const reviewList = pendingArtistAnalyses.filter((a) => tierOf(a) === "review");
+                const shown = artistTab === "high" ? highList : reviewList;
+                const tabBtn = (active: boolean) => `px-3 py-1.5 text-sm rounded-lg border transition-colors ${active ? "bg-white text-gray-900 border-white" : "bg-gray-800 text-gray-300 border-gray-700 hover:border-gray-500"}`;
+                return (
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold text-white mb-3">Pending Artist Matches ({pendingArtistAnalyses.length})</h3>
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <button type="button" className={tabBtn(artistTab === "high")} onClick={() => setArtistTab("high")}>High confidence ({highList.length})</button>
+                    <button type="button" className={tabBtn(artistTab === "review")} onClick={() => setArtistTab("review")}>Needs review ({reviewList.length})</button>
+                    {artistTab === "high" && highList.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => handleApproveAllHigh(highList)}
+                        disabled={approvingAll}
+                        className="ml-auto px-3 py-1.5 text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50"
+                      >
+                        {approvingAll ? "Approving..." : `Approve all ${highList.length}`}
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mb-3">
+                    {artistTab === "high"
+                      ? "Every artist has a clear, unique Spotify match or is already in your list, and nothing is unsure. "
+                      : "At least one artist needs a decision: no clear Spotify match, several artists with the same name, or an act that might not be an artist. "}
+                    {artistTab === "high" && reviewStats?.available && (reviewStats.reviewed ?? 0) > 0 && (
+                      <span className="text-gray-300">
+                        Last {reviewStats.reviewed} approved: {reviewStats.unchanged} with no changes ({Math.round(((reviewStats.unchanged ?? 0) / (reviewStats.reviewed ?? 1)) * 100)}%).
+                      </span>
+                    )}
+                    {artistTab === "high" && reviewStats && !reviewStats.available && (
+                      <span className="text-amber-300">Accuracy tracking starts once migration 009 is applied.</span>
+                    )}
+                  </p>
+                  {shown.length === 0 && (
+                    <p className="text-sm text-gray-500 py-4">{artistTab === "high" ? "Nothing high-confidence right now." : "Nothing needs review right now."}</p>
+                  )}
                   <div className="space-y-3">
-                    {pendingArtistAnalyses.map((analysis) => {
+                    {shown.map((analysis) => {
                       const venueHex = analysis.events?.venue_id ? (VENUE_COLORS[analysis.events.venue_id] || VENUE_COLORS.other || "#10b981") : "#10b981";
                       const venueName = analysis.events?.venues?.name || analysis.events?.venue_name || "Unknown Venue";
                       const headliner = isV2(analysis) ? undefined : analysis.artists.find(a => a.role === "headliner");
@@ -1176,7 +1246,8 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     })}
                   </div>
                 </div>
-              )}
+                );
+              })()}
 
               {pendingEvents.length === 0 && eventChanges.filter(c => c.change_type === 'update').length === 0 && pendingArtistAnalyses.length === 0 ? (
                 <div className="text-center py-12">
