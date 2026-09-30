@@ -76,6 +76,22 @@ function profileHint(p: LinkProposal): string | null {
   return bits.length ? bits.join(" · ") : null;
 }
 
+const sameName = (a: string, b: string) => a.toLowerCase().replace(/[^a-z0-9]+/g, "") === b.toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+/**
+ * Spotify often has several profiles with the exact same name (stray duplicates, empty pages).
+ * Keep only the first (Spotify's top-ranked) of each name, and none that share the proposed match's name.
+ */
+function withoutDuplicates(alts: LinkProposal[], proposed: LinkProposal | null): LinkProposal[] {
+  const kept: LinkProposal[] = [];
+  for (const a of alts) {
+    if (proposed && sameName(a.display_name, proposed.display_name)) continue;
+    if (kept.some((k) => sameName(k.display_name, a.display_name))) continue;
+    kept.push(a);
+  }
+  return kept;
+}
+
 /** Keep only candidates whose name plausibly matches; drop unrelated search noise. */
 function plausible(alts: LinkProposal[]) {
   return alts.filter((a) => (a.name_similarity ?? 1) >= 0.5);
@@ -85,7 +101,7 @@ function ArtistCheck({ name, decision, choice, onChange }: {
   name: string; decision: LinkDecision | undefined; choice: SpotifyChoice | undefined; onChange: (c: SpotifyChoice) => void;
 }) {
   const proposed = decision?.chosen ?? null;
-  const alternatives = plausible(decision?.alternatives ?? []);
+  const alternatives = withoutDuplicates(plausible(decision?.alternatives ?? []), proposed);
   const current: SpotifyChoice = choice ?? (proposed ? { action: "proposed" } : { action: "none" });
   const [mode, setMode] = useState<"right" | "wrong" | "none">(
     current.action === "proposed" ? "right" : current.action === "none" && proposed ? "none" : "wrong",
@@ -157,7 +173,7 @@ function ArtistCheck({ name, decision, choice, onChange }: {
           })}
           {hidden > 0 && (
             <button type="button" className="text-xs text-gray-300 hover:text-white underline" onClick={() => setExpanded(true)}>
-              {hidden === 1 ? "1 other Spotify artist with this name" : `${hidden} other Spotify artists with this name`}
+              {hidden === 1 ? "1 other Spotify artist with a similar name" : `${hidden} other Spotify artists with similar names`}
             </button>
           )}
           {expanded && alternatives.length > 1 && (
