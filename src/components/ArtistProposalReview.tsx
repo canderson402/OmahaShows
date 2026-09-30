@@ -91,6 +91,14 @@ function ArtistCheck({ name, decision, choice, onChange }: {
     current.action === "proposed" ? "right" : current.action === "none" && proposed ? "none" : "wrong",
   );
   const showOthers = !proposed || mode === "wrong";
+  const [expanded, setExpanded] = useState(false);
+  // Spotify's own ranking puts the most likely profile first; show that one and tuck the rest away.
+  const selectedIdx = alternatives.findIndex((a) => current.action === "alternative" && current.external_id === a.external_id);
+  const visible = expanded ? alternatives : alternatives.filter((_, n) => n === 0 || n === selectedIdx);
+  const hidden = alternatives.length - visible.length;
+  // A hint identical on every option (name-level album search) can't tell them apart, so drop it.
+  const hints = alternatives.map(profileHint);
+  const hintsDiffer = new Set(hints).size > 1;
   const btn = (active: boolean) =>
     `px-3 py-1.5 text-sm rounded-lg border transition-colors ${active ? "bg-white text-gray-900 border-white" : "bg-gray-800 text-gray-300 border-gray-700 hover:border-gray-500"}`;
 
@@ -127,16 +135,19 @@ function ArtistCheck({ name, decision, choice, onChange }: {
       {showOthers && (
         <div className="rounded-lg border border-gray-700 bg-gray-950/40 p-3 space-y-2">
           <p className="text-xs text-gray-400">
-            {alternatives.length > 0 ? "Pick the right one, or paste a link. If you do neither, the artist is saved with no Spotify link." : "Paste the right link, or leave it empty to save the artist with no Spotify link."}
+            {alternatives.length > 0 ? "Play it to check. If it's them, press This is them; otherwise paste the right link, or leave it and the artist is saved with no Spotify link." : "Paste the right link, or leave it empty to save the artist with no Spotify link."}
           </p>
-          {alternatives.map((a, n) => {
+          {visible.map((a) => {
+            const n = alternatives.indexOf(a);
             const selected = current.action === "alternative" && current.external_id === a.external_id;
-            const hint = profileHint(a);
+            const hint = hintsDiffer ? hints[n] : null;
             return (
               <div key={a.external_id} className={`rounded-lg border p-2 space-y-2 ${selected ? "border-green-500 bg-green-950/20" : "border-gray-700"}`}>
                 <SpotifyPlayer id={a.external_id} title={a.display_name} />
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs text-gray-400 min-w-0">{`Option ${n + 1}: ${a.display_name}`}{hint ? ` (${hint})` : ""}</span>
+                  <span className="text-xs text-gray-400 min-w-0">
+                    {n === 0 ? `Top Spotify result: ${a.display_name}` : a.display_name}{hint ? ` (${hint})` : ""}
+                  </span>
                   <button type="button" className={btn(selected)} onClick={() => onChange(selected ? { action: "none" } : { action: "alternative", external_id: a.external_id })}>
                     {selected ? "Selected" : "This is them"}
                   </button>
@@ -144,6 +155,16 @@ function ArtistCheck({ name, decision, choice, onChange }: {
               </div>
             );
           })}
+          {hidden > 0 && (
+            <button type="button" className="text-xs text-gray-300 hover:text-white underline" onClick={() => setExpanded(true)}>
+              {hidden === 1 ? "1 other Spotify artist with this name" : `${hidden} other Spotify artists with this name`}
+            </button>
+          )}
+          {expanded && alternatives.length > 1 && (
+            <button type="button" className="text-xs text-gray-400 hover:text-white underline" onClick={() => setExpanded(false)}>
+              Show only the top result
+            </button>
+          )}
           <label className="block text-xs text-gray-400 pt-1">
             Or paste the right Spotify artist link
             <input
