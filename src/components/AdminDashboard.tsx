@@ -740,6 +740,38 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   };
 
+  // Analyze the next 10 upcoming shows that haven't been analyzed yet (soonest first).
+  const [analyzingNext, setAnalyzingNext] = useState(false);
+  const handleAnalyzeNext = async () => {
+    setAnalyzingNext(true);
+    try {
+      const res = await adminFetch("/api/admin/bulk-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batchSize: 10, onlyNew: false }),
+      });
+      const result = await res.json().catch(() => ({ error: `Server error (${res.status})` }));
+      if (!res.ok) throw new Error(result.error || "Analysis failed");
+      const rows = result.results as { success: boolean; pending?: boolean }[];
+      if (rows.length === 0) {
+        setToast({ message: "Every upcoming show is already analyzed or waiting for review.", type: "success" });
+      } else {
+        const queuedCount = rows.filter((r) => r.success && r.pending).length;
+        const skipped = rows.filter((r) => r.success && !r.pending).length;
+        const failed = rows.filter((r) => !r.success).length;
+        setToast({
+          message: `Analyzed ${rows.length} show(s): ${queuedCount} to review, ${skipped} with no artists${failed ? `, ${failed} failed (try again)` : ""}. Cost $${Number(result.costUsd ?? 0).toFixed(2)}.`,
+          type: failed ? "error" : "success",
+        });
+      }
+      await Promise.all([fetchAnalyzedEvents(), fetchPendingArtistAnalyses()]);
+    } catch (err) {
+      setToast({ message: err instanceof Error ? err.message : "Analysis failed", type: "error" });
+    } finally {
+      setAnalyzingNext(false);
+    }
+  };
+
   // Bulk analysis handler - analyzes new events only
   const handleBulkAnalyze = async () => {
     setBulkAnalyzing(true);
@@ -1424,6 +1456,21 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   </button>
                 </div>
 
+                {statusFilter === "approved" && (
+                  <button
+                    onClick={handleAnalyzeNext}
+                    disabled={analyzingNext || bulkAnalyzing}
+                    title="Analyze the next 10 upcoming shows that haven't been analyzed yet"
+                    className="px-4 py-2 text-sm font-medium bg-purple-900/60 hover:bg-purple-800 border border-purple-600/50 text-white rounded-lg disabled:opacity-50 transition-colors flex items-center gap-2"
+                  >
+                    {analyzingNext ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Analyzing 10...
+                      </>
+                    ) : "Analyze next 10"}
+                  </button>
+                )}
                 {statusFilter === "approved" && (
                   <button
                     onClick={handleBulkAnalyze}

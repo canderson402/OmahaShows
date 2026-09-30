@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminSupabase, requireAdmin } from "../../../../src/lib/admin-auth";
 import { analyzeEvent, RetryableError } from "../../../../src/lib/artist-pipeline/pipeline";
 import { createServerPipelineDeps, saveProposalOrSkip } from "../../../../src/lib/artist-pipeline/server-deps";
+import { todayChicago } from "../../../../src/lib/artist-pipeline/repo";
 
 // One show takes a few seconds (no web search by default); 300s covers a full nightly batch.
 export const maxDuration = 300;
@@ -12,11 +13,16 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
   const supabase = adminSupabase();
   try {
-    const { batchSize = 10, onlyNew = false } = await request.json();
+    const body = await request.json();
+    const onlyNew = body.onlyNew === true;
+    const batchSize = Math.min(Math.max(Number.isInteger(body.batchSize) ? body.batchSize : 10, 1), 25);
+    const todayStr = todayChicago();
 
-    // Get today's date for filtering future events
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    // Shows already waiting in the review queue are skipped (they have an analysis to approve/reject).
+    const { data: queued, error: queuedError } = await supabase
+      .from("pending_artist_analyses").select("event_id").eq("status", "pending");
+    if (queuedError) throw queuedError;
+    const queuedIds = new Set((queued ?? []).map((q) => q.event_id as string));
 
     let batch: { id: string; title: string; date: string; venue_id: string; venues?: { name: string } | null }[] = [];
 
@@ -48,7 +54,7 @@ export async function POST(request: NextRequest) {
         batch = newEvents || [];
       }
     } else {
-      // Get ALL unanalyzed upcoming approved events
+      // Next N upcoming approved shows not yet analyzed (soonest first), not counting queued ones.
       const { data: eventsToAnalyze, error: eventsError } = await supabase
         .from("events")
         .select("id, title, date, venue_id, venues(name)")
@@ -56,21 +62,14 @@ export async function POST(request: NextRequest) {
         .is("analyzed_at", null)
         .gte("date", todayStr)
         .order("date", { ascending: true })
-        .limit(batchSize);
+        .order("id", { ascending: true })
+        .limit(batchSize + queuedIds.size);
 
       if (eventsError) throw eventsError;
-      batch = eventsToAnalyze || [];
+      batch = (eventsToAnalyze || []).filter((e) => !queuedIds.has(e.id)).slice(0, batchSize);
     }
 
-    // Filter out events that already have pending analyses
-    const { data: existingPending } = await supabase
-      .from("pending_artist_analyses")
-      .select("event_id")
-      .eq("status", "pending")
-      .in("event_id", batch.map(e => e.id));
-
-    const pendingEventIds = new Set(existingPending?.map(p => p.event_id) || []);
-    const eventsToProcess = batch.filter(e => !pendingEventIds.has(e.id));
+    const eventsToProcess = batch.filter((e) => !queuedIds.has(e.id));
 
     const { deps, meter, repo } = createServerPipelineDeps(supabase);
     const pipelineEvents = await repo.loadEvents(eventsToProcess.map((e) => e.id));
