@@ -15,6 +15,15 @@ test("new ids always included; changed only when title or supporting_artists cha
   expect(trigger.get("c2")).toBe("changed");
 });
 
+test("id in both new and changed stays trigger new", () => {
+  const { ids, trigger } = selectEventIds(
+    [{ new_event_ids: ["x"], changed_event_ids: ["x"] }],
+    [{ event_id: "x", change_type: "update", changed_fields: ["title"] }],
+  );
+  expect(ids).toEqual(["x"]);
+  expect(trigger.get("x")).toBe("new");
+});
+
 test("empty runs select nothing", () => {
   expect(selectEventIds([], []).ids).toEqual([]);
   expect(selectEventIds([{ new_event_ids: [], changed_event_ids: null }], []).ids).toEqual([]);

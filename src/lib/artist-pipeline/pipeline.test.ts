@@ -103,9 +103,48 @@ describe("escalation", () => {
     expect(joby.spotify.chosen.evidence).toContain(`cited: ${url} (Omaha)`);
   });
 
-  test("no escalation when budget is 0 and a pick without candidate is never chosen", async () => {
+  test("budget exhausted: needed escalation is deferred, pick without candidate is never chosen", async () => {
     const p = await analyzeEvent(event, deps({ llm: llmFor(oneAct("JOBY!"), noPick) }));
-    expect((p.artists[0] as any).spotify.chosen).toBeNull();
+    const a = p.artists[0] as any;
+    expect(a.spotify.chosen).toBeNull();
+    expect(a.spotify.deferred).toBe("escalation_budget");
+    expect(a.youtube.deferred).toBe("escalation_budget");
+  });
+
+  test("youtube_quota deferral is kept over escalation_budget", async () => {
+    const d = deps({
+      llm: llmFor(oneAct("JOBY!"), noPick),
+      youtube: { unitsUsed: () => 0, async searchChannels() { throw new QuotaExceededError("q"); } },
+    });
+    const a = (await analyzeEvent(event, d)).artists[0] as any;
+    expect(a.youtube.deferred).toBe("youtube_quota");
+    expect(a.spotify.deferred).toBe("escalation_budget");
+  });
+
+  test("escalation with no candidate keeps the judge's pick for that platform", async () => {
+    const responses = [msg([submit("made-up", [])])];
+    const d = deps({
+      llm: llmFor(oneAct("JOBY!"), { ...judge, youtube: { external_id: null, rating: "low", reason: "", evidence: [] } }),
+      messages: { messages: { async create() { return responses.shift(); } } },
+      escalationBudget: { remaining: 1 },
+    });
+    const a = (await analyzeEvent(event, d)).artists[0] as any;
+    expect(a.spotify.chosen?.external_id).toBe("s-joby");
+    expect(a.spotify.chosen.evidence.some((e: string) => e.startsWith("cited:"))).toBe(false);
+  });
+
+  test("overall_confidence = lineup x category x act factors, no-match factor 0.5", async () => {
+    const p = await analyzeEvent(event, deps({ llm: llmFor(oneAct("JOBY!"), judge) }));
+    const a = p.artists[0] as any;
+    const spConf = a.spotify.chosen.confidence;
+    expect(a.youtube.chosen).toBeNull();
+    expect(a.confidence).toBeCloseTo(spConf * 0.5, 10);
+    expect(p.overall_confidence).toBeCloseTo(0.95 * 0.95 * spConf * 0.5, 10);
+  });
+
+  test("QuotaExceededError never escapes raw", async () => {
+    const d = deps({ fetchPage: async () => { throw new QuotaExceededError("q"); } });
+    await expect(analyzeEvent(event, d)).rejects.toBeInstanceOf(RetryableError);
   });
 
   test("Anthropic.APIError from escalation is retryable", async () => {
@@ -124,6 +163,7 @@ describe("escalation", () => {
       { type: "tool_use", id: "t", name: "spotify_search", input: { query: "Surfer Girl" } },
       submit("s-bad", ["https://x.example"]),
     ])];
+    const budget = { remaining: 1 };
     const d = deps({
       llm: llmFor(oneAct("Surfer Girl"), noPick),
       spotify: { async searchArtists() { return [{ id: "s-bad", name: "Surfer Girl", genres: [], imageUrl: null }]; }, async albumTitles() { return []; } },
@@ -132,9 +172,11 @@ describe("escalation", () => {
         async rejectedExternalIds(_id, platform) { seenRejected.push(platform); return platform === "spotify" ? new Set(["s-bad"]) : new Set(); },
       },
       messages: { messages: { async create() { return responses.shift(); } } },
-      escalationBudget: { remaining: 1 },
+      escalationBudget: budget,
     });
     const p = await analyzeEvent(event, d);
+    expect(budget.remaining).toBe(0); // escalation actually ran
+    expect(responses).toHaveLength(0);
     const entry = p.artists[0] as any;
     expect(entry.kind).toBe("existing");
     expect(entry.new_links.spotify.chosen).toBeNull();

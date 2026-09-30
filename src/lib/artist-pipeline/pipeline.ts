@@ -12,6 +12,7 @@ import { finalLinkConfidence, product, rawRatingScore, type CalibrationSet } fro
 import type { Candidate, ExtractedAct, LineupEntry, LinkDecision, LinkProposal, Platform, PipelineEvent, Proposal } from "./types";
 
 export const HIGH_CONFIDENCE = 0.9;
+export const NO_MATCH_CONFIDENCE = 0.5;
 
 export interface PipelineDeps {
   llm: StructuredLLM; messages: MessagesClient; spotify: SpotifyClient; youtube: YouTubeClient;
@@ -39,10 +40,10 @@ function decision(pick: GuardedPick, pool: Candidate[], cal: CalibrationSet, cit
   return { chosen, alternatives };
 }
 
-function needsEscalation(r: JudgeResult, cal: CalibrationSet, want: Platform[]): boolean {
+function needsEscalation(r: JudgeResult, want: Platform[]): boolean {
   return want.some((p) => {
     const pick = r[p];
-    return !pick.candidate || !pick.features || finalLinkConfidence(pick.features, cal.link) < 0.6;
+    return !pick.candidate || !pick.features || pick.features.judge_rating === "low";
   });
 }
 
@@ -81,45 +82,53 @@ export async function analyzeAct(
   };
   const { spotify, youtube, ytDeferred } = await gather(act, want, rejected, deps);
   const ctx: JudgeContext = { act, event, pageText, otherActs, spotify, youtube };
-  let result: JudgeResult = await judgeAct(ctx, deps.llm, deps.models.judge);
-  let citations: string[] = [];
+  const result: JudgeResult = await judgeAct(ctx, deps.llm, deps.models.judge);
+  let escalated: Awaited<ReturnType<typeof escalateAct>> = null;
   let ytQuota = ytDeferred;
+  let budgetDeferred = false;
 
   // When YouTube search is already out of quota, it cannot justify spending an escalation.
   const escWant = ytDeferred ? want.filter((p) => p !== "youtube") : want;
-  if (escWant.length && needsEscalation(result, deps.calibration, escWant) && deps.escalationBudget.remaining > 0) {
-    deps.escalationBudget.remaining--;
-    try {
-      const escalated = await escalateAct(ctx, { client: deps.messages, spotify: deps.spotify, youtube: deps.youtube, model: deps.models.escalate, rejected });
-      if (escalated) {
-        result = escalated;
-        citations = escalated.citations;
-        if (escalated.youtubeDeferred) ytQuota = true;
+  if (escWant.length && needsEscalation(result, escWant)) {
+    if (deps.escalationBudget.remaining > 0) {
+      deps.escalationBudget.remaining--;
+      try {
+        escalated = await escalateAct(ctx, { client: deps.messages, spotify: deps.spotify, youtube: deps.youtube, model: deps.models.escalate, rejected });
+        if (escalated?.youtubeDeferred) ytQuota = true;
+      } catch (e) {
+        if (e instanceof QuotaExceededError) ytQuota = true; else throw e;
       }
-    } catch (e) {
-      if (e instanceof QuotaExceededError) ytQuota = true; else throw e;
+    } else {
+      budgetDeferred = true;
     }
   }
 
-  const sp = decision(result.spotify, spotify, deps.calibration, citations);
-  const ytDecision = decision(result.youtube, youtube, deps.calibration, citations);
-  const yt: LinkDecision = ytQuota && !ytDecision.chosen ? { chosen: null, alternatives: [], deferred: "youtube_quota" } : ytDecision;
-  const linkConfs = [
-    ...(want.includes("spotify") && sp.chosen ? [sp.chosen.confidence] : []),
-    ...(want.includes("youtube") && yt.chosen ? [yt.chosen.confidence] : []),
-  ];
+  // Per-platform merge: an escalated pick replaces the judge's only when it found a candidate.
+  const citations = escalated?.citations ?? [];
+  const build = (p: Platform, pool: Candidate[]): LinkDecision => {
+    const fromEsc = !!escalated && !!escalated[p].candidate;
+    const d = decision(fromEsc ? escalated![p] : result[p], pool, deps.calibration, fromEsc ? citations : []);
+    if (!want.includes(p) || d.chosen) return d;
+    if (p === "youtube" && ytQuota) return { chosen: null, alternatives: [], deferred: "youtube_quota" };
+    if (budgetDeferred) return { ...d, deferred: "escalation_budget" };
+    return d;
+  };
+  const sp = build("spotify", spotify);
+  const yt = build("youtube", youtube);
+  const confidence = product(want.map((p) => (p === "spotify" ? sp : yt).chosen?.confidence ?? NO_MATCH_CONFIDENCE));
 
   if (artist) {
     return {
       kind: "existing", billed_as: act.billed_as, artist_id: artist.id, role: act.role, billing_order: act.billing_order,
-      confidence: product(linkConfs),
+      confidence,
       new_links: { ...(want.includes("spotify") ? { spotify: sp } : {}), ...(want.includes("youtube") ? { youtube: yt } : {}) },
     };
   }
-  const genres: Genre[] = result.genres.length ? result.genres : act.genres;
+  const judged = escalated ?? result;
+  const genres: Genre[] = judged.genres.length ? judged.genres : act.genres;
   return {
     kind: "new", billed_as: act.billed_as, clean_name: act.clean_name, role: act.role, billing_order: act.billing_order,
-    hometown: result.hometown ?? act.hometown, genres, confidence: product(linkConfs), spotify: sp, youtube: yt,
+    hometown: judged.hometown ?? act.hometown, genres, confidence, spotify: sp, youtube: yt,
   };
 }
 
@@ -143,7 +152,7 @@ export async function analyzeEvent(event: PipelineEvent, deps: PipelineDeps): Pr
       overall_confidence: product([lineup_confidence, category_confidence, ...artists.map((a) => a.confidence)]),
     };
   } catch (e) {
-    if (e instanceof SpotifyError || e instanceof YouTubeError || e instanceof LLMError || e instanceof Anthropic.APIError) {
+    if (e instanceof QuotaExceededError || e instanceof SpotifyError || e instanceof YouTubeError || e instanceof LLMError || e instanceof Anthropic.APIError) {
       throw new RetryableError(`${event.id}: ${(e as Error).message}`, e);
     }
     throw e;
