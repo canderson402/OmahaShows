@@ -1,185 +1,97 @@
 # scraper/scrapers/ticketweb.py
 """
-Generic scraper for venues that embed a TicketWeb widget on their own site.
-Works with .tw-section containers. Handles pagination via ?twpage= parameter.
+Scraper for venues that sell through TicketWeb, reading the venue's TicketWeb page directly
+(e.g. https://www.ticketweb.com/venue/barnato-omaha-ne/482015).
+
+The page embeds schema.org MusicEvent JSON-LD for every upcoming show (name, start date/time,
+ticket URL, image, performers), so we read that instead of page markup. Venue websites that embed
+the TicketWeb widget now load it client-side, which is why we no longer scrape the venue's own site.
 """
+import json
 import re
 import sys
-from datetime import datetime
 from pathlib import Path
-import requests
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base import BaseScraper
 from models import Event
 
+_LD_JSON = re.compile(r'<script[^>]+type="application/ld\+json"[^>]*>([\s\S]*?)</script>', re.I)
+_START = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:T(\d{2}):(\d{2}))?")
+
 
 class TicketWebScraper(BaseScraper):
-    """Scraper for venue sites with embedded TicketWeb widgets."""
+    """Scraper for a TicketWeb venue page (structured data)."""
 
-    def __init__(self, venue_name: str, venue_id: str, events_url: str):
+    def __init__(self, venue_name: str, venue_id: str, venue_page_url: str):
         self.name = venue_name
         self.id = venue_id
-        self.url = events_url
-
-    def fetch_html(self) -> str:
-        response = requests.get(self.url, headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }, timeout=self.timeout)
-        response.raise_for_status()
-        return response.text
-
-    def scrape(self) -> list[Event]:
-        all_events = []
-        seen_ids = set()
-        page = 0
-
-        while True:
-            url = self.url if page == 0 else f"{self.url}?twpage={page}"
-            try:
-                response = requests.get(url, headers={
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                }, timeout=self.timeout)
-                response.raise_for_status()
-            except Exception:
-                break
-
-            events = self.parse_events(response.text)
-            if not events:
-                break
-
-            for e in events:
-                if e.id not in seen_ids:
-                    seen_ids.add(e.id)
-                    all_events.append(e)
-
-            # Check for next page
-            soup = self.get_soup(response.text)
-            next_links = soup.select('a[href*="twpage"]')
-            next_page = None
-            for link in next_links:
-                if 'Next' in link.get_text():
-                    match = re.search(r'twpage=(\d+)', link.get('href', ''))
-                    if match:
-                        next_page = int(match.group(1))
-            if next_page is not None and next_page > page:
-                page = next_page
-            else:
-                break
-
-        return all_events
+        self.url = venue_page_url
+        m = re.search(r"/venue/[^/]+/(\d+)", venue_page_url)
+        self._venue_number = m.group(1) if m else None
 
     def parse_events(self, html: str) -> list[Event]:
-        soup = self.get_soup(html)
-        events = []
-        seen_ids = set()
-
-        containers = soup.select('.tw-section')
-
-        for container in containers:
-            try:
-                # Title and event URL
-                name_link = container.select_one('.tw-name a')
-                if not name_link:
-                    continue
-                title = name_link.get_text(strip=True)
-                event_url = name_link.get('href')
-                if not title:
-                    continue
-
-                # Date
-                date_el = container.select_one('.tw-event-date')
-                if not date_el:
-                    continue
-                date_str = self._parse_date(date_el.get_text(strip=True))
-                if not date_str:
-                    continue
-
-                # Time
-                time_el = container.select_one('.tw-event-time-complete, .tw-event-time')
-                time_str = self._parse_time(time_el.get_text(strip=True)) if time_el else None
-
-                # Price
-                price_el = container.select_one('.tw-price')
-                price = price_el.get_text(strip=True) if price_el else None
-
-                # Ticket URL
-                buy_el = container.select_one('a.tw-buy-tix-btn')
-                ticket_url = buy_el.get('href') if buy_el else None
-
-                # Image (check data-lazy-src for lazy-loaded images)
-                img_el = container.select_one('img')
-                image_url = None
-                if img_el:
-                    image_url = img_el.get('data-lazy-src') or img_el.get('src')
-                    if image_url and image_url.startswith('data:'):
-                        image_url = None
-
-                # Age restriction
-                age_el = container.select_one('.tw-age-restriction')
-                age = age_el.get_text(strip=True) if age_el else None
-
-                # Generate ID
-                slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
-                event_id = f"{self.id}-{date_str}-{slug}"[:80]
-
-                if event_id in seen_ids:
-                    continue
-                seen_ids.add(event_id)
-
-                events.append(Event(
-                    id=event_id,
-                    title=title,
-                    date=date_str,
-                    time=time_str,
-                    venue=self.name,
-                    eventUrl=event_url,
-                    ticketUrl=ticket_url,
-                    imageUrl=image_url,
-                    price=price,
-                    ageRestriction=age,
-                    source=self.id,
-                ))
-            except Exception:
-                continue
-
+        events: list[Event] = []
+        seen: set[str] = set()
+        for item in self._music_events(html):
+            event = self._to_event(item)
+            if event and event.id not in seen:
+                seen.add(event.id)
+                events.append(event)
+        events.sort(key=lambda e: (e.date, e.time or ""))
         return events
 
-    def _parse_date(self, date_text: str) -> str | None:
-        try:
-            date_text = date_text.strip()
-            for fmt in ("%B %d, %Y", "%b %d, %Y"):
-                try:
-                    return datetime.strptime(date_text, fmt).strftime("%Y-%m-%d")
-                except ValueError:
-                    continue
-            return None
-        except Exception:
-            return None
+    def _music_events(self, html: str) -> list[dict]:
+        items: list[dict] = []
+        for block in _LD_JSON.findall(html):
+            try:
+                data = json.loads(block)
+            except ValueError:
+                continue
+            for item in data if isinstance(data, list) else [data]:
+                if isinstance(item, dict) and item.get("@type") in ("MusicEvent", "Event"):
+                    items.append(item)
+        return items
 
-    def _parse_time(self, time_text: str) -> str | None:
-        if not time_text:
-            return None
-        try:
-            time_text = time_text.strip().lstrip('-').strip()
-            match = re.match(r'(\d{1,2}):(\d{2})\s*(am|pm)?', time_text, re.I)
-            if not match:
-                match = re.match(r'(\d{1,2})\s*(AM|PM)', time_text, re.I)
-                if not match:
-                    return None
-                hour, minute = int(match.group(1)), 0
-                period = match.group(2).upper()
-            else:
-                hour = int(match.group(1))
-                minute = int(match.group(2))
-                period = (match.group(3) or '').upper()
+    def _is_this_venue(self, item: dict) -> bool:
+        loc = item.get("location") or {}
+        if not isinstance(loc, dict):
+            return False
+        same_as = str(loc.get("sameAs") or "")
+        if self._venue_number and f"/{self._venue_number}" in same_as:
+            return True
+        return str(loc.get("name") or "").strip().lower() == self.name.lower()
 
-            if hour <= 12 and period:
-                if period == 'PM' and hour != 12:
-                    hour += 12
-                elif period == 'AM' and hour == 12:
-                    hour = 0
-
-            return f"{hour:02d}:{minute:02d}"
-        except Exception:
+    def _to_event(self, item: dict) -> Event | None:
+        title = str(item.get("name") or "").strip()
+        start = _START.match(str(item.get("startDate") or ""))
+        if not title or not start or not self._is_this_venue(item):
             return None
+        date = start.group(1)
+        time = f"{start.group(2)}:{start.group(3)}" if start.group(2) else None
+
+        offers = item.get("offers")
+        url = item.get("url") or (offers.get("url") if isinstance(offers, dict) else None)
+        image = item.get("image")
+        if isinstance(image, list):
+            image = image[0] if image else None
+        if isinstance(image, str):
+            image = re.sub(r"(?<!:)//+", "/", image)  # "ticketweb.com//i/..." -> "ticketweb.com/i/..."
+
+        performers = [str(p.get("name")).strip() for p in (item.get("performer") or []) if isinstance(p, dict) and p.get("name")]
+        headliner = performers[0].lower() if performers else ""
+        supporting = [p for p in performers[1:] if p.lower() != headliner] or None
+
+        slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+        return Event(
+            id=f"{self.id}-{date}-{slug}"[:80],
+            title=title,
+            date=date,
+            time=time,
+            venue=self.name,
+            eventUrl=url,
+            ticketUrl=url,
+            imageUrl=image if isinstance(image, str) else None,
+            supportingArtists=supporting,
+            source=self.id,
+        )
