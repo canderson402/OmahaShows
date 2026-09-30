@@ -21,7 +21,11 @@ export async function requireAdmin(request: Request): Promise<NextResponse | nul
   const header = request.headers.get("authorization") ?? "";
   const token = header.toLowerCase().startsWith("bearer ") ? header.slice(7).trim() : "";
   if (!token) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  const { data, error } = await adminSupabase().auth.getUser(token);
-  if (error || !data.user) return NextResponse.json({ error: "Session expired, sign in again" }, { status: 401 });
-  return null;
+  try {
+    const { data, error } = await adminSupabase().auth.getUser(token);
+    if (error || !data.user) return NextResponse.json({ error: "Session expired, sign in again" }, { status: 401 });
+    return null;
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : "Auth check failed" }, { status: 500 });
+  }
 }

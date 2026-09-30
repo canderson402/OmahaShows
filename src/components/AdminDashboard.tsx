@@ -321,6 +321,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         setPendingArtistAnalyses(data);
         return data;
       }
+      if (response.status === 401) setToast({ message: "Your session expired. Sign in again to see pending artist matches.", type: "error" });
     } catch (err) {
       console.error("Failed to fetch pending artist analyses:", err);
     }
@@ -598,7 +599,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json().catch(() => ({ error: `Server error (${response.status})` }));
         throw new Error(error.error || "Analysis failed");
       }
 
@@ -723,7 +724,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ analysisId: analysis.id, decisions, category }),
       });
-      const body = await response.json();
+      const body = await response.json().catch(() => ({ error: `Server error (${response.status})` }));
       if (!response.ok) throw new Error(body.error || "Failed to save");
       setPendingArtistAnalyses(prev => prev.filter(a => a.id !== analysis.id));
       setViewingPendingAnalysis(null);

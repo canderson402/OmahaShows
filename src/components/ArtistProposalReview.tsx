@@ -71,8 +71,7 @@ function SpotifyPicker({ decision, choice, onChange, name }: {
           type="text"
           placeholder={`paste Spotify link for ${name.split("|")[1] ?? "artist"}`}
           value={current.action === "manual" ? current.value : ""}
-          onFocus={() => current.action !== "manual" && set("manual")}
-          onChange={(e) => onChange({ action: "manual", value: e.target.value })}
+          onChange={(e) => onChange(e.target.value.trim() ? { action: "manual", value: e.target.value } : proposed ? { action: "proposed" } : { action: "none" })}
           className="flex-1 min-w-0 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-gray-200"
         />
       </label>

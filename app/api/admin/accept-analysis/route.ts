@@ -1,7 +1,8 @@
 // app/api/admin/accept-analysis/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { adminSupabase, requireAdmin } from "../../../../src/lib/admin-auth";
-import { acceptAnalysis, AcceptError, type AcceptDecision } from "../../../../src/lib/artist-pipeline/accept";
+import { acceptAnalysis, AcceptError, parseSpotifyArtistId } from "../../../../src/lib/artist-pipeline/accept";
+import { spotifyArtistUrl } from "../../../../src/lib/artist-pipeline/clients/spotify";
 import { createSupabaseAcceptStore } from "../../../../src/lib/artist-pipeline/accept-store";
 import type { EventCategory } from "../../../../src/lib/artist-pipeline/types";
 import {
@@ -12,12 +13,13 @@ import {
   updateEventGenres,
 } from "../../../../src/lib/artists";
 
+export const maxDuration = 60;
+
 const CATEGORIES: EventCategory[] = ["music", "comedy", "theater", "sports", "other"];
 
 /** v2: body { analysisId, decisions?, category? }. The proposal is re-read from the DB, never trusted from the client. */
 async function acceptV2(body: { analysisId: unknown; decisions?: unknown; category?: unknown }) {
   if (typeof body.analysisId !== "string") return NextResponse.json({ error: "analysisId is required" }, { status: 400 });
-  const decisions = Array.isArray(body.decisions) ? (body.decisions as AcceptDecision[]) : [];
   const category = CATEGORIES.includes(body.category as EventCategory) ? (body.category as EventCategory) : undefined;
   const sb = adminSupabase();
   const { data: row, error } = await sb.from("pending_artist_analyses")
@@ -26,7 +28,7 @@ async function acceptV2(body: { analysisId: unknown; decisions?: unknown; catego
   if (!row || row.status !== "pending") return NextResponse.json({ error: "Analysis not found or already handled" }, { status: 404 });
   if (row.schema_version !== 2) return NextResponse.json({ error: "Old-format analysis: re-run Analyze on this show" }, { status: 409 });
   try {
-    const result = await acceptAnalysis({ analysis: row, decisions, category }, createSupabaseAcceptStore(sb));
+    const result = await acceptAnalysis({ analysis: row, decisions: body.decisions, category }, createSupabaseAcceptStore(sb));
     return NextResponse.json({ success: true, ...result });
   } catch (e) {
     if (e instanceof AcceptError) return NextResponse.json({ error: e.message }, { status: e.status });
@@ -70,6 +72,19 @@ export async function POST(request: NextRequest) {
 
     if (eventError || !event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    const { data: pendingV1 } = await supabase.from("pending_artist_analyses").select("id")
+      .eq("event_id", eventId).eq("status", "pending").eq("schema_version", 1).limit(1);
+    if (!pendingV1?.length) {
+      return NextResponse.json({ error: "No old-format analysis pending for this show" }, { status: 404 });
+    }
+    const httpOrNull = (u: string | null | undefined) => (u && /^https?:\/\//i.test(u) ? u : null);
+    for (const a of artists) {
+      const sid = a.spotify_url ? parseSpotifyArtistId(a.spotify_url) : null;
+      a.spotify_url = sid ? spotifyArtistUrl(sid) : null;
+      a.instagram_url = httpOrNull(a.instagram_url);
+      a.website_url = httpOrNull(a.website_url);
     }
 
     let artistsCreated = 0;

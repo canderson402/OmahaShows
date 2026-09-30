@@ -1,10 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AcceptStore, StoredArtistRef } from "./accept";
+import { lookupSpotifyArtistName } from "./clients/spotify";
 
 function check<T>(r: { data: T; error: { message: string } | null }): T {
   if (r.error) throw new Error(r.error.message);
   return r.data;
 }
+
+/** Escape LIKE wildcards so ilike is an exact, case-insensitive match. */
+const likeExact = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 /** Supabase-backed AcceptStore (service-role client). */
 export function createSupabaseAcceptStore(sb: SupabaseClient): AcceptStore {
@@ -17,8 +21,13 @@ export function createSupabaseAcceptStore(sb: SupabaseClient): AcceptStore {
       return one ? { id: one.id, genres: one.genres ?? [] } : null;
     },
     async findArtistByName(name) {
-      const row = check(await sb.from("artists").select("id, genres").eq("name", name).maybeSingle());
+      const rows = check(await sb.from("artists").select("id, genres").ilike("name", likeExact(name)).limit(1));
+      const row = rows?.[0];
       return row ? { id: row.id as string, genres: (row.genres as string[]) ?? [] } : null;
+    },
+    async artistExists(artistId) {
+      const row = check(await sb.from("artists").select("id").eq("id", artistId).maybeSingle());
+      return !!row;
     },
     async createArtist(a) {
       const row = check(await sb.from("artists").insert({ name: a.name, normalized_name: a.normalized_name, genres: a.genres, hometown: a.hometown }).select("id, genres").single());
@@ -32,8 +41,16 @@ export function createSupabaseAcceptStore(sb: SupabaseClient): AcceptStore {
       return (row?.genres as string[] | undefined) ?? [];
     },
     async artistIdBySpotifyId(spotifyId) {
-      const row = check(await sb.from("artists").select("id").eq("spotify_id", spotifyId).maybeSingle());
-      return (row?.id as string | undefined) ?? null;
+      // Ids are validated [A-Za-z0-9]{22} before reaching here, so they are safe inside a filter string.
+      const byArtist = check(await sb.from("artists").select("id")
+        .or(`spotify_id.eq.${spotifyId},spotify_url.ilike.%${spotifyId}%`).limit(1));
+      if (byArtist?.[0]) return byArtist[0].id as string;
+      const byLink = check(await sb.from("artist_links").select("artist_id")
+        .eq("platform", "spotify").eq("external_id", spotifyId).eq("status", "verified").limit(1));
+      return (byLink?.[0]?.artist_id as string | undefined) ?? null;
+    },
+    async lookupSpotifyArtist(spotifyId) {
+      return lookupSpotifyArtistName(spotifyId);
     },
     async setVerifiedSpotify(artistId, link) {
       // Demote any other verified Spotify link first (partial unique index allows one verified per platform).
@@ -50,12 +67,21 @@ export function createSupabaseAcceptStore(sb: SupabaseClient): AcceptStore {
         artist_id: artistId, platform: "spotify", external_id: link.external_id, url: link.url, status: "rejected",
         reason: link.reason, source: "auto", reviewed_at: now(),
       }, { onConflict: "artist_id,platform,external_id" }));
+      // If the public site shows this link for the artist (new column or legacy URL), take it down.
+      check(await sb.from("artists").update({ spotify_id: null, spotify_url: null }).eq("id", artistId)
+        .or(`spotify_id.eq.${link.external_id},spotify_url.ilike.%${link.external_id}%`));
     },
     async replaceEventArtists(eventId, rows) {
       const seen = new Set<string>();
       const unique = rows.filter((r) => (seen.has(r.artist_id) ? false : (seen.add(r.artist_id), true)));
-      check(await sb.from("event_artists").delete().eq("event_id", eventId));
-      if (unique.length) check(await sb.from("event_artists").insert(unique.map((r) => ({ event_id: eventId, ...r }))));
+      // Write the new lineup first; only then remove rows that are no longer in it. A failure part-way
+      // leaves the old lineup (plus possibly some new rows) visible, never an empty one.
+      if (unique.length) {
+        check(await sb.from("event_artists").upsert(unique.map((r) => ({ event_id: eventId, ...r })), { onConflict: "event_id,artist_id" }));
+        check(await sb.from("event_artists").delete().eq("event_id", eventId).not("artist_id", "in", `(${unique.map((r) => r.artist_id).join(",")})`));
+      } else {
+        check(await sb.from("event_artists").delete().eq("event_id", eventId));
+      }
     },
     async updateEvent(eventId, patch) {
       check(await sb.from("events").update(patch).eq("id", eventId));

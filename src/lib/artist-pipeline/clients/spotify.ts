@@ -69,3 +69,25 @@ export function createSpotifyClient(opts: { clientId: string; clientSecret: stri
     },
   };
 }
+
+/**
+ * Confirms a Spotify artist id exists (public oEmbed endpoint, no API credentials or dev-mode limits).
+ * Returns the artist's display name, or null when Spotify says there is no such artist.
+ */
+export async function lookupSpotifyArtistName(id: string, f: typeof fetch = fetch): Promise<string | null> {
+  const url = `https://open.spotify.com/oembed?url=${encodeURIComponent(spotifyArtistUrl(id))}`;
+  let res: Response;
+  try {
+    res = await f(url, { signal: AbortSignal.timeout(8000) });
+  } catch {
+    throw new SpotifyError("Spotify lookup failed (network)", 0);
+  }
+  if (res.status === 404 || res.status === 400) return null;
+  if (!res.ok) throw new SpotifyError("Spotify lookup failed", res.status);
+  try {
+    const body = (await res.json()) as { title?: unknown };
+    return typeof body.title === "string" && body.title ? body.title : null;
+  } catch {
+    throw new SpotifyError("Spotify lookup returned unparseable JSON", 0);
+  }
+}
