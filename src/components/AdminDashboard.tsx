@@ -666,7 +666,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   };
 
   const handleRejectPendingAnalysis = async (analysisId: string) => {
-    if (!confirm("Are you sure you want to reject this artist analysis?")) return;
+    if (!confirm("Dismiss this artist match? Nothing will be saved, and you can analyze the show again later.")) return;
     setActionLoading(analysisId);
     try {
       const response = await adminFetch(`/api/admin/pending-analyses?id=${analysisId}`, {
@@ -677,7 +677,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       }
       setPendingArtistAnalyses(prev => prev.filter(a => a.id !== analysisId));
       setViewingPendingAnalysis(null);
-      setToast({ message: "Analysis rejected", type: "success" });
+      setToast({ message: "Dismissed", type: "success" });
     } catch (err) {
       setToast({
         message: err instanceof Error ? err.message : "Failed to reject",
@@ -1160,7 +1160,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                 disabled={actionLoading === analysis.id}
                                 className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
                               >
-                                Reject
+                                Dismiss
                               </button>
                               <button
                                 onClick={() => (isV2(analysis) ? handleAcceptV2(analysis, [], analysis.event?.category) : handleAcceptPendingAnalysis(analysis))}
@@ -2289,7 +2289,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 disabled={actionLoading === viewingPendingAnalysis.id}
                 className="px-3 sm:px-4 py-2 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 transition-colors"
               >
-                Reject
+                Dismiss
               </button>
               <button
                 onClick={() => handleAcceptPendingAnalysis(viewingPendingAnalysis)}

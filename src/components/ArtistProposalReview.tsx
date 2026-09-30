@@ -332,7 +332,7 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
 
       <div className="flex gap-3 pt-1 sticky bottom-0 bg-gray-900 pb-1">
         <button onClick={onReject} disabled={busy} className="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50">
-          Reject
+          Dismiss
         </button>
         <button onClick={approve} disabled={busy} className="flex-[2] px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50">
           {busy ? "Saving..." : "Approve"}
