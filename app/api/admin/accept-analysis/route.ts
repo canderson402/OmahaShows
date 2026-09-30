@@ -1,6 +1,9 @@
 // app/api/admin/accept-analysis/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { adminSupabase, requireAdmin } from "../../../../src/lib/admin-auth";
+import { acceptAnalysis, AcceptError, type AcceptDecision } from "../../../../src/lib/artist-pipeline/accept";
+import { createSupabaseAcceptStore } from "../../../../src/lib/artist-pipeline/accept-store";
+import type { EventCategory } from "../../../../src/lib/artist-pipeline/types";
 import {
   findArtistByName,
   createArtist,
@@ -9,10 +12,27 @@ import {
   updateEventGenres,
 } from "../../../../src/lib/artists";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const CATEGORIES: EventCategory[] = ["music", "comedy", "theater", "sports", "other"];
+
+/** v2: body { analysisId, decisions?, category? }. The proposal is re-read from the DB, never trusted from the client. */
+async function acceptV2(body: { analysisId: unknown; decisions?: unknown; category?: unknown }) {
+  if (typeof body.analysisId !== "string") return NextResponse.json({ error: "analysisId is required" }, { status: 400 });
+  const decisions = Array.isArray(body.decisions) ? (body.decisions as AcceptDecision[]) : [];
+  const category = CATEGORIES.includes(body.category as EventCategory) ? (body.category as EventCategory) : undefined;
+  const sb = adminSupabase();
+  const { data: row, error } = await sb.from("pending_artist_analyses")
+    .select("id, event_id, artists, event, schema_version, status").eq("id", body.analysisId).maybeSingle();
+  if (error) throw error;
+  if (!row || row.status !== "pending") return NextResponse.json({ error: "Analysis not found or already handled" }, { status: 404 });
+  if (row.schema_version !== 2) return NextResponse.json({ error: "Old-format analysis: re-run Analyze on this show" }, { status: 409 });
+  try {
+    const result = await acceptAnalysis({ analysis: row, decisions, category }, createSupabaseAcceptStore(sb));
+    return NextResponse.json({ success: true, ...result });
+  } catch (e) {
+    if (e instanceof AcceptError) return NextResponse.json({ error: e.message }, { status: e.status });
+    throw e;
+  }
+}
 
 interface ArtistInput {
   name: string;
@@ -24,8 +44,13 @@ interface ArtistInput {
 }
 
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
+  const supabase = adminSupabase();
   try {
-    const { eventId, artists } = (await request.json()) as {
+    const body = await request.json();
+    if (body && typeof body === "object" && "analysisId" in body) return await acceptV2(body);
+    const { eventId, artists } = body as {
       eventId: string;
       artists: ArtistInput[];
     };

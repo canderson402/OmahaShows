@@ -1,15 +1,16 @@
 // app/api/admin/bulk-analyze/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { analyzeEvent } from "../../../../src/lib/ai";
-import { searchArtist } from "../../../../src/lib/spotify";
+import { adminSupabase, requireAdmin } from "../../../../src/lib/admin-auth";
+import { analyzeEvent, RetryableError } from "../../../../src/lib/artist-pipeline/pipeline";
+import { createServerPipelineDeps, savePendingProposal } from "../../../../src/lib/artist-pipeline/server-deps";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// One show takes a few seconds (no web search by default); 300s covers a full nightly batch.
+export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
+  const supabase = adminSupabase();
   try {
     const { batchSize = 10, onlyNew = false } = await request.json();
 
@@ -71,73 +72,29 @@ export async function POST(request: NextRequest) {
     const pendingEventIds = new Set(existingPending?.map(p => p.event_id) || []);
     const eventsToProcess = batch.filter(e => !pendingEventIds.has(e.id));
 
+    const { deps, meter, repo } = createServerPipelineDeps(supabase);
+    const pipelineEvents = await repo.loadEvents(eventsToProcess.map((e) => e.id));
     const results: { eventId: string; title: string; success: boolean; error?: string; artistName?: string; pending?: boolean }[] = [];
 
-    for (const event of eventsToProcess) {
+    for (const event of pipelineEvents) {
       try {
-        // Get venue name
-        type EventWithVenue = typeof event & { venues?: { name: string } | null };
-        const eventWithVenue = event as EventWithVenue;
-        const venueName = eventWithVenue.venues?.name || "Unknown Venue";
-
-        // Analyze with AI
-        const analysis = await analyzeEvent(event.title, venueName, event.date, []);
-
-        if (analysis.artists.length === 0) {
-          // Mark as analyzed even if no artist found (no need for approval)
-          await supabase
-            .from("events")
-            .update({ analyzed_at: new Date().toISOString() })
-            .eq("id", event.id);
-          results.push({ eventId: event.id, title: event.title, success: true, artistFound: false });
-          continue;
-        }
-
-        // Enrich with Spotify data
-        for (const artistInput of analysis.artists) {
-          const spotifyData = await searchArtist(artistInput.name);
-          if (spotifyData) {
-            artistInput.spotify_url = spotifyData.spotify_url;
-          }
-        }
-
-        // Save to pending_artist_analyses instead of auto-accepting
-        const { error: insertError } = await supabase
-          .from("pending_artist_analyses")
-          .insert({
-            event_id: event.id,
-            artists: analysis.artists,
-            status: "pending",
-          });
-
-        if (insertError) {
-          console.error("Failed to insert pending analysis:", insertError);
-          throw new Error(`Failed to save pending analysis: ${insertError.message}`);
-        }
-
-        const headliner = analysis.artists.find(a => a.role === "headliner");
+        const proposal = await analyzeEvent(event, deps);
+        await savePendingProposal(supabase, proposal, onlyNew ? "new" : "backfill");
+        const first = proposal.artists.find((a) => a.kind !== "not_an_artist");
         results.push({
-          eventId: event.id,
-          title: event.title,
-          success: true,
-          artistFound: true,
-          artistName: headliner?.name || analysis.artists[0]?.name,
-          pending: true,
+          eventId: event.id, title: event.title, success: true, pending: true,
+          artistName: first ? (first.kind === "new" ? first.clean_name : first.billed_as) : undefined,
         });
       } catch (err) {
         results.push({
-          eventId: event.id,
-          title: event.title,
-          success: false,
-          error: err instanceof Error ? err.message : "Analysis failed",
+          eventId: event.id, title: event.title, success: false,
+          error: err instanceof RetryableError ? `temporary: ${err.message}` : err instanceof Error ? err.message : "Analysis failed",
         });
       }
-
-      // Small delay between events to avoid rate limits
-      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     return NextResponse.json({
+      costUsd: meter.totals().costUsd,
       processed: results.length,
       remaining: batch.length - eventsToProcess.length,
       results,
@@ -153,6 +110,9 @@ export async function POST(request: NextRequest) {
 
 // GET endpoint to check how many events need analysis
 export async function GET(request: NextRequest) {
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
+  const supabase = adminSupabase();
   try {
     const { searchParams } = new URL(request.url);
     const onlyNew = searchParams.get("onlyNew") === "true";

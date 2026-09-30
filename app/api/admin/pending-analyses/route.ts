@@ -1,14 +1,12 @@
 // app/api/admin/pending-analyses/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { adminSupabase, requireAdmin } from "../../../../src/lib/admin-auth";
 
 // GET: List all pending artist analyses with event details
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
+  const supabase = adminSupabase();
   try {
     const { data, error } = await supabase
       .from("pending_artist_analyses")
@@ -16,6 +14,9 @@ export async function GET() {
         id,
         event_id,
         artists,
+        event,
+        schema_version,
+        overall_confidence,
         created_at,
         status,
         events (
@@ -46,6 +47,9 @@ export async function GET() {
 
 // DELETE: Reject a pending artist analysis
 export async function DELETE(request: NextRequest) {
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
+  const supabase = adminSupabase();
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
