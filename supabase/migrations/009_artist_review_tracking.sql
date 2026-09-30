@@ -1,5 +1,6 @@
--- 009: Track how artist-match proposals were reviewed, to measure how often
--- high-confidence matches are approved without any changes (the bar for auto-approve).
+-- 009: Record how each artist-match proposal was reviewed: which tab it was in
+-- (high confidence / needs review) and whether the admin changed anything before approving.
+-- Nothing is approved automatically; this only measures how accurate the high-confidence tab is.
 
 ALTER TABLE pending_artist_analyses
   ADD COLUMN IF NOT EXISTS confidence_tier TEXT CHECK (confidence_tier IN ('high', 'review')),
