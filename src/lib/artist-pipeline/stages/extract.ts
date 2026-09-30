@@ -1,0 +1,64 @@
+import { z } from "zod";
+import { GENRES } from "../../genres";
+import { filterGenres } from "../genre-map";
+import type { Extraction, PipelineEvent } from "../types";
+import type { StructuredLLM } from "../clients/llm";
+
+const rating = z.enum(["high", "medium", "low"]);
+
+export const ExtractionSchema = z.object({
+  category: z.enum(["music", "comedy", "theater", "sports", "other"]),
+  category_rating: rating,
+  event_genres: z.array(z.string()),
+  lineup_rating: rating,
+  reason: z.string(),
+  acts: z.array(z.object({
+    billed_as: z.string(),
+    clean_name: z.string(),
+    role: z.enum(["headliner", "co-headliner", "supporting"]),
+    billing_order: z.number().int(),
+    kind: z.enum(["original_artist", "not_an_artist", "unknown"]),
+    non_artist_category: z.enum(["tribute", "orchestra_score", "dj", "comedian", "event_name", "other"]).nullable(),
+    genres: z.array(z.string()),
+    hometown: z.string().nullable(),
+    reason: z.string(),
+  })),
+});
+
+const SYSTEM = `You analyze listings from Omaha, NE music venues for a local show calendar.
+
+For each listing decide:
+1. category: music | comedy | theater | sports | other. Karaoke, bingo, trivia, markets, parties without named performers are "other". Tribute and cover nights are "music".
+2. The billed acts, headliner first, in billing order. Use the title, the supporting-artist list and the venue page. Split multi-act titles ("A, B, C", "A w/ B", "A with B and C") into acts, but keep "&"/"and" when it is part of one band's name (e.g. "Mumford & Sons").
+3. For each act, kind:
+   - original_artist: a real band/musician performing their own music.
+   - not_an_artist: tribute acts, "X performs the music of Y", orchestras/ensembles playing film, TV or game scores ("Star Wars in Concert"), karaoke hosts, DJ theme nights, DJs, comedians, and generic event names ("FREE PUNK SHOW", "Halloween Bash"). Set non_artist_category accordingly.
+   - unknown: you cannot tell. Prefer unknown over guessing.
+4. clean_name: the act's name without billing decorations ("(album release)", "- farewell tour", "live", "feat. ..." belongs to a separate act).
+5. genres: 1-3 per original_artist and 0-3 event_genres, ONLY from: ${GENRES.join(", ")}. Tribute nights: "tribute" plus the tributed act's genre. Comedy: "comedy".
+6. hometown only if the page says so.
+7. Ratings: "high" only when the listing makes it unambiguous.`;
+
+export function buildExtractionPrompt(event: PipelineEvent, pageText: string | null) {
+  const user = [
+    `Title: ${event.title}`,
+    `Supporting artists (from the venue listing): ${event.supportingArtists.length ? event.supportingArtists.join(" | ") : "(none listed)"}`,
+    `Venue: ${event.venueName}`,
+    `Date: ${event.date}`,
+    `Venue page text:`,
+    pageText ?? "(venue page unavailable)",
+  ].join("\n");
+  return { system: SYSTEM, user };
+}
+
+export async function extractLineup(
+  event: PipelineEvent, pageText: string | null, llm: StructuredLLM, model: string,
+): Promise<Extraction> {
+  const { system, user } = buildExtractionPrompt(event, pageText);
+  const raw = await llm.parse({ model, system, user, schema: ExtractionSchema });
+  const acts = raw.acts
+    .filter((a) => a.clean_name.trim() !== "")
+    .sort((a, b) => a.billing_order - b.billing_order)
+    .map((a, i) => ({ ...a, clean_name: a.clean_name.trim(), billing_order: i + 1, genres: filterGenres(a.genres) }));
+  return { ...raw, event_genres: filterGenres(raw.event_genres), acts };
+}
