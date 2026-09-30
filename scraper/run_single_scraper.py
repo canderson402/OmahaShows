@@ -95,6 +95,13 @@ def main():
         run_ohmyomaha()
         return
 
+    # Nightly Ticketmaster for venues without a scraper: built from the live venue list,
+    # so run it through the full runner (it saves each show under its matched venue).
+    if scraper_id == 'ticketmaster-uncovered':
+        from run_scrape_supabase import run as run_all
+        run_all(only_ids={'ticketmaster-uncovered'})
+        return
+
     # Special handling for ticketmaster - needs API key and venue matcher
     if scraper_id == 'ticketmaster':
         from run_ticketmaster import run as run_ticketmaster

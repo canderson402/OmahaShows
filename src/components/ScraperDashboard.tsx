@@ -24,6 +24,7 @@ const SCRAPERS = [
   { id: "stircove", name: "Stir Concert Cove", url: "https://www.caesars.com/harrahs-council-bluffs/shows" },
   { id: "thesydney", name: "The Sydney", url: "https://thesydneybenson.com/events/" },
   { id: "other", name: "Other Venues", url: "https://omahaunderground.com" },
+  { id: "ticketmaster-uncovered", name: "Ticketmaster (venues without a scraper: Barnato, Pinewood Bowl, Whiskey Roadhouse…)", url: "https://www.ticketmaster.com" },
 ];
 
 // Discovery scrapers - create pending events for admin review

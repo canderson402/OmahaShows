@@ -236,7 +236,7 @@ def notify_admin_pending(total_new: int, total_changed: int, scraper_results: li
         print(f"! Error sending notification: {e}")
 
 
-def run():
+def run(only_ids: set[str] | None = None):
     today = date.today().isoformat()
     failed_scrapers = []
     successful_scrapers = []
@@ -250,6 +250,8 @@ def run():
 
     # Get scrapers with Supabase client and venue matcher
     scrapers = get_scrapers(supabase_client=supabase, venue_matcher=venue_matcher)
+    if only_ids is not None:
+        scrapers = [s for s in scrapers if s.id in only_ids]
 
     auto_approve = get_auto_approve_events()
 
