@@ -721,12 +721,19 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
   const isV2 = (a: PendingArtistAnalysis) => a.schema_version === 2;
   const toProposal = (a: PendingArtistAnalysis): ProposalV2 => ({
-    id: a.id, artists: a.artists as unknown as ProposalV2["artists"], event: a.event ?? null, overall_confidence: a.overall_confidence ?? null,
+    id: a.id, artists: a.artists as unknown as ProposalV2["artists"], event: a.event ?? null,
+    overall_confidence: (a.artists as unknown as ProposalV2["artists"]).length
+      ? Math.min(...(a.artists as unknown as ProposalV2["artists"]).map((x) => x.confidence))
+      : a.overall_confidence ?? null,
   });
 
-  // High confidence = the proposal's own confidence is 90% or more.
-  const HIGH_CONFIDENCE_TAB = 0.9;
-  const isHighConfidence = (a: PendingArtistAnalysis) => isV2(a) && (a.overall_confidence ?? 0) >= HIGH_CONFIDENCE_TAB;
+  // A show's confidence is its weakest act's confidence; 80%+ goes in the High confidence tab.
+  const HIGH_CONFIDENCE_TAB = 0.8;
+  const showConfidence = (a: PendingArtistAnalysis) => {
+    const acts = toProposal(a).artists;
+    return acts.length ? Math.min(...acts.map((x) => x.confidence)) : (a.overall_confidence ?? 0);
+  };
+  const isHighConfidence = (a: PendingArtistAnalysis) => isV2(a) && showConfidence(a) >= HIGH_CONFIDENCE_TAB;
   const [artistTab, setArtistTab] = useState<"high" | "review">("high");
   const [approvingAll, setApprovingAll] = useState(false);
 
@@ -1115,8 +1122,8 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold text-white mb-3">Pending Artist Matches ({pendingArtistAnalyses.length})</h3>
                   <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <button type="button" className={tabBtn(artistTab === "high")} onClick={() => setArtistTab("high")}>High confidence, 90%+ ({highList.length})</button>
-                    <button type="button" className={tabBtn(artistTab === "review")} onClick={() => setArtistTab("review")}>Under 90% ({reviewList.length})</button>
+                    <button type="button" className={tabBtn(artistTab === "high")} onClick={() => setArtistTab("high")}>High confidence, 80%+ ({highList.length})</button>
+                    <button type="button" className={tabBtn(artistTab === "review")} onClick={() => setArtistTab("review")}>Under 80% ({reviewList.length})</button>
                     {artistTab === "high" && highList.length > 0 && (
                       <button
                         type="button"
@@ -1129,7 +1136,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     )}
                   </div>
                   {shown.length === 0 && (
-                    <p className="text-sm text-gray-500 py-4">{artistTab === "high" ? "No matches at 90% or higher right now." : "Nothing under 90% right now."}</p>
+                    <p className="text-sm text-gray-500 py-4">{artistTab === "high" ? "No matches at 80% or higher right now." : "Nothing under 80% right now."}</p>
                   )}
                   <div className="space-y-3">
                     {shown.map((analysis) => {
@@ -1157,7 +1164,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                               {isV2(analysis) ? (
                                 <div className="mt-2">
                                   <p className="text-xs text-gray-500 mb-1">
-                                    Proposed ({analysis.event?.category ?? "music"}) · all correct {analysis.overall_confidence != null ? `${Math.round(analysis.overall_confidence * 100)}%` : "—"}
+                                    Proposed ({analysis.event?.category ?? "music"}) · confidence {`${Math.round(showConfidence(analysis) * 100)}%`}
                                   </p>
                                   <div className="flex flex-wrap gap-1.5">
                                     {toProposal(analysis).artists.map((a, idx) => (

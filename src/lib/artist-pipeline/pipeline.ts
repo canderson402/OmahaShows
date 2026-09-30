@@ -12,6 +12,8 @@ import type { Candidate, ExtractedAct, LinkFeatures, LineupEntry, LinkDecision, 
 
 export const HIGH_CONFIDENCE = 0.9;
 export const NO_MATCH_CONFIDENCE = 0.5;
+/** Confidence shown for Spotify's top exact-name result when the judge didn't single it out. */
+export const TOP_EXACT_CONFIDENCE = 0.8;
 
 export interface PipelineDeps {
   llm: StructuredLLM; messages: MessagesClient; spotify: SpotifyClient;
@@ -41,9 +43,19 @@ export function isClearCut(f: LinkFeatures): boolean {
 }
 
 function decision(pick: GuardedPick, pool: Candidate[], cal: CalibrationSet, citations: string[] = [], requireClearCut = true): LinkDecision {
-  const chosen = pick.candidate && pick.features && (!requireClearCut || isClearCut(pick.features))
+  let chosen = pick.candidate && pick.features && (!requireClearCut || isClearCut(pick.features))
     ? proposal(pick.candidate, finalLinkConfidence(pick.features, cal.link), pick.reason, [...pick.evidence, ...citations.map((c) => `cited: ${c}`)], rawLinkScore(pick.features), pick.features.name_similarity)
     : null;
+  if (!chosen && requireClearCut) {
+    // Several Spotify profiles share the exact name (usually stray duplicates): take Spotify's top result.
+    // The pool keeps Spotify's order among equal similarity, so the first exact-name candidate is its top hit.
+    const topExact = pool.find((c) => c.platform === "spotify" && c.name_similarity === 1);
+    if (topExact) {
+      const sameName = pool.filter((c) => c.name_similarity === 1).length;
+      chosen = proposal(topExact, TOP_EXACT_CONFIDENCE,
+        sameName > 1 ? `Spotify's top result for this exact name (${sameName} profiles share it)` : "Exact name match on Spotify", [], 0, 1);
+    }
+  }
   const alternatives = pool
     .filter((c) => c.external_id !== chosen?.external_id)
     .slice(0, 3)
@@ -129,7 +141,8 @@ export async function analyzeAct(
   };
   const sp = build("spotify", spotify);
   const yt = build("youtube", youtube);
-  const confidence = product(want.map((p) => (p === "spotify" ? sp : yt).chosen?.confidence ?? NO_MATCH_CONFIDENCE));
+  // An act is as strong as its weakest wanted platform.
+  const confidence = want.length ? Math.min(...want.map((p) => (p === "spotify" ? sp : yt).chosen?.confidence ?? NO_MATCH_CONFIDENCE)) : 1;
 
   if (artist) {
     return {
@@ -163,7 +176,8 @@ export async function analyzeEvent(event: PipelineEvent, deps: PipelineDeps): Pr
       event: { category: ex.category, category_confidence, event_genres: ex.event_genres, reason: ex.reason },
       artists,
       lineup_confidence,
-      overall_confidence: product([lineup_confidence, category_confidence, ...artists.map((a) => a.confidence)]),
+      // The show is as strong as its least certain act (category is shown separately).
+      overall_confidence: artists.length ? Math.min(...artists.map((a) => a.confidence)) : lineup_confidence,
     };
   } catch (e) {
     if (e instanceof QuotaExceededError || e instanceof SpotifyError || e instanceof YouTubeError || e instanceof LLMError || isRetryableApiError(e)) {

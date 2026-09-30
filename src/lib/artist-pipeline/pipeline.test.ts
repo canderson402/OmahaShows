@@ -104,7 +104,7 @@ describe("escalation", () => {
   });
 
   test("budget exhausted: needed escalation is deferred, pick without candidate is never chosen", async () => {
-    const p = await analyzeEvent(event, deps({ llm: llmFor(oneAct("JOBY!"), noPick), escalation: true }));
+    const p = await analyzeEvent(event, deps({ llm: llmFor(oneAct("JOBY!"), noPick), escalation: true, spotify: { async searchArtists() { return [{ id: "s-other", name: "Joby Talbot", genres: [], imageUrl: null }]; }, async albumTitles() { return []; } } }));
     const a = p.artists[0] as any;
     expect(a.spotify.chosen).toBeNull();
     expect(a.spotify.deferred).toBe("escalation_budget");
@@ -112,7 +112,7 @@ describe("escalation", () => {
   });
 
   test("youtube_quota deferral is kept over escalation_budget", async () => {
-    const d = deps({ escalation: true,
+    const d = deps({ escalation: true, spotify: { async searchArtists() { return [{ id: "s-other", name: "Joby Talbot", genres: [], imageUrl: null }]; }, async albumTitles() { return []; } },
       llm: llmFor(oneAct("JOBY!"), noPick),
       youtube: { unitsUsed: () => 0, async searchChannels() { throw new QuotaExceededError("q"); } },
     });
@@ -155,7 +155,7 @@ describe("escalation", () => {
     expect(a.hometown).toBe("Lincoln, NE");
   });
 
-  test("overall_confidence = lineup x category x act factors, no-match factor 0.5", async () => {
+  test("overall_confidence is the weakest act's confidence", async () => {
     const p = await analyzeEvent(event, deps({ llm: llmFor(oneAct("JOBY!"), judge) }));
     const a = p.artists[0] as any;
     // Features the fixture yields: exact-name Spotify candidate, judge "high", nothing else.
@@ -166,8 +166,9 @@ describe("escalation", () => {
     expect(spConf).toBeCloseTo(0.8, 10); // 0.7 (high) + 0.1 (exact name)
     expect(a.spotify.chosen.confidence).toBeCloseTo(spConf, 10);
     expect(a.youtube.chosen).toBeNull();
-    expect(a.confidence).toBeCloseTo(spConf * 0.5, 10);
-    expect(p.overall_confidence).toBeCloseTo(0.95 * 0.95 * spConf * 0.5, 10);
+    // YouTube is on in this fixture and found nothing, so the act is as strong as that no-match (0.5)
+    expect(a.confidence).toBeCloseTo(Math.min(spConf, 0.5), 10);
+    expect(p.overall_confidence).toBeCloseTo(Math.min(...p.artists.map((x) => x.confidence)), 10);
   });
 
   test("QuotaExceededError never escapes raw", async () => {
@@ -272,15 +273,23 @@ describe("clear-cut rule (escalation off by default)", () => {
     const p = await analyzeEvent(event, withJudge({}));
     expect((p.artists[1] as any).spotify.chosen?.external_id).toBe("s-joby");
   });
-  test("a medium-rated pick is left blank but kept as an alternative", async () => {
+  test("a medium-rated exact-name pick falls back to Spotify's top exact-name result", async () => {
     const p = await analyzeEvent(event, withJudge({ rating: "medium" }));
     const sp = (p.artists[1] as any).spotify;
-    expect(sp.chosen).toBeNull();
-    expect(sp.alternatives.map((a: any) => a.external_id)).toContain("s-joby");
+    expect(sp.chosen?.external_id).toBe("s-joby");
+    expect(sp.chosen?.confidence).toBe(0.8);
   });
-  test("two Spotify artists with the same name: left blank", async () => {
+  test("two Spotify artists with the same name: Spotify's top one is proposed", async () => {
     const d = deps({ spotify: { async searchArtists() { return [{ id: "s-joby", name: "Joby", genres: [], imageUrl: null }, { id: "s-joby2", name: "JOBY", genres: [], imageUrl: null }]; }, async albumTitles() { return []; } } });
     const p = await analyzeEvent(event, d);
+    const sp = (p.artists[1] as any).spotify;
+    expect(sp.chosen?.external_id).toBe("s-joby");
+    expect(sp.chosen?.reason).toMatch(/top result.*2 profiles/);
+    expect(sp.alternatives.map((a: any) => a.external_id)).toContain("s-joby2");
+  });
+  test("a name that is only similar is never proposed (e.g. Sacred vs Sacred Reich)", async () => {
+    const d = deps({ spotify: { async searchArtists() { return [{ id: "s-other", name: "Joby Talbot", genres: [], imageUrl: null }]; }, async albumTitles() { return []; } } });
+    const p = await analyzeEvent(event, deps({ ...d, llm: withJudge({ external_id: null, rating: "low" }).llm }));
     expect((p.artists[1] as any).spotify.chosen).toBeNull();
   });
   test("escalation never runs unless enabled, and nothing is marked deferred", async () => {
