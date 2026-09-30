@@ -47,5 +47,46 @@ describe("spotify client", () => {
     await expect(c.searchArtists("x")).rejects.toBeInstanceOf(SpotifyError);
   });
 
+  test("fetch rejection throws SpotifyError with status 0", async () => {
+    const f = vi.fn(async () => { throw new TypeError("network down"); }) as unknown as typeof fetch;
+    const c = createSpotifyClient({ clientId: "id", clientSecret: "s", fetch: f });
+    const err = await c.searchArtists("x").catch((e) => e);
+    expect(err).toBeInstanceOf(SpotifyError);
+    expect(err.status).toBe(0);
+  });
+
+  test("200 with malformed JSON throws SpotifyError with status 0", async () => {
+    const f = vi.fn(async (url: string | URL) =>
+      String(url).includes("accounts.spotify.com")
+        ? new Response(JSON.stringify(token))
+        : new Response("<html>not json")) as unknown as typeof fetch;
+    const c = createSpotifyClient({ clientId: "id", clientSecret: "s", fetch: f });
+    const err = await c.searchArtists("x").catch((e) => e);
+    expect(err).toBeInstanceOf(SpotifyError);
+    expect(err.status).toBe(0);
+  });
+
+  test("200 with unexpected shape throws SpotifyError with status 0", async () => {
+    const f = fakeFetch({
+      "accounts.spotify.com": { body: token },
+      "type=artist": { body: {} },
+      "type=album": { body: {} },
+    });
+    const c = createSpotifyClient({ clientId: "id", clientSecret: "s", fetch: f });
+    for (const call of [() => c.searchArtists("x"), () => c.albumTitles("x")]) {
+      const err = await call().catch((e) => e);
+      expect(err).toBeInstanceOf(SpotifyError);
+      expect(err.status).toBe(0);
+    }
+  });
+
+  test("token response with malformed JSON throws SpotifyError with status 0", async () => {
+    const f = vi.fn(async () => new Response("nope")) as unknown as typeof fetch;
+    const c = createSpotifyClient({ clientId: "id", clientSecret: "s", fetch: f });
+    const err = await c.searchArtists("x").catch((e) => e);
+    expect(err).toBeInstanceOf(SpotifyError);
+    expect(err.status).toBe(0);
+  });
+
   test("url builder", () => expect(spotifyArtistUrl("abc")).toBe("https://open.spotify.com/artist/abc"));
 });
