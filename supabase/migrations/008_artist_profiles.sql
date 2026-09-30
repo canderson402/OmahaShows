@@ -65,12 +65,16 @@ WHERE e.status = 'approved';
 ALTER TABLE artist_links ENABLE ROW LEVEL SECURITY;
 ALTER TABLE artist_aliases ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role full access artist_links" ON artist_links;
 CREATE POLICY "Service role full access artist_links" ON artist_links
   FOR ALL TO service_role USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Authenticated full access artist_links" ON artist_links;
 CREATE POLICY "Authenticated full access artist_links" ON artist_links
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Service role full access artist_aliases" ON artist_aliases;
 CREATE POLICY "Service role full access artist_aliases" ON artist_aliases
   FOR ALL TO service_role USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Authenticated full access artist_aliases" ON artist_aliases;
 CREATE POLICY "Authenticated full access artist_aliases" ON artist_aliases
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
