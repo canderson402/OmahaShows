@@ -20,7 +20,7 @@
 - **Guardrail:** a link whose name similarity is < 0.90 can never have final confidence ≥ 0.90.
 - **Spotify development mode:** no `followers`/`popularity`/top-tracks. Search `limit` max is 10.
 - **YouTube quota:** `search.list` = 100 units, `channels.list` = 1 unit, ~10,000 units/day.
-- **Models:** configurable per stage via env (`ARTIST_EXTRACT_MODEL`, `ARTIST_JUDGE_MODEL`, `ARTIST_ESCALATE_MODEL`), defaulting to `claude-opus-5-5`. The eval compares `claude-haiku-4-5`, `claude-sonnet-5-5` and `claude-opus-5-5`, and the user picks per stage from the results.
+- **Models:** configurable per stage via env (`ARTIST_EXTRACT_MODEL`, `ARTIST_JUDGE_MODEL`, `ARTIST_ESCALATE_MODEL`), defaulting to `claude-haiku-4-5` for extract/judge and `claude-sonnet-5-5` for escalation (cost-first, per the user, 2026-09-30). The eval compares `claude-haiku-4-5`, `claude-sonnet-5-5` and `claude-opus-5-5`, and the user picks per stage from the results.
 - **Success criteria (from spec):**
 
   | Metric | Target |

@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
 import Anthropic from "@anthropic-ai/sdk";
 import { createStructuredLLM, MODELS } from "../src/lib/artist-pipeline/clients/llm";
+import { createUsageMeter, withUsageMeter } from "../src/lib/artist-pipeline/clients/usage";
 import { createSpotifyClient } from "../src/lib/artist-pipeline/clients/spotify";
 import { createYouTubeClient } from "../src/lib/artist-pipeline/clients/youtube";
 import { fetchEventPageText } from "../src/lib/artist-pipeline/clients/event-page";
@@ -46,22 +47,26 @@ async function main() {
   }
 
   const youtube = createYouTubeClient({ apiKey: env("YOUTUBE_API_KEY") });
+  const meter = createUsageMeter();
+  const anthropic = withUsageMeter(new Anthropic(), meter);
   const calPath = "scripts/eval/calibration.json";
   const deps: PipelineDeps = {
-    llm: createStructuredLLM(),
-    messages: new Anthropic(),
+    llm: createStructuredLLM(anthropic),
+    messages: anthropic,
     spotify: createSpotifyClient({ clientId: env("SPOTIFY_CLIENT_ID"), clientSecret: env("SPOTIFY_CLIENT_SECRET") }),
     youtube,
     fetchPage: (url) => fetchEventPageText(url),
     repo,
     models: MODELS,
     calibration: loadCalibration(existsSync(calPath) ? JSON.parse(readFileSync(calPath, "utf8")) : null),
-    escalationBudget: { remaining: Number(process.env.ARTIST_MAX_ESCALATIONS ?? 20) },
+    escalationBudget: { remaining: Number(process.env.ARTIST_MAX_ESCALATIONS ?? 100) },
   };
 
   const proposals: Proposal[] = [];
   const failures: RunFailure[] = [];
+  const costByEvent: Record<string, number> = {};
   for (const ev of events) {
+    const before = meter.totals().costUsd;
     try {
       proposals.push(await analyzeEvent(ev, deps));
       console.log(`✓ ${ev.id}`);
@@ -74,21 +79,26 @@ async function main() {
         failures.push({ event_id: ev.id, error: message, kind: "unexpected" });
         console.log(`✗ ${ev.id} (unexpected): ${message}`);
       }
+    } finally {
+      costByEvent[ev.id] = meter.totals().costUsd - before;
     }
   }
 
+  const usage = meter.totals();
+  const usd = (n: number) => `$${n.toFixed(n < 1 ? 3 : 2)}`;
   mkdirSync("reports", { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const path = `reports/artist-run-${stamp}.json`;
-  writeFileSync(path, JSON.stringify({ models: MODELS, youtubeUnits: youtube.unitsUsed(), proposals, failures }, null, 2));
+  writeFileSync(path, JSON.stringify({ models: MODELS, youtubeUnits: youtube.unitsUsed(), usage, costByEvent, proposals, failures }, null, 2));
 
   const counts = countFailures(failures);
   const lines = [
     `## Artist analysis (dry run)`,
     `Events: ${events.length} · proposals: ${proposals.length} · retry: ${counts.retry} · unexpected failures: ${counts.unexpected} · YouTube units: ${youtube.unitsUsed()} · escalations left: ${deps.escalationBudget.remaining}`,
+    `Cost: ${usd(usage.costUsd)} (${usd(usage.costUsd / Math.max(1, events.length))}/event) · Claude calls: ${usage.calls} · tokens in/out: ${usage.inputTokens}/${usage.outputTokens} · web searches: ${usage.webSearches} · models: ${MODELS.extract} / ${MODELS.judge} / ${MODELS.escalate}${usage.unpricedModels.length ? ` · UNPRICED: ${usage.unpricedModels.join(", ")}` : ""}`,
     ``,
-    `| Event | All correct | Lineup |`,
-    `|---|---|---|`,
+    `| Event | All correct | Cost | Lineup |`,
+    `|---|---|---|---|`,
     ...proposals.map((p) => {
       const ev = events.find((e) => e.id === p.event_id)!;
       const acts = p.artists.map((a) => {
@@ -97,7 +107,7 @@ async function main() {
         const sp = a.spotify.chosen ? `${Math.round(a.spotify.chosen.confidence * 100)}%${a.spotify.chosen.confidence >= HIGH_CONFIDENCE ? "✓" : ""}` : "—";
         return `${a.billed_as} [sp ${sp}]`;
       }).join(", ");
-      return `| ${ev.title} (${p.event.category}) | ${Math.round(p.overall_confidence * 100)}% | ${acts} |`;
+      return `| ${ev.title} (${p.event.category}) | ${Math.round(p.overall_confidence * 100)}% | ${usd(costByEvent[p.event_id] ?? 0)} | ${acts} |`;
     }),
     ``,
     `Full report: \`${path}\``,

@@ -2,10 +2,12 @@ import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { z } from "zod";
 
+// Cost-first defaults: Haiku for the high-volume per-show and per-artist calls, Sonnet for the rarer
+// web-search escalation. Override per stage via env; the eval decides whether a stage needs a bigger model.
 export const MODELS = {
-  extract: process.env.ARTIST_EXTRACT_MODEL ?? "claude-opus-5-5",
-  judge: process.env.ARTIST_JUDGE_MODEL ?? "claude-opus-5-5",
-  escalate: process.env.ARTIST_ESCALATE_MODEL ?? "claude-opus-5-5",
+  extract: process.env.ARTIST_EXTRACT_MODEL ?? "claude-haiku-4-5",
+  judge: process.env.ARTIST_JUDGE_MODEL ?? "claude-haiku-4-5",
+  escalate: process.env.ARTIST_ESCALATE_MODEL ?? "claude-sonnet-5-5",
 };
 
 export class LLMError extends Error {

@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import Anthropic from "@anthropic-ai/sdk";
 import { createStructuredLLM, MODELS } from "../../src/lib/artist-pipeline/clients/llm";
+import { createUsageMeter, withUsageMeter } from "../../src/lib/artist-pipeline/clients/usage";
 import { createSpotifyClient } from "../../src/lib/artist-pipeline/clients/spotify";
 import { createYouTubeClient } from "../../src/lib/artist-pipeline/clients/youtube";
 import { fetchEventPageText } from "../../src/lib/artist-pipeline/clients/event-page";
@@ -21,10 +22,12 @@ const fit = process.argv.includes("--fit");
 const labels: Labels = JSON.parse(readFileSync("scripts/eval/labels.json", "utf8"));
 const sbRepo = createSupabaseRepo(serviceClient());
 const youtube = createYouTubeClient({ apiKey: env("YOUTUBE_API_KEY") });
+const meter = createUsageMeter();
+const anthropic = withUsageMeter(new Anthropic(), meter);
 
 const deps: PipelineDeps = {
-  llm: createStructuredLLM(),
-  messages: new Anthropic(),
+  llm: createStructuredLLM(anthropic),
+  messages: anthropic,
   spotify: createSpotifyClient({ clientId: env("SPOTIFY_CLIENT_ID"), clientSecret: env("SPOTIFY_CLIENT_SECRET") }),
   youtube,
   fetchPage: (u) => fetchEventPageText(u),
@@ -43,7 +46,7 @@ for (const ev of events) {
   try { proposals.set(ev.id, await analyzeEvent(ev, deps)); process.stdout.write("."); }
   catch (e) { if (e instanceof RetryableError) process.stdout.write("x"); else throw e; }
 }
-console.log(`\n${proposals.size}/${events.length} events analyzed in ${Math.round((Date.now() - t0) / 1000)}s, YouTube units ${youtube.unitsUsed()}`);
+console.log(`\n${proposals.size}/${events.length} events analyzed in ${Math.round((Date.now() - t0) / 1000)}s, YouTube units ${youtube.unitsUsed()}, cost $${meter.totals().costUsd.toFixed(2)} (${meter.totals().webSearches} web searches)`);
 
 // Link outcomes carry the uncalibrated raw score; confidence is recomputed below exactly as production does.
 const outcomes: (LinkOutcome & { key: string; nameSimilarity: number })[] = [];
