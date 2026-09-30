@@ -1,98 +1,33 @@
 // app/api/admin/analyze-event/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { analyzeEvent } from "../../../../src/lib/ai";
-import { searchArtist } from "../../../../src/lib/spotify";
+import { adminSupabase, requireAdmin } from "../../../../src/lib/admin-auth";
+import { analyzeEvent, RetryableError } from "../../../../src/lib/artist-pipeline/pipeline";
+import { createServerPipelineDeps, saveProposalOrSkip } from "../../../../src/lib/artist-pipeline/server-deps";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
   try {
     const { eventId } = await request.json();
-
     if (!eventId || typeof eventId !== "string") {
       return NextResponse.json({ error: "eventId is required" }, { status: 400 });
     }
 
-    // Fetch the event with venue info
-    const { data: event, error: eventError } = await supabase
-      .from("events")
-      .select("*, venues(name)")
-      .eq("id", eventId)
-      .single();
+    const sb = adminSupabase();
+    const { deps, meter, repo } = createServerPipelineDeps(sb);
+    const [event] = await repo.loadEvents([eventId]);
+    if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
 
-    if (eventError || !event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
-    }
-
-    // Get venue name - handle the joined data
-    type EventWithVenue = typeof event & { venues?: { name: string } | null };
-    const eventWithVenue = event as EventWithVenue;
-    const venueName = eventWithVenue.venues?.name || event.venue_name || "Unknown Venue";
-
-    // Fetch existing events for duplicate check (±1 day, same venue)
-    const eventDate = new Date(event.date);
-    const dayBefore = new Date(eventDate);
-    dayBefore.setDate(dayBefore.getDate() - 1);
-    const dayAfter = new Date(eventDate);
-    dayAfter.setDate(dayAfter.getDate() + 1);
-
-    const { data: existingEvents } = await supabase
-      .from("events")
-      .select("id, title, date")
-      .eq("venue_id", event.venue_id)
-      .gte("date", dayBefore.toISOString().split("T")[0])
-      .lte("date", dayAfter.toISOString().split("T")[0])
-      .neq("id", eventId);
-
-    // Call AI
-    const result = await analyzeEvent(
-      event.title,
-      venueName,
-      event.date,
-      existingEvents || []
-    );
-
-    // Enrich with Spotify data (only Spotify, not Instagram/website)
-    for (const artist of result.artists) {
-      const spotifyData = await searchArtist(artist.name);
-      if (spotifyData) {
-        artist.spotify_url = spotifyData.spotify_url;
-      }
-    }
-
-    // Delete any existing pending analysis for this event
-    await supabase
-      .from("pending_artist_analyses")
-      .delete()
-      .eq("event_id", eventId);
-
-    // Save to pending_artist_analyses table
-    const { error: insertError } = await supabase
-      .from("pending_artist_analyses")
-      .insert({
-        event_id: eventId,
-        artists: result.artists,
-        status: "pending",
-      });
-
-    if (insertError) {
-      console.error("Failed to save pending analysis:", insertError);
-      return NextResponse.json(
-        { error: `Failed to save pending analysis: ${insertError.message}` },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json(result);
+    const proposal = await analyzeEvent(event, deps);
+    const analysisId = await saveProposalOrSkip(sb, proposal, "manual");
+    return NextResponse.json({ analysisId, proposal, costUsd: meter.totals().costUsd });
   } catch (error) {
     console.error("Analyze event error:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Analysis failed" },
-      { status: 500 }
-    );
+    if (error instanceof RetryableError) {
+      return NextResponse.json({ error: `Temporary failure, try again: ${error.message}` }, { status: 503 });
+    }
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Analysis failed" }, { status: 500 });
   }
 }

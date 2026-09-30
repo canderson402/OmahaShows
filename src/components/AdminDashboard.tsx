@@ -8,6 +8,10 @@ import { VenueManagement } from "./VenueManagement";
 import { ArtistManagement } from "./ArtistManagement";
 import { Toast } from "./Toast";
 import { AnalysisModal } from "./AnalysisModal";
+import { ArtistProposalReview, type ProposalV2 } from "./ArtistProposalReview";
+import { adminFetch } from "../lib/admin-fetch";
+import type { EventCategory, EventClassification } from "../lib/artist-pipeline/types";
+import type { AcceptDecision } from "../lib/artist-pipeline/accept";
 
 function normalizeUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -125,6 +129,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }>;
     created_at: string;
     status: string;
+    schema_version?: number;
+    event?: EventClassification | null;
+    overall_confidence?: number | null;
     events: {
       id: string;
       title: string;
@@ -306,16 +313,19 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   }, []);
 
-  const fetchPendingArtistAnalyses = useCallback(async () => {
+  const fetchPendingArtistAnalyses = useCallback(async (): Promise<PendingArtistAnalysis[]> => {
     try {
-      const response = await fetch("/api/admin/pending-analyses");
+      const response = await adminFetch("/api/admin/pending-analyses");
       if (response.ok) {
         const data = await response.json();
         setPendingArtistAnalyses(data);
+        return data;
       }
+      if (response.status === 401) setToast({ message: "Your session expired. Sign in again to see pending artist matches.", type: "error" });
     } catch (err) {
       console.error("Failed to fetch pending artist analyses:", err);
     }
+    return [];
   }, []);
 
   useEffect(() => {
@@ -582,32 +592,27 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const handleAnalyze = async (event: { id: string; title: string }) => {
     setAnalyzingEvent(event.id);
     try {
-      const response = await fetch("/api/admin/analyze-event", {
+      const response = await adminFetch("/api/admin/analyze-event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ eventId: event.id }),
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json().catch(() => ({ error: `Server error (${response.status})` }));
         throw new Error(error.error || "Analysis failed");
       }
 
-      const result = await response.json();
-
-      // If artists were found, refresh pending list and show toast
-      if (result.artists && result.artists.length > 0) {
-        const headliner = result.artists.find((a: { role: string }) => a.role === "headliner");
-        setToast({
-          message: `Found ${result.artists.length} artist(s): ${headliner?.name || result.artists[0]?.name}. Check Pending tab to approve.`,
-          type: "success",
-        });
-        await fetchPendingArtistAnalyses();
+      const result = await response.json() as { analysisId: string | null; costUsd?: number };
+      const cost = result.costUsd != null ? ` (cost $${result.costUsd.toFixed(3)})` : "";
+      const list = await fetchPendingArtistAnalyses();
+      if (result.analysisId === null) {
+        await fetchAnalyzedEvents();
+        setToast({ message: `${event.title}: no artists to review (marked as analyzed).${cost}`, type: "success" });
       } else {
-        setToast({
-          message: "No artists found in event title",
-          type: "success",
-        });
+        const row = list.find((a) => a.id === result.analysisId);
+        if (row) setViewingPendingAnalysis(row);
+        setToast({ message: `Analysis ready for ${event.title}. Review and approve below.${cost}`, type: "success" });
       }
     } catch (err) {
       setToast({
@@ -624,7 +629,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
     setAcceptingAnalysis(true);
     try {
-      const response = await fetch("/api/admin/accept-analysis", {
+      const response = await adminFetch("/api/admin/accept-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -659,7 +664,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     if (!confirm("Are you sure you want to reject this artist analysis?")) return;
     setActionLoading(analysisId);
     try {
-      const response = await fetch(`/api/admin/pending-analyses?id=${analysisId}`, {
+      const response = await adminFetch(`/api/admin/pending-analyses?id=${analysisId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -681,7 +686,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const handleAcceptPendingAnalysis = async (analysis: typeof pendingArtistAnalyses[0]) => {
     setActionLoading(analysis.id);
     try {
-      const response = await fetch("/api/admin/accept-analysis", {
+      const response = await adminFetch("/api/admin/accept-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -709,13 +714,71 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   };
 
+  const isV2 = (a: PendingArtistAnalysis) => a.schema_version === 2;
+  const toProposal = (a: PendingArtistAnalysis): ProposalV2 => ({
+    id: a.id, artists: a.artists as unknown as ProposalV2["artists"], event: a.event ?? null, overall_confidence: a.overall_confidence ?? null,
+  });
+
+  const handleAcceptV2 = async (analysis: PendingArtistAnalysis, decisions: AcceptDecision[], category?: EventCategory) => {
+    setActionLoading(analysis.id);
+    try {
+      const response = await adminFetch("/api/admin/accept-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ analysisId: analysis.id, decisions, category }),
+      });
+      const body = await response.json().catch(() => ({ error: `Server error (${response.status})` }));
+      if (!response.ok) throw new Error(body.error || "Failed to save");
+      setPendingArtistAnalyses(prev => prev.filter(a => a.id !== analysis.id));
+      setViewingPendingAnalysis(null);
+      setToast({ message: `Approved: ${body.lineup} artist(s) linked to the show, ${body.linksVerified} Spotify link(s) verified, ${body.artistsCreated} new artist(s).`, type: "success" });
+      await fetchAnalyzedEvents();
+    } catch (err) {
+      setToast({ message: err instanceof Error ? err.message : "Failed to save", type: "error" });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Analyze the next 10 upcoming shows that haven't been analyzed yet (soonest first).
+  const [analyzingNext, setAnalyzingNext] = useState(false);
+  const handleAnalyzeNext = async () => {
+    setAnalyzingNext(true);
+    try {
+      const res = await adminFetch("/api/admin/bulk-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batchSize: 10, onlyNew: false }),
+      });
+      const result = await res.json().catch(() => ({ error: `Server error (${res.status})` }));
+      if (!res.ok) throw new Error(result.error || "Analysis failed");
+      const rows = result.results as { success: boolean; pending?: boolean }[];
+      if (rows.length === 0) {
+        setToast({ message: "Every upcoming show is already analyzed or waiting for review.", type: "success" });
+      } else {
+        const queuedCount = rows.filter((r) => r.success && r.pending).length;
+        const skipped = rows.filter((r) => r.success && !r.pending).length;
+        const failed = rows.filter((r) => !r.success).length;
+        setToast({
+          message: `Analyzed ${rows.length} show(s): ${queuedCount} to review, ${skipped} with no artists${failed ? `, ${failed} failed (try again)` : ""}. Cost $${Number(result.costUsd ?? 0).toFixed(2)}.`,
+          type: failed ? "error" : "success",
+        });
+      }
+      await Promise.all([fetchAnalyzedEvents(), fetchPendingArtistAnalyses()]);
+    } catch (err) {
+      setToast({ message: err instanceof Error ? err.message : "Analysis failed", type: "error" });
+    } finally {
+      setAnalyzingNext(false);
+    }
+  };
+
   // Bulk analysis handler - analyzes new events only
   const handleBulkAnalyze = async () => {
     setBulkAnalyzing(true);
 
     try {
       // First get the status (only new events)
-      const statusRes = await fetch("/api/admin/bulk-analyze?onlyNew=true");
+      const statusRes = await adminFetch("/api/admin/bulk-analyze?onlyNew=true");
       const status = await statusRes.json();
 
       if (status.needsAnalysis === 0) {
@@ -725,7 +788,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       }
 
       // Analyze new events
-      const res = await fetch("/api/admin/bulk-analyze", {
+      const res = await adminFetch("/api/admin/bulk-analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ batchSize: 20, onlyNew: true }),
@@ -1017,7 +1080,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     {pendingArtistAnalyses.map((analysis) => {
                       const venueHex = analysis.events?.venue_id ? (VENUE_COLORS[analysis.events.venue_id] || VENUE_COLORS.other || "#10b981") : "#10b981";
                       const venueName = analysis.events?.venues?.name || analysis.events?.venue_name || "Unknown Venue";
-                      const headliner = analysis.artists.find(a => a.role === "headliner");
+                      const headliner = isV2(analysis) ? undefined : analysis.artists.find(a => a.role === "headliner");
                       return (
                         <div
                           key={analysis.id}
@@ -1036,6 +1099,21 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                   </p>
                                 </div>
                               </div>
+                              {isV2(analysis) ? (
+                                <div className="mt-2">
+                                  <p className="text-xs text-gray-500 mb-1">
+                                    Proposed ({analysis.event?.category ?? "music"}) · all correct {analysis.overall_confidence != null ? `${Math.round(analysis.overall_confidence * 100)}%` : "—"}
+                                  </p>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {toProposal(analysis).artists.map((a, idx) => (
+                                      <span key={idx} className={`px-2 py-0.5 text-xs rounded ${a.kind === "not_an_artist" ? "bg-gray-800 text-gray-500 line-through" : a.kind === "existing" ? "bg-blue-900/40 text-blue-300" : "bg-gray-700 text-gray-200"}`}>
+                                        {a.kind === "new" ? a.clean_name : a.billed_as}
+                                        {a.kind === "new" && a.spotify.chosen && <span className="ml-1 text-green-400">♫</span>}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
                               <div className="mt-2">
                                 <p className="text-xs text-gray-500 mb-1">Found Artists:</p>
                                 <div className="flex flex-wrap gap-1.5">
@@ -1063,6 +1141,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                   </p>
                                 )}
                               </div>
+                              )}
                             </div>
                             <div className="flex flex-wrap gap-2 sm:flex-nowrap flex-shrink-0">
                               <button
@@ -1079,7 +1158,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                                 Reject
                               </button>
                               <button
-                                onClick={() => handleAcceptPendingAnalysis(analysis)}
+                                onClick={() => (isV2(analysis) ? handleAcceptV2(analysis, [], analysis.event?.category) : handleAcceptPendingAnalysis(analysis))}
                                 disabled={actionLoading === analysis.id}
                                 className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
                               >
@@ -1377,6 +1456,21 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   </button>
                 </div>
 
+                {statusFilter === "approved" && (
+                  <button
+                    onClick={handleAnalyzeNext}
+                    disabled={analyzingNext || bulkAnalyzing}
+                    title="Analyze the next 10 upcoming shows that haven't been analyzed yet"
+                    className="px-4 py-2 text-sm font-medium bg-purple-900/60 hover:bg-purple-800 border border-purple-600/50 text-white rounded-lg disabled:opacity-50 transition-colors flex items-center gap-2"
+                  >
+                    {analyzingNext ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Analyzing 10...
+                      </>
+                    ) : "Analyze next 10"}
+                  </button>
+                )}
                 {statusFilter === "approved" && (
                   <button
                     onClick={handleBulkAnalyze}
@@ -1915,8 +2009,39 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         />
       )}
 
-      {/* Pending Artist Analysis Detail Modal */}
-      {viewingPendingAnalysis && (
+      {/* Pending Artist Analysis Review (new pipeline) */}
+      {viewingPendingAnalysis && isV2(viewingPendingAnalysis) && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          onClick={() => setViewingPendingAnalysis(null)}
+        >
+          <div
+            className="w-full sm:max-w-2xl max-h-[90vh] bg-gray-900 border-t sm:border border-gray-700 rounded-t-2xl sm:rounded-xl overflow-y-auto p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="min-w-0">
+                <h3 className="text-lg font-semibold text-white truncate">{viewingPendingAnalysis.events?.title || "Unknown Event"}</h3>
+                <p className="text-xs text-gray-400">
+                  {viewingPendingAnalysis.events?.date && formatDate(viewingPendingAnalysis.events.date)} · {viewingPendingAnalysis.events?.venues?.name || viewingPendingAnalysis.events?.venue_name || "Unknown Venue"}
+                </p>
+              </div>
+              <button onClick={() => setViewingPendingAnalysis(null)} className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800">✕</button>
+            </div>
+            <ArtistProposalReview
+              key={viewingPendingAnalysis.id}
+              proposal={toProposal(viewingPendingAnalysis)}
+              busy={actionLoading === viewingPendingAnalysis.id}
+              onApprove={(decisions, category) => handleAcceptV2(viewingPendingAnalysis, decisions, category)}
+              onReject={() => handleRejectPendingAnalysis(viewingPendingAnalysis.id)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Pending Artist Analysis Detail Modal (old format) */}
+      {viewingPendingAnalysis && !isV2(viewingPendingAnalysis) && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
