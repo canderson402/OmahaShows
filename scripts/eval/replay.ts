@@ -36,6 +36,7 @@ const deps: PipelineDeps = {
   models: MODELS,
   calibration: loadCalibration(null), // raw scores; calibrated below
   escalationBudget: { remaining: Number(process.env.ARTIST_MAX_ESCALATIONS ?? 1000) },
+  escalation: process.env.ARTIST_ESCALATION === "on",
 };
 
 const eventIds = [...new Set([...labels.events.map((e) => e.event_id), ...labels.artists.map((a) => a.event_id)])];

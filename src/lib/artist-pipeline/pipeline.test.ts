@@ -94,7 +94,7 @@ describe("escalation", () => {
     const d = deps({
       llm: llmFor(oneAct("JOBY!"), noPick),
       messages: { messages: { async create() { return responses.shift(); } } },
-      escalationBudget: budget,
+      escalationBudget: budget, escalation: true,
     });
     const p = await analyzeEvent(event, d);
     const joby = p.artists[0] as any;
@@ -104,7 +104,7 @@ describe("escalation", () => {
   });
 
   test("budget exhausted: needed escalation is deferred, pick without candidate is never chosen", async () => {
-    const p = await analyzeEvent(event, deps({ llm: llmFor(oneAct("JOBY!"), noPick) }));
+    const p = await analyzeEvent(event, deps({ llm: llmFor(oneAct("JOBY!"), noPick), escalation: true }));
     const a = p.artists[0] as any;
     expect(a.spotify.chosen).toBeNull();
     expect(a.spotify.deferred).toBe("escalation_budget");
@@ -112,7 +112,7 @@ describe("escalation", () => {
   });
 
   test("youtube_quota deferral is kept over escalation_budget", async () => {
-    const d = deps({
+    const d = deps({ escalation: true,
       llm: llmFor(oneAct("JOBY!"), noPick),
       youtube: { unitsUsed: () => 0, async searchChannels() { throw new QuotaExceededError("q"); } },
     });
@@ -126,7 +126,7 @@ describe("escalation", () => {
     const d = deps({
       llm: llmFor(oneAct("JOBY!"), { ...judge, youtube: { external_id: null, rating: "low", reason: "", evidence: [] } }),
       messages: { messages: { async create() { return responses.shift(); } } },
-      escalationBudget: { remaining: 1 },
+      escalationBudget: { remaining: 1 }, escalation: true,
     });
     const a = (await analyzeEvent(event, d)).artists[0] as any;
     expect(a.spotify.chosen?.external_id).toBe("s-joby");
@@ -146,7 +146,7 @@ describe("escalation", () => {
     const d = deps({
       llm: llmFor(oneAct("JOBY!"), { ...judge, genres: ["punk"], hometown: "Lincoln, NE" }),
       messages: { messages: { async create() { return responses.shift(); } } },
-      escalationBudget: budget,
+      escalationBudget: budget, escalation: true,
     });
     const a = (await analyzeEvent(event, d)).artists[0] as any;
     expect(budget.remaining).toBe(0);
@@ -179,7 +179,7 @@ describe("escalation", () => {
     const d = deps({
       llm: llmFor(oneAct("JOBY!"), noPick),
       messages: { messages: { async create() { throw new Anthropic.APIError(529, undefined, "overloaded", undefined); } } },
-      escalationBudget: { remaining: 1 },
+      escalationBudget: { remaining: 1 }, escalation: true,
     });
     await expect(analyzeEvent(event, d)).rejects.toBeInstanceOf(RetryableError);
   });
@@ -189,7 +189,7 @@ describe("escalation", () => {
     const d = deps({
       llm: llmFor(oneAct("JOBY!"), noPick),
       messages: { messages: { async create() { throw err; } } },
-      escalationBudget: { remaining: 1 },
+      escalationBudget: { remaining: 1 }, escalation: true,
     });
     const e = await analyzeEvent(event, d).catch((x) => x);
     expect(e).toBe(err);
@@ -203,7 +203,7 @@ describe("escalation", () => {
       llm: llmFor(oneAct("JOBY!"), noPick),
       youtube: { unitsUsed: () => 0, async searchChannels() { if (calls++ === 0) return []; throw new QuotaExceededError("q"); } },
       messages: { messages: { async create() { return responses.shift(); } } },
-      escalationBudget: { remaining: 1 },
+      escalationBudget: { remaining: 1 }, escalation: true,
     });
     const a = (await analyzeEvent(event, d)).artists[0] as any;
     expect(a.youtube).toMatchObject({ chosen: null, deferred: "youtube_quota" });
@@ -233,7 +233,7 @@ describe("escalation", () => {
         async rejectedExternalIds(_id, platform) { seenRejected.push(platform); return platform === "spotify" ? new Set(["s-bad"]) : new Set(); },
       },
       messages: { messages: { async create() { return responses.shift(); } } },
-      escalationBudget: budget,
+      escalationBudget: budget, escalation: true,
     });
     const p = await analyzeEvent(event, d);
     expect(budget.remaining).toBe(0); // escalation actually ran
@@ -262,5 +262,29 @@ describe("YouTube disabled (youtube: null)", () => {
     }));
     expect(p.artists[0]).toMatchObject({ kind: "existing", artist_id: "a1", confidence: 1 });
     expect((p.artists[0] as any).new_links).toBeUndefined();
+  });
+});
+
+
+describe("clear-cut rule (escalation off by default)", () => {
+  const withJudge = (sp: object) => deps({ llm: { async parse({ schema }: any) { return schema.shape?.acts ? extraction : { ...judge, spotify: { ...judge.spotify, ...sp } }; } } as any });
+  test("exact name + high rating + unique name is proposed", async () => {
+    const p = await analyzeEvent(event, withJudge({}));
+    expect((p.artists[1] as any).spotify.chosen?.external_id).toBe("s-joby");
+  });
+  test("a medium-rated pick is left blank but kept as an alternative", async () => {
+    const p = await analyzeEvent(event, withJudge({ rating: "medium" }));
+    const sp = (p.artists[1] as any).spotify;
+    expect(sp.chosen).toBeNull();
+    expect(sp.alternatives.map((a: any) => a.external_id)).toContain("s-joby");
+  });
+  test("two Spotify artists with the same name: left blank", async () => {
+    const d = deps({ spotify: { async searchArtists() { return [{ id: "s-joby", name: "Joby", genres: [], imageUrl: null }, { id: "s-joby2", name: "JOBY", genres: [], imageUrl: null }]; }, async albumTitles() { return []; } } });
+    const p = await analyzeEvent(event, d);
+    expect((p.artists[1] as any).spotify.chosen).toBeNull();
+  });
+  test("escalation never runs unless enabled, and nothing is marked deferred", async () => {
+    const p = await analyzeEvent(event, withJudge({ external_id: null, rating: "low" }));
+    expect((p.artists[1] as any).spotify.deferred).toBeUndefined();
   });
 });

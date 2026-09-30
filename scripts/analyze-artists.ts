@@ -60,6 +60,7 @@ async function main() {
     models: MODELS,
     calibration: loadCalibration(existsSync(calPath) ? JSON.parse(readFileSync(calPath, "utf8")) : null),
     escalationBudget: { remaining: Number(process.env.ARTIST_MAX_ESCALATIONS ?? 100) },
+    escalation: process.env.ARTIST_ESCALATION === "on",
   };
 
   const proposals: Proposal[] = [];
@@ -94,7 +95,7 @@ async function main() {
   const counts = countFailures(failures);
   const lines = [
     `## Artist analysis (dry run)`,
-    `Events: ${events.length} · proposals: ${proposals.length} · retry: ${counts.retry} · unexpected failures: ${counts.unexpected} · YouTube: ${youtube ? `${youtube.unitsUsed()} units` : "off"} · escalations left: ${deps.escalationBudget.remaining}`,
+    `Events: ${events.length} · proposals: ${proposals.length} · retry: ${counts.retry} · unexpected failures: ${counts.unexpected} · YouTube: ${youtube ? `${youtube.unitsUsed()} units` : "off"} · web-search escalation: ${deps.escalation ? `on (${deps.escalationBudget.remaining} left)` : "off"}`,
     `Cost: ${usd(usage.costUsd)} (${usd(usage.costUsd / Math.max(1, events.length))}/event) · Claude calls: ${usage.calls} · tokens in/out: ${usage.inputTokens}/${usage.outputTokens} · web searches: ${usage.webSearches} · models: ${MODELS.extract} / ${MODELS.judge} / ${MODELS.escalate}${usage.unpricedModels.length ? ` · UNPRICED: ${usage.unpricedModels.join(", ")}` : ""}`,
     ``,
     `| Event | All correct | Cost | Lineup |`,

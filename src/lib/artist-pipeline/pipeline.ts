@@ -8,7 +8,7 @@ import { gatherSpotifyCandidates, gatherYouTubeCandidates } from "./stages/candi
 import { judgeAct, type GuardedPick, type JudgeContext, type JudgeResult } from "./stages/judge";
 import { escalateAct, type MessagesClient } from "./stages/escalate";
 import { finalLinkConfidence, product, rawLinkScore, rawRatingScore, type CalibrationSet } from "./scoring";
-import type { Candidate, ExtractedAct, LineupEntry, LinkDecision, LinkProposal, Platform, PipelineEvent, Proposal } from "./types";
+import type { Candidate, ExtractedAct, LinkFeatures, LineupEntry, LinkDecision, LinkProposal, Platform, PipelineEvent, Proposal } from "./types";
 
 export const HIGH_CONFIDENCE = 0.9;
 export const NO_MATCH_CONFIDENCE = 0.5;
@@ -20,6 +20,8 @@ export interface PipelineDeps {
   fetchPage: (url: string | null) => Promise<string | null>; repo: ArtistRepo;
   models: { extract: string; judge: string; escalate: string };
   calibration: CalibrationSet; escalationBudget: { remaining: number };
+  /** Web-search escalation for hard artists. Off by default: unclear artists are left blank for manual review. */
+  escalation?: boolean;
 }
 
 export class RetryableError extends Error {
@@ -30,8 +32,16 @@ function proposal(c: Candidate, conf: number, reason: string, evidence: string[]
   return { external_id: c.external_id, url: c.url, display_name: c.display_name, evidence: [...evidence, ...c.details], confidence: conf, raw_score: raw, name_similarity: similarity, reason };
 }
 
-function decision(pick: GuardedPick, pool: Candidate[], cal: CalibrationSet, citations: string[] = []): LinkDecision {
-  const chosen = pick.candidate && pick.features
+/**
+ * A judge pick is only proposed when it is clear-cut: exact normalized name, judge rated it high, and no
+ * other candidate on the platform shares the name. Anything else is left blank (candidates still listed).
+ */
+export function isClearCut(f: LinkFeatures): boolean {
+  return f.judge_rating === "high" && f.name_similarity === 1 && f.same_name_count <= 1;
+}
+
+function decision(pick: GuardedPick, pool: Candidate[], cal: CalibrationSet, citations: string[] = [], requireClearCut = true): LinkDecision {
+  const chosen = pick.candidate && pick.features && (!requireClearCut || isClearCut(pick.features))
     ? proposal(pick.candidate, finalLinkConfidence(pick.features, cal.link), pick.reason, [...pick.evidence, ...citations.map((c) => `cited: ${c}`)], rawLinkScore(pick.features), pick.features.name_similarity)
     : null;
   const alternatives = pool
@@ -91,7 +101,7 @@ export async function analyzeAct(
 
   // When YouTube search is already out of quota, it cannot justify spending an escalation.
   const escWant = ytDeferred ? want.filter((p) => p !== "youtube") : want;
-  if (escWant.length && needsEscalation(result, escWant)) {
+  if (deps.escalation && escWant.length && needsEscalation(result, escWant)) {
     if (deps.escalationBudget.remaining > 0) {
       deps.escalationBudget.remaining--;
       try {
@@ -109,7 +119,8 @@ export async function analyzeAct(
   const citations = escalated?.citations ?? [];
   const build = (p: Platform, pool: Candidate[]): LinkDecision => {
     const fromEsc = !!escalated && !!escalated[p].candidate;
-    const d = decision(fromEsc ? escalated![p] : result[p], pool, deps.calibration, fromEsc ? citations : []);
+    // Escalated picks carry their own cited evidence; judge-only picks must be clear-cut.
+    const d = decision(fromEsc ? escalated![p] : result[p], pool, deps.calibration, fromEsc ? citations : [], !fromEsc);
     if (p === "youtube" && !deps.youtube) return { chosen: null, alternatives: [], deferred: "youtube_disabled" };
     if (!want.includes(p) || d.chosen) return d;
     if (p === "youtube" && ytQuota) return { chosen: null, alternatives: [], deferred: "youtube_quota" };
