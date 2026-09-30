@@ -288,3 +288,19 @@ describe("clear-cut rule (escalation off by default)", () => {
     expect((p.artists[1] as any).spotify.deferred).toBeUndefined();
   });
 });
+
+
+describe("needsReview", () => {
+  const base = { event_id: "e", schema_version: 2 as const, lineup_confidence: 0.95, overall_confidence: 0.9,
+    event: { category: "other" as const, category_confidence: 0.95, event_genres: [], reason: "" } };
+  test("karaoke / event-name only shows skip the queue", async () => {
+    const { needsReview } = await import("./pipeline");
+    expect(needsReview({ ...base, artists: [{ kind: "not_an_artist", billed_as: "Karaoke with Taylor!", category: "other", reason: "karaoke", confidence: 0.95 }] })).toBe(false);
+    expect(needsReview({ ...base, artists: [] })).toBe(false);
+  });
+  test("any unsure act or any artist goes to review", async () => {
+    const { needsReview } = await import("./pipeline");
+    expect(needsReview({ ...base, artists: [{ kind: "not_an_artist", billed_as: "Loud Pack Ent", category: "other", reason: "unsure", confidence: 0.5, unsure: true }] })).toBe(true);
+    expect(needsReview({ ...base, artists: [{ kind: "existing", billed_as: "X", artist_id: "a", role: "headliner", billing_order: 1, confidence: 1 }] })).toBe(true);
+  });
+});

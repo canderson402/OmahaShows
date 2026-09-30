@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminSupabase, requireAdmin } from "../../../../src/lib/admin-auth";
 import { analyzeEvent, RetryableError } from "../../../../src/lib/artist-pipeline/pipeline";
-import { createServerPipelineDeps, savePendingProposal } from "../../../../src/lib/artist-pipeline/server-deps";
+import { createServerPipelineDeps, saveProposalOrSkip } from "../../../../src/lib/artist-pipeline/server-deps";
 
 export const maxDuration = 60;
 
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
 
     const proposal = await analyzeEvent(event, deps);
-    const analysisId = await savePendingProposal(sb, proposal, "manual");
+    const analysisId = await saveProposalOrSkip(sb, proposal, "manual");
     return NextResponse.json({ analysisId, proposal, costUsd: meter.totals().costUsd });
   } catch (error) {
     console.error("Analyze event error:", error);

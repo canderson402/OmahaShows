@@ -603,14 +603,17 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         throw new Error(error.error || "Analysis failed");
       }
 
-      const result = await response.json() as { analysisId: string; costUsd?: number };
+      const result = await response.json() as { analysisId: string | null; costUsd?: number };
+      const cost = result.costUsd != null ? ` (cost $${result.costUsd.toFixed(3)})` : "";
       const list = await fetchPendingArtistAnalyses();
-      const row = list.find((a) => a.id === result.analysisId);
-      if (row) setViewingPendingAnalysis(row);
-      setToast({
-        message: `Analysis ready for ${event.title}. Review and approve below.${result.costUsd != null ? ` (cost $${result.costUsd.toFixed(3)})` : ""}`,
-        type: "success",
-      });
+      if (result.analysisId === null) {
+        await fetchAnalyzedEvents();
+        setToast({ message: `${event.title}: no artists to review (marked as analyzed).${cost}`, type: "success" });
+      } else {
+        const row = list.find((a) => a.id === result.analysisId);
+        if (row) setViewingPendingAnalysis(row);
+        setToast({ message: `Analysis ready for ${event.title}. Review and approve below.${cost}`, type: "success" });
+      }
     } catch (err) {
       setToast({
         message: err instanceof Error ? err.message : "Analysis failed",

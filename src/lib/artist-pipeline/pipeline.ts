@@ -172,3 +172,12 @@ export async function analyzeEvent(event: PipelineEvent, deps: PipelineDeps): Pr
     throw e;
   }
 }
+
+/**
+ * True when a proposal has something for an admin to decide: any act matched or proposed as an artist,
+ * or any act the model was unsure about. Shows whose acts are all clear non-artists (karaoke, DJ nights,
+ * event names like "FREE PUNK SHOW") skip the review queue.
+ */
+export function needsReview(p: Proposal): boolean {
+  return p.artists.some((a) => a.kind !== "not_an_artist" || a.unsure === true);
+}

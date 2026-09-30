@@ -7,7 +7,7 @@ import { fetchEventPageText } from "./clients/event-page";
 import { createUsageMeter, withUsageMeter, type UsageMeter } from "./clients/usage";
 import { createSupabaseRepo } from "./repo";
 import { loadCalibration } from "./scoring";
-import type { PipelineDeps } from "./pipeline";
+import { needsReview, type PipelineDeps } from "./pipeline";
 import type { Proposal } from "./types";
 
 /**
@@ -53,4 +53,22 @@ export async function savePendingProposal(sb: SupabaseClient, proposal: Proposal
   }).select("id").single();
   if (ins.error) throw new Error(ins.error.message);
   return ins.data.id as string;
+}
+
+/**
+ * Queue the proposal for review, or, when there is nothing to review (no artists, nothing unsure),
+ * just record the show as analyzed with its category/genres and clear any stale pending row.
+ * Returns the pending row id, or null when nothing was queued.
+ */
+export async function saveProposalOrSkip(sb: SupabaseClient, proposal: Proposal, trigger: "manual" | "new" | "changed" | "backfill"): Promise<string | null> {
+  if (needsReview(proposal)) return savePendingProposal(sb, proposal, trigger);
+  const del = await sb.from("pending_artist_analyses").delete().eq("event_id", proposal.event_id).eq("status", "pending");
+  if (del.error) throw new Error(del.error.message);
+  const upd = await sb.from("events").update({
+    analyzed_at: new Date().toISOString(),
+    category: proposal.event.category,
+    genres: proposal.event.event_genres,
+  }).eq("id", proposal.event_id);
+  if (upd.error) throw new Error(upd.error.message);
+  return null;
 }

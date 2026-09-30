@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminSupabase, requireAdmin } from "../../../../src/lib/admin-auth";
 import { analyzeEvent, RetryableError } from "../../../../src/lib/artist-pipeline/pipeline";
-import { createServerPipelineDeps, savePendingProposal } from "../../../../src/lib/artist-pipeline/server-deps";
+import { createServerPipelineDeps, saveProposalOrSkip } from "../../../../src/lib/artist-pipeline/server-deps";
 
 // One show takes a few seconds (no web search by default); 300s covers a full nightly batch.
 export const maxDuration = 300;
@@ -79,10 +79,10 @@ export async function POST(request: NextRequest) {
     for (const event of pipelineEvents) {
       try {
         const proposal = await analyzeEvent(event, deps);
-        await savePendingProposal(supabase, proposal, onlyNew ? "new" : "backfill");
+        const queued = await saveProposalOrSkip(supabase, proposal, onlyNew ? "new" : "backfill");
         const first = proposal.artists.find((a) => a.kind !== "not_an_artist");
         results.push({
-          eventId: event.id, title: event.title, success: true, pending: true,
+          eventId: event.id, title: event.title, success: true, pending: queued !== null,
           artistName: first ? (first.kind === "new" ? first.clean_name : first.billed_as) : undefined,
         });
       } catch (err) {
