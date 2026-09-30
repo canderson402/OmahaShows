@@ -10,9 +10,35 @@ export interface Labels {
 
 export interface LinkOutcome { platform: Platform; confidence: number; rawScore: number; correct: boolean }
 
-export function highConfidencePrecision(o: LinkOutcome[], threshold = 0.9) {
+/** precision is null when there is no high-confidence evidence (n = 0). */
+export function highConfidencePrecision(o: LinkOutcome[], threshold = 0.9): { precision: number | null; n: number } {
   const hi = o.filter((x) => x.confidence >= threshold);
-  return { precision: hi.length ? hi.filter((x) => x.correct).length / hi.length : 1, n: hi.length };
+  return { precision: hi.length ? hi.filter((x) => x.correct).length / hi.length : null, n: hi.length };
+}
+
+export interface PredEntry { kind: string; billed_as: string; clean_name?: string }
+
+/**
+ * Score labeled non-artist acts against pipeline entries. An act is matched by normalized
+ * billed_as or clean_name. Unmatched acts are reported separately and excluded from the
+ * rejection denominator.
+ */
+export function nonArtistRejection(goldNames: string[], entries: PredEntry[]): { correct: number; matched: number; unmatched: number } {
+  let correct = 0, matched = 0, unmatched = 0;
+  for (const name of goldNames) {
+    const n = normalizeArtistName(name);
+    const m = entries.find((e) => normalizeArtistName(e.billed_as) === n || (e.clean_name !== undefined && normalizeArtistName(e.clean_name) === n));
+    if (!m) { unmatched++; continue; }
+    matched++;
+    if (m.kind === "not_an_artist") correct++;
+  }
+  return { correct, matched, unmatched };
+}
+
+/** Reduce a pasted Spotify/YouTube profile URL to its bare id; other text is returned unchanged. */
+export function extractProfileId(text: string): string {
+  const m = text.match(/(?:open\.spotify\.com\/artist|youtube\.com\/channel)\/([A-Za-z0-9_-]+)/);
+  return m ? m[1] : text;
 }
 
 export function coverage(o: LinkOutcome[], labeledWithProfile: number, threshold = 0.9): number {

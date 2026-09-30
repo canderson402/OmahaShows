@@ -1,11 +1,27 @@
 import { expect, test } from "vitest";
-import { calibrationTable, coverage, highConfidencePrecision, lineupCorrect, twoFold } from "./metrics";
+import { calibrationTable, coverage, extractProfileId, highConfidencePrecision, lineupCorrect, nonArtistRejection, twoFold } from "./metrics";
 
 const o = (confidence: number, correct: boolean) => ({ platform: "spotify" as const, confidence, rawScore: confidence, correct });
 
 test("precision only counts links at/above threshold", () => {
   expect(highConfidencePrecision([o(0.95, true), o(0.92, false), o(0.5, false)])).toEqual({ precision: 0.5, n: 2 });
-  expect(highConfidencePrecision([o(0.5, false)])).toEqual({ precision: 1, n: 0 });
+  expect(highConfidencePrecision([o(0.5, false)])).toEqual({ precision: null, n: 0 });
+});
+
+test("non-artist rejection matches on billed_as or clean_name and reports unmatched separately", () => {
+  const entries = [
+    { kind: "not_an_artist", billed_as: "Trivia Night" },
+    { kind: "new", billed_as: "Bad Dudes Tribute", clean_name: "Bad Dudes" },
+    { kind: "new", billed_as: "Joby", clean_name: "Joby" },
+  ];
+  expect(nonArtistRejection(["trivia night", "Bad Dudes", "Joby", "Ghost Act"], entries))
+    .toEqual({ correct: 1, matched: 3, unmatched: 1 });
+});
+
+test("extractProfileId reduces profile URLs to ids and keeps other text", () => {
+  expect(extractProfileId("https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb?si=abc")).toBe("4Z8W4fKeB5YxbusRsdQVPb");
+  expect(extractProfileId("https://www.youtube.com/channel/UCabc_123-x/videos")).toBe("UCabc_123-x");
+  expect(extractProfileId("rawid123")).toBe("rawid123");
 });
 
 test("coverage = correct high-confidence links / labeled artists that have a profile", () => {

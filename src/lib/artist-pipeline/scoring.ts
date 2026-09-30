@@ -60,9 +60,12 @@ export function fitIsotonic(samples: { score: number; correct: boolean }[]): Cal
   return new Calibrator(blocks.flatMap((b) => b.xs.map((x) => ({ x, y: b.sum / b.n }))));
 }
 
+export function capForSimilarity(conf: number, nameSimilarity: number): number {
+  return nameSimilarity < HIGH_SIMILARITY ? Math.min(conf, 0.89) : conf;
+}
+
 export function finalLinkConfidence(f: LinkFeatures, cal: Calibrator): number {
-  const c = cal.apply(rawLinkScore(f));
-  return f.name_similarity < HIGH_SIMILARITY ? Math.min(c, 0.89) : c;
+  return capForSimilarity(cal.apply(rawLinkScore(f)), f.name_similarity);
 }
 
 export function product(values: number[]): number {

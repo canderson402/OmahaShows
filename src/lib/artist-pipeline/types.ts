@@ -65,6 +65,8 @@ export interface LinkProposal {
   display_name: string;
   evidence: string[];
   confidence: number;
+  raw_score: number;          // uncalibrated rawLinkScore (0 for alternatives)
+  name_similarity: number;
   reason: string;
 }
 

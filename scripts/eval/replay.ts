@@ -6,10 +6,10 @@ import { createYouTubeClient } from "../../src/lib/artist-pipeline/clients/youtu
 import { fetchEventPageText } from "../../src/lib/artist-pipeline/clients/event-page";
 import { createSupabaseRepo, serviceClient } from "../../src/lib/artist-pipeline/repo";
 import { analyzeEvent, RetryableError, type PipelineDeps } from "../../src/lib/artist-pipeline/pipeline";
-import { fitIsotonic, loadCalibration } from "../../src/lib/artist-pipeline/scoring";
+import { capForSimilarity, fitIsotonic, loadCalibration } from "../../src/lib/artist-pipeline/scoring";
 import { normalizeArtistName } from "../../src/lib/artist-pipeline/normalize";
 import type { LineupEntry, Proposal } from "../../src/lib/artist-pipeline/types";
-import { calibrationTable, coverage, highConfidencePrecision, lineupCorrect, twoFold, type Labels, type LinkOutcome } from "./metrics";
+import { calibrationTable, coverage, highConfidencePrecision, lineupCorrect, nonArtistRejection, twoFold, type Labels, type LinkOutcome } from "./metrics";
 
 function env(name: string): string {
   const v = process.env[name];
@@ -45,8 +45,8 @@ for (const ev of events) {
 }
 console.log(`\n${proposals.size}/${events.length} events analyzed in ${Math.round((Date.now() - t0) / 1000)}s, YouTube units ${youtube.unitsUsed()}`);
 
-// Link outcomes: with identity calibration, confidence == raw score (after the similarity cap).
-const outcomes: (LinkOutcome & { key: string })[] = [];
+// Link outcomes carry the uncalibrated raw score; confidence is recomputed below exactly as production does.
+const outcomes: (LinkOutcome & { key: string; nameSimilarity: number })[] = [];
 let withProfile = 0;
 for (const a of labels.artists) {
   const p = proposals.get(a.event_id);
@@ -56,7 +56,7 @@ for (const a of labels.artists) {
     if (gold) withProfile++;
     const chosen = entry?.[platform].chosen;
     if (!chosen) continue;
-    outcomes.push({ key: `${a.name}:${platform}`, platform, confidence: chosen.confidence, rawScore: chosen.confidence, correct: chosen.external_id === gold });
+    outcomes.push({ key: `${a.name}:${platform}`, platform, confidence: chosen.confidence, rawScore: chosen.raw_score, nameSimilarity: chosen.name_similarity, correct: chosen.external_id === gold });
   }
 }
 
@@ -64,10 +64,11 @@ for (const a of labels.artists) {
 const [f1, f2] = twoFold(outcomes, (o) => o.key);
 const cal1 = fitIsotonic(f1.map((o) => ({ score: o.rawScore, correct: o.correct })));
 const cal2 = fitIsotonic(f2.map((o) => ({ score: o.rawScore, correct: o.correct })));
-const calibrated = [...f1.map((o) => ({ ...o, confidence: cal2.apply(o.rawScore) })), ...f2.map((o) => ({ ...o, confidence: cal1.apply(o.rawScore) }))];
+const prod = (cal: typeof cal1, o: (typeof outcomes)[number]) => ({ ...o, confidence: capForSimilarity(cal.apply(o.rawScore), o.nameSimilarity) });
+const calibrated = [...f1.map((o) => prod(cal2, o)), ...f2.map((o) => prod(cal1, o))];
 
 // Event-level metrics
-let lineupOk = 0, catOk = 0, genreOk = 0, genreN = 0, nonArtistOk = 0, nonArtistN = 0;
+let lineupOk = 0, catOk = 0, genreOk = 0, genreN = 0, nonArtistOk = 0, nonArtistN = 0, nonArtistUnmatched = 0;
 const lineupSamples: { score: number; correct: boolean }[] = [];
 const catSamples: { score: number; correct: boolean }[] = [];
 for (const g of labels.events) {
@@ -84,11 +85,11 @@ for (const g of labels.events) {
   const cOk = p.event.category === g.category;
   catOk += cOk ? 1 : 0;
   catSamples.push({ score: p.event.category_confidence, correct: cOk });
-  for (const act of g.acts.filter((a) => a.kind === "not_an_artist")) {
-    nonArtistN++;
-    const m = p.artists.find((x) => normalizeArtistName(x.billed_as) === normalizeArtistName(act.name));
-    if (!m || m.kind === "not_an_artist") nonArtistOk++;
-  }
+  const r = nonArtistRejection(
+    g.acts.filter((a) => a.kind === "not_an_artist").map((a) => a.name),
+    p.artists.map((x) => ({ kind: x.kind, billed_as: x.billed_as, clean_name: x.kind === "new" ? x.clean_name : undefined })),
+  );
+  nonArtistOk += r.correct; nonArtistN += r.matched; nonArtistUnmatched += r.unmatched;
 }
 for (const a of labels.artists.filter((a) => a.genres.length)) {
   const e = proposals.get(a.event_id)?.artists.find((x) => x.kind === "new" && normalizeArtistName(x.clean_name) === normalizeArtistName(a.name));
@@ -97,14 +98,17 @@ for (const a of labels.artists.filter((a) => a.genres.length)) {
 
 const hp = highConfidencePrecision(calibrated);
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
+const pctN = (x: number, n: number) => (n === 0 ? "no evidence (n=0)" : `${pct(x)} (n=${n})`);
+if (hp.n < 30) console.log(`WARNING: only ${hp.n} high-confidence links; precision is not statistically meaningful (want n >= 30).`);
 console.log(`
 models: ${JSON.stringify(MODELS)}
-high-confidence link precision: ${pct(hp.precision)} (n=${hp.n})   target >= 98%
+high-confidence link precision: ${hp.precision === null ? "no evidence (n=0)" : `${pct(hp.precision)} (n=${hp.n})`}   target >= 98%
 coverage (correct high-conf / labeled profiles): ${pct(coverage(calibrated, withProfile))}
-non-artist rejection: ${pct(nonArtistN ? nonArtistOk / nonArtistN : 1)} (n=${nonArtistN})   target >= 95%
+non-artist rejection: ${pctN(nonArtistOk / (nonArtistN || 1), nonArtistN)}   target >= 95%
+unmatched labeled acts: ${nonArtistUnmatched}
 lineup fully correct: ${pct(lineupOk / labels.events.length)}   target >= 95%
 category: ${pct(catOk / labels.events.length)}   target >= 97%
-genre top-1: ${pct(genreN ? genreOk / genreN : 0)} (n=${genreN})   target >= 85% (not a blocker)
+genre top-1: ${pctN(genreOk / (genreN || 1), genreN)}   target >= 85% (not a blocker)
 calibration (out-of-sample):`);
 console.table(calibrationTable(calibrated));
 console.log("wrong high-confidence links:");

@@ -77,8 +77,8 @@ D.artistItems.forEach((it,i)=>{const f=document.createElement('fieldset');
 D.events.forEach((ev,i)=>{const f=document.createElement('fieldset');
  const guess={event_id:ev.id,category:'music',acts:[{name:ev.title,role:'headliner',kind:'original_artist'}].concat((ev.supportingArtists||[]).map(n=>({name:n,role:'supporting',kind:'original_artist'}))),genres:[]};
  f.innerHTML='<legend><b>'+esc(ev.title)+'</b> - '+esc(ev.venueName||'')+' '+esc(ev.date)+'</legend><textarea id=ev'+i+'>'+esc(JSON.stringify(guess,null,1))+'</textarea>';E.appendChild(f);});
-document.getElementById('dl').onclick=()=>{const v=n=>(document.querySelector('[name="'+n+'"]:checked')||{}).value||'';const t=n=>(document.querySelector('[name="'+n+'"]')||{}).value?.trim()||'';
- const labels={artists:D.artistItems.map((it,i)=>({name:it.name,event_id:it.event_id,spotify_id:t('spx'+i)||v('sp'+i)||null,youtube_channel_id:t('ytx'+i)||v('yt'+i)||null,
+document.getElementById('dl').onclick=()=>{const v=n=>(document.querySelector('[name="'+n+'"]:checked')||{}).value||'';const t=n=>(document.querySelector('[name="'+n+'"]')||{}).value?.trim()||'';const pid=n=>{const x=t(n);const m=x.match(/(?:open\\.spotify\\.com\\/artist|youtube\\.com\\/channel)\\/([A-Za-z0-9_-]+)/);return m?m[1]:x;};
+ const labels={artists:D.artistItems.map((it,i)=>({name:it.name,event_id:it.event_id,spotify_id:pid('spx'+i)||v('sp'+i)||null,youtube_channel_id:pid('ytx'+i)||v('yt'+i)||null,
   genres:t('g'+i).split(',').map(s=>s.trim().toLowerCase()).filter(g=>D.genres.includes(g))})),
   events:D.events.map((_,i)=>JSON.parse(document.getElementById('ev'+i).value))};
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(labels,null,2)],{type:'application/json'}));a.download='labels.json';a.click();};

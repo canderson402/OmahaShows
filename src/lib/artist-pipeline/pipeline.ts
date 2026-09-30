@@ -8,7 +8,7 @@ import { resolveAct, type ArtistRepo } from "./stages/resolve";
 import { gatherSpotifyCandidates, gatherYouTubeCandidates } from "./stages/candidates";
 import { judgeAct, type GuardedPick, type JudgeContext, type JudgeResult } from "./stages/judge";
 import { escalateAct, type MessagesClient } from "./stages/escalate";
-import { finalLinkConfidence, product, rawRatingScore, type CalibrationSet } from "./scoring";
+import { finalLinkConfidence, product, rawLinkScore, rawRatingScore, type CalibrationSet } from "./scoring";
 import type { Candidate, ExtractedAct, LineupEntry, LinkDecision, LinkProposal, Platform, PipelineEvent, Proposal } from "./types";
 
 export const HIGH_CONFIDENCE = 0.9;
@@ -25,13 +25,13 @@ export class RetryableError extends Error {
   constructor(message: string, public cause: unknown) { super(message); }
 }
 
-function proposal(c: Candidate, conf: number, reason: string, evidence: string[]): LinkProposal {
-  return { external_id: c.external_id, url: c.url, display_name: c.display_name, evidence: [...evidence, ...c.details], confidence: conf, reason };
+function proposal(c: Candidate, conf: number, reason: string, evidence: string[], raw = 0, similarity = c.name_similarity): LinkProposal {
+  return { external_id: c.external_id, url: c.url, display_name: c.display_name, evidence: [...evidence, ...c.details], confidence: conf, raw_score: raw, name_similarity: similarity, reason };
 }
 
 function decision(pick: GuardedPick, pool: Candidate[], cal: CalibrationSet, citations: string[] = []): LinkDecision {
   const chosen = pick.candidate && pick.features
-    ? proposal(pick.candidate, finalLinkConfidence(pick.features, cal.link), pick.reason, [...pick.evidence, ...citations.map((c) => `cited: ${c}`)])
+    ? proposal(pick.candidate, finalLinkConfidence(pick.features, cal.link), pick.reason, [...pick.evidence, ...citations.map((c) => `cited: ${c}`)], rawLinkScore(pick.features), pick.features.name_similarity)
     : null;
   const alternatives = pool
     .filter((c) => c.external_id !== chosen?.external_id)
