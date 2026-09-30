@@ -86,16 +86,8 @@ export function createSupabaseAcceptStore(sb: SupabaseClient): AcceptStore {
     async updateEvent(eventId, patch) {
       check(await sb.from("events").update(patch).eq("id", eventId));
     },
-    async markAnalysis(id, status, review) {
-      const withReview = await sb.from("pending_artist_analyses")
-        .update({ status, confidence_tier: review.tier, review_changed: review.changed, reviewed_at: now() }).eq("id", id);
-      if (!withReview.error) return;
-      // Migration 009 not applied yet: still record the approval itself.
-      if (/confidence_tier|review_changed|reviewed_at/.test(withReview.error.message)) {
-        check(await sb.from("pending_artist_analyses").update({ status }).eq("id", id));
-        return;
-      }
-      throw new Error(withReview.error.message);
+    async markAnalysis(id, status) {
+      check(await sb.from("pending_artist_analyses").update({ status }).eq("id", id));
     },
   };
 }
