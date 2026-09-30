@@ -23,6 +23,7 @@ const SCRAPERS = [
   { id: "baxterarena", name: "Baxter Arena", url: "https://www.baxterarena.com" },
   { id: "stircove", name: "Stir Concert Cove", url: "https://www.caesars.com/harrahs-council-bluffs/shows" },
   { id: "thesydney", name: "The Sydney", url: "https://thesydneybenson.com/events/" },
+  { id: "barnato", name: "Barnato", url: "https://www.ticketweb.com/venue/barnato-omaha-ne/482015" },
   { id: "other", name: "Other Venues", url: "https://omahaunderground.com" },
 ];
 

@@ -29,12 +29,21 @@ class TicketmasterClient:
         ("Council Bluffs", "IA"),  # Across the river
     ]
 
-    def __init__(self, supabase_client=None, venue_matcher=None, api_key=None):
+    def __init__(self, supabase_client=None, venue_matcher=None, api_key=None, only_venue_ids=None):
+        """
+        only_venue_ids: if given, keep only events that match one of these venue ids. Used nightly for
+        venues that have no scraper of their own, so Ticketmaster never duplicates a venue we already scrape.
+        None = the full metro discovery sweep (on-demand runs).
+        """
         self.supabase = supabase_client
         self.venue_matcher = venue_matcher
         self.api_key = api_key or os.environ.get("TICKETMASTER_API_KEY")
         if not self.api_key:
             raise ValueError("TICKETMASTER_API_KEY environment variable required")
+        self.only_venue_ids = set(only_venue_ids) if only_venue_ids is not None else None
+        if self.only_venue_ids is not None:
+            self.id = "ticketmaster-uncovered"
+            self.name = "Ticketmaster (venues without a scraper)"
 
     def scrape(self) -> list[Event]:
         """Fetch music events from Ticketmaster API."""
@@ -137,6 +146,10 @@ class TicketmasterClient:
                 match_result = self.venue_matcher.match(venue_name)
                 if match_result:
                     matched_venue_id = match_result[0]
+
+            # Venue-limited mode: only venues with no scraper of their own (never unmatched/"other")
+            if self.only_venue_ids is not None and matched_venue_id not in self.only_venue_ids:
+                return None
 
             # Determine final venue_id
             if matched_venue_id:
