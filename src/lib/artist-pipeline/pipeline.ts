@@ -124,11 +124,11 @@ export async function analyzeAct(
       new_links: { ...(want.includes("spotify") ? { spotify: sp } : {}), ...(want.includes("youtube") ? { youtube: yt } : {}) },
     };
   }
-  const judged = escalated ?? result;
-  const genres: Genre[] = judged.genres.length ? judged.genres : act.genres;
+  const genres: Genre[] = escalated?.genres.length ? escalated.genres : result.genres.length ? result.genres : act.genres;
+  const hometown = escalated?.hometown ?? result.hometown ?? act.hometown;
   return {
     kind: "new", billed_as: act.billed_as, clean_name: act.clean_name, role: act.role, billing_order: act.billing_order,
-    hometown: judged.hometown ?? act.hometown, genres, confidence, spotify: sp, youtube: yt,
+    hometown, genres, confidence, spotify: sp, youtube: yt,
   };
 }
 

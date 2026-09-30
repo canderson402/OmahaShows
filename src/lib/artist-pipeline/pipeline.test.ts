@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, test } from "vitest";
 import { analyzeEvent, RetryableError, type PipelineDeps } from "./pipeline";
-import { loadCalibration } from "./scoring";
+import { finalLinkConfidence, loadCalibration } from "./scoring";
 import { QuotaExceededError } from "./clients/youtube";
 import { SpotifyError } from "./clients/spotify";
 import { LLMError } from "./clients/llm";
@@ -133,10 +133,38 @@ describe("escalation", () => {
     expect(a.spotify.chosen.evidence.some((e: string) => e.startsWith("cited:"))).toBe(false);
   });
 
+  test("escalation returning empty genres/null hometown falls back to the judge's values", async () => {
+    const responses = [msg([{
+      type: "tool_use", id: "s", name: "submit_decision",
+      input: {
+        spotify: { external_id: "s-joby", rating: "high", reason: "r", evidence: [] },
+        youtube: { external_id: null, rating: "low", reason: "none", evidence: [] },
+        genres: [], hometown: null, citations: [],
+      },
+    }])];
+    const budget = { remaining: 1 };
+    const d = deps({
+      llm: llmFor(oneAct("JOBY!"), { ...judge, genres: ["punk"], hometown: "Lincoln, NE" }),
+      messages: { messages: { async create() { return responses.shift(); } } },
+      escalationBudget: budget,
+    });
+    const a = (await analyzeEvent(event, d)).artists[0] as any;
+    expect(budget.remaining).toBe(0);
+    expect(responses).toHaveLength(0);
+    expect(a.genres).toEqual(["punk"]);
+    expect(a.hometown).toBe("Lincoln, NE");
+  });
+
   test("overall_confidence = lineup x category x act factors, no-match factor 0.5", async () => {
     const p = await analyzeEvent(event, deps({ llm: llmFor(oneAct("JOBY!"), judge) }));
     const a = p.artists[0] as any;
-    const spConf = a.spotify.chosen.confidence;
+    // Features the fixture yields: exact-name Spotify candidate, judge "high", nothing else.
+    const spConf = finalLinkConfidence(
+      { judge_rating: "high", name_similarity: 1, corroborated: false, location_evidence: false, web_citation: false, same_name_count: 1, official_channel: false },
+      loadCalibration(null).link,
+    );
+    expect(spConf).toBeCloseTo(0.8, 10); // 0.7 (high) + 0.1 (exact name)
+    expect(a.spotify.chosen.confidence).toBeCloseTo(spConf, 10);
     expect(a.youtube.chosen).toBeNull();
     expect(a.confidence).toBeCloseTo(spConf * 0.5, 10);
     expect(p.overall_confidence).toBeCloseTo(0.95 * 0.95 * spConf * 0.5, 10);
