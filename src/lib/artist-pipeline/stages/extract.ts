@@ -31,10 +31,10 @@ For each listing decide:
 1. category: music | comedy | theater | sports | other. Karaoke, bingo, trivia, markets, parties without named performers are "other". Tribute and cover nights are "music".
 2. The billed acts, headliner first, in billing order. Use the title, the supporting-artist list and the venue page. Split multi-act titles ("A, B, C", "A w/ B", "A with B and C") into acts, but keep "&"/"and" when it is part of one band's name (e.g. "Mumford & Sons").
 3. For each act, kind:
-   - original_artist: a real band/musician performing their own music.
-   - not_an_artist: tribute acts, "X performs the music of Y", orchestras/ensembles playing film, TV or game scores ("Star Wars in Concert"), karaoke hosts, DJ theme nights, DJs, comedians, and generic event names ("FREE PUNK SHOW", "Halloween Bash"). Set non_artist_category accordingly.
-   - unknown: you cannot tell. Prefer unknown over guessing.
-4. clean_name: the act's name without billing decorations ("(album release)", "- farewell tour", "live", "feat. ..." belongs to a separate act).
+   - original_artist: a band, rapper, singer or musician performing their own music. This is the DEFAULT for any name billed on a music event's lineup. Most acts at these venues are small local or regional artists you will not recognize; not recognizing a name is NOT a reason to doubt it. Unusual spellings ("Lghtbrngr", "Jxhnny Bliss"), rap names ("Apex Tha Official") and one-word names are normal.
+   - not_an_artist: only when the listing gives a positive sign: tribute acts, "X performs the music of Y", orchestras/ensembles playing film, TV or game scores ("Star Wars in Concert"), karaoke hosts, DJ theme nights, DJs, comedians, and generic event names ("FREE PUNK SHOW", "Halloween Bash"). Set non_artist_category accordingly.
+   - unknown: only when the name itself does not read as a performer name, e.g. a promoter, label or crew credit ("Loud Pack Ent", "OTT/HYBRID/SELF-MADE"), or text that may be part of the event title rather than an act.
+4. clean_name: the act's name without billing decorations ("(album release)", "(solo)", "- farewell tour", "live"). "A feat. B" is two acts.
 5. genres: 1-3 per original_artist and 0-3 event_genres, ONLY from: ${GENRES.join(", ")}. Tribute nights: "tribute" plus the tributed act's genre. Comedy: "comedy".
 6. hometown only if the page says so.
 7. Ratings: "high" only when the listing makes it unambiguous.
