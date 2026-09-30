@@ -9,7 +9,7 @@ export const MODELS = {
 };
 
 export class LLMError extends Error {
-  constructor(public reason: "refusal" | "max_tokens" | "unparseable") { super(`LLM ${reason}`); }
+  constructor(public reason: "refusal" | "max_tokens" | "unparseable" | "api_error") { super(`LLM ${reason}`); }
 }
 
 export interface StructuredLLM {
@@ -24,13 +24,22 @@ export function effortParams(model: string): { effort?: "low" | "medium" | "high
 export function createStructuredLLM(client: Anthropic = new Anthropic()): StructuredLLM {
   return {
     async parse({ model, system, user, schema, maxTokens = 8000 }) {
-      const res = await client.messages.parse({
-        model,
-        max_tokens: maxTokens,
-        system,
-        messages: [{ role: "user", content: user }],
-        output_config: { format: zodOutputFormat(schema), ...effortParams(model) },
-      });
+      let res;
+      try {
+        res = await client.messages.parse({
+          model,
+          max_tokens: maxTokens,
+          system,
+          messages: [{ role: "user", content: user }],
+          output_config: { format: zodOutputFormat(schema), ...effortParams(model) },
+        });
+      } catch (err) {
+        // APIError extends AnthropicError, so it must be checked first.
+        if (err instanceof Anthropic.APIError) throw new LLMError("api_error");
+        // Non-API AnthropicError: the SDK's structured-output parse failure.
+        if (err instanceof Anthropic.AnthropicError) throw new LLMError("unparseable");
+        throw err;
+      }
       if (res.stop_reason === "refusal") throw new LLMError("refusal");
       if (res.stop_reason === "max_tokens") throw new LLMError("max_tokens");
       if (res.parsed_output == null) throw new LLMError("unparseable");
