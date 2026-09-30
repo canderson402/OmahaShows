@@ -27,6 +27,11 @@ export async function GET(request: NextRequest) {
           venue_id,
           venue_name,
           image_url,
+          event_url,
+          ticket_url,
+          supporting_artists,
+          price,
+          age_restriction,
           venues (name)
         )
       `)

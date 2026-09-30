@@ -141,6 +141,11 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       venue_name: string | null;
       image_url: string | null;
       venues: { name: string } | null;
+      event_url?: string | null;
+      ticket_url?: string | null;
+      supporting_artists?: string[] | null;
+      price?: string | null;
+      age_restriction?: string | null;
     } | null;
   }
   const [pendingArtistAnalyses, setPendingArtistAnalyses] = useState<PendingArtistAnalysis[]>([]);
@@ -2017,21 +2022,29 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
           onClick={() => setViewingPendingAnalysis(null)}
         >
           <div
-            className="w-full sm:max-w-2xl max-h-[90vh] bg-gray-900 border-t sm:border border-gray-700 rounded-t-2xl sm:rounded-xl overflow-y-auto p-4"
+            className="relative w-full sm:max-w-3xl max-h-[92vh] bg-gray-900 border-t sm:border border-gray-700 rounded-t-2xl sm:rounded-xl overflow-y-auto p-4 sm:p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div className="min-w-0">
-                <h3 className="text-lg font-semibold text-white truncate">{viewingPendingAnalysis.events?.title || "Unknown Event"}</h3>
-                <p className="text-xs text-gray-400">
-                  {viewingPendingAnalysis.events?.date && formatDate(viewingPendingAnalysis.events.date)} · {viewingPendingAnalysis.events?.venues?.name || viewingPendingAnalysis.events?.venue_name || "Unknown Venue"}
-                </p>
-              </div>
-              <button onClick={() => setViewingPendingAnalysis(null)} className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800">✕</button>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-medium text-gray-400">Review artists for this show</h2>
+              <button onClick={() => setViewingPendingAnalysis(null)} aria-label="Close" className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800">✕</button>
             </div>
             <ArtistProposalReview
               key={viewingPendingAnalysis.id}
               proposal={toProposal(viewingPendingAnalysis)}
+              listing={{
+                title: viewingPendingAnalysis.events?.title || "Unknown show",
+                date: viewingPendingAnalysis.events?.date ?? null,
+                time: viewingPendingAnalysis.events?.time ?? null,
+                venue: viewingPendingAnalysis.events?.venues?.name || viewingPendingAnalysis.events?.venue_name || "Unknown venue",
+                venueColor: viewingPendingAnalysis.events?.venue_id ? VENUE_COLORS[viewingPendingAnalysis.events.venue_id] : undefined,
+                imageUrl: viewingPendingAnalysis.events?.image_url ?? null,
+                eventUrl: viewingPendingAnalysis.events?.event_url ?? null,
+                ticketUrl: viewingPendingAnalysis.events?.ticket_url ?? null,
+                supportingArtists: viewingPendingAnalysis.events?.supporting_artists ?? null,
+                price: viewingPendingAnalysis.events?.price ?? null,
+                ageRestriction: viewingPendingAnalysis.events?.age_restriction ?? null,
+              }}
               busy={actionLoading === viewingPendingAnalysis.id}
               onApprove={(decisions, category) => handleAcceptV2(viewingPendingAnalysis, decisions, category)}
               onReject={() => handleRejectPendingAnalysis(viewingPendingAnalysis.id)}

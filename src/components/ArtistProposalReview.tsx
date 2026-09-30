@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { EventCategory, EventClassification, LineupEntry, LinkDecision } from "../lib/artist-pipeline/types";
+import type { EventCategory, EventClassification, LineupEntry, LinkDecision, LinkProposal } from "../lib/artist-pipeline/types";
 import type { AcceptDecision } from "../lib/artist-pipeline/accept";
 
 export interface ProposalV2 {
@@ -11,76 +11,155 @@ export interface ProposalV2 {
   overall_confidence: number | null;
 }
 
+/** The show as the venue listed it, so the admin can check the proposal against the source. */
+export interface ListingInfo {
+  title: string;
+  date: string | null;       // YYYY-MM-DD
+  time: string | null;       // HH:MM[:SS]
+  venue: string;
+  venueColor?: string;
+  imageUrl: string | null;
+  eventUrl: string | null;
+  ticketUrl: string | null;
+  supportingArtists: string[] | null;
+  price: string | null;
+  ageRestriction: string | null;
+}
+
 type SpotifyChoice = NonNullable<AcceptDecision["spotify"]>;
 type Choice = { spotify?: SpotifyChoice; realArtist?: boolean; exclude?: boolean };
 
 const CATEGORIES: EventCategory[] = ["music", "comedy", "theater", "sports", "other"];
-const pct = (n: number | null | undefined) => (n == null ? "—" : `${Math.round(n * 100)}%`);
-const tone = (n: number | null | undefined) =>
-  n == null ? "text-gray-400 border-gray-600" : n >= 0.9 ? "text-green-400 border-green-600" : n >= 0.6 ? "text-amber-400 border-amber-600" : "text-red-400 border-red-600";
-const isHttp = (u: string) => /^https?:\/\//i.test(u);
+const SPOTIFY_ID = /^[A-Za-z0-9]{22}$/;
+const isHttp = (u: string | null | undefined): u is string => !!u && /^https?:\/\//i.test(u);
+const pct = (n: number) => `${Math.round(n * 100)}%`;
 
-function SpotifyPicker({ decision, choice, onChange, name }: {
-  decision: LinkDecision | undefined; choice: SpotifyChoice | undefined; onChange: (c: SpotifyChoice) => void; name: string;
+function confidenceStyle(n: number) {
+  if (n >= 0.9) return "text-green-300 bg-green-900/30 border-green-700/60";
+  if (n >= 0.6) return "text-amber-300 bg-amber-900/25 border-amber-700/60";
+  return "text-red-300 bg-red-900/25 border-red-700/60";
+}
+
+function formatWhen(date: string | null, time: string | null) {
+  if (!date) return "";
+  const d = new Date(`${date}T${time && /^\d{2}:\d{2}/.test(time) ? time.slice(0, 5) : "12:00"}:00`);
+  const day = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  const clock = time ? d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : null;
+  return clock ? `${day}, ${clock}` : day;
+}
+
+/** Spotify's own artist player: photo, name, top tracks. Only real 22-char ids are embedded. */
+function SpotifyPlayer({ id, title }: { id: string; title: string }) {
+  if (!SPOTIFY_ID.test(id)) return null;
+  return (
+    <iframe
+      title={`Spotify: ${title}`}
+      src={`https://open.spotify.com/embed/artist/${id}?utm_source=generator&theme=0`}
+      width="100%"
+      height="152"
+      loading="lazy"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      className="rounded-xl border-0 block"
+    />
+  );
+}
+
+/** Keep only candidates whose name plausibly matches; drop unrelated search noise. */
+function plausible(alts: LinkProposal[]) {
+  return alts.filter((a) => (a.name_similarity ?? 1) >= 0.5);
+}
+
+function ArtistCheck({ name, decision, choice, onChange }: {
+  name: string; decision: LinkDecision | undefined; choice: SpotifyChoice | undefined; onChange: (c: SpotifyChoice) => void;
 }) {
   const proposed = decision?.chosen ?? null;
-  const current = choice ?? (proposed ? { action: "proposed" as const } : { action: "none" as const });
-  const radio = (value: string) =>
-    current.action === "proposed" ? value === "proposed"
-      : current.action === "alternative" ? value === `alt:${current.external_id}`
-      : current.action === "none" ? value === "none" : value === "manual";
-  const set = (value: string) => {
-    if (value === "proposed") onChange({ action: "proposed" });
-    else if (value === "none") onChange({ action: "none" });
-    else if (value === "manual") onChange({ action: "manual", value: current.action === "manual" ? current.value : "" });
-    else onChange({ action: "alternative", external_id: value.slice(4) });
-  };
+  const alternatives = plausible(decision?.alternatives ?? []);
+  const current: SpotifyChoice = choice ?? (proposed ? { action: "proposed" } : { action: "none" });
+  const [mode, setMode] = useState<"right" | "wrong" | "none">(
+    current.action === "proposed" ? "right" : current.action === "none" && proposed ? "none" : "wrong",
+  );
+  const [preview, setPreview] = useState<string | null>(null);
+  const showOthers = !proposed || mode === "wrong";
+  const btn = (active: boolean) =>
+    `px-3 py-1.5 text-sm rounded-lg border transition-colors ${active ? "bg-white text-gray-900 border-white" : "bg-gray-800 text-gray-300 border-gray-700 hover:border-gray-500"}`;
+
   return (
-    <div className="mt-2 space-y-1.5 text-sm">
+    <div className="mt-3 space-y-3">
       {proposed ? (
-        <label className="flex items-start gap-2 cursor-pointer">
-          <input type="radio" name={name} checked={radio("proposed")} onChange={() => set("proposed")} className="mt-1" />
-          <span className="min-w-0">
-            <span className="text-gray-300">Proposed: </span>
-            {isHttp(proposed.url) ? (
-              <a href={proposed.url} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">{proposed.display_name}</a>
-            ) : <span className="text-green-400">{proposed.display_name}</span>}
-            <span className={`ml-2 px-1.5 py-0.5 text-xs rounded border ${tone(proposed.confidence)}`}>{pct(proposed.confidence)}</span>
-            <span className="block text-xs text-gray-500 mt-0.5">{proposed.reason}</span>
-          </span>
-        </label>
+        <>
+          <SpotifyPlayer id={proposed.external_id} title={proposed.display_name} />
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className={`px-2 py-0.5 rounded-md border text-xs font-medium ${confidenceStyle(proposed.confidence)}`}>
+              {pct(proposed.confidence)} match confidence
+            </span>
+            <span className="text-gray-400">{proposed.reason}</span>
+          </div>
+          <div className="flex flex-wrap gap-2" role="group" aria-label={`Is this ${name}?`}>
+            <button type="button" className={btn(mode === "right")} onClick={() => { setMode("right"); onChange({ action: "proposed" }); }}>
+              Right artist
+            </button>
+            <button type="button" className={btn(mode === "wrong")} onClick={() => { setMode("wrong"); onChange({ action: "none" }); }}>
+              Wrong artist
+            </button>
+            <button type="button" className={btn(mode === "none")} onClick={() => { setMode("none"); onChange({ action: "none" }); }}>
+              Not on Spotify
+            </button>
+          </div>
+        </>
       ) : (
-        <p className="text-xs text-gray-500 italic">
-          No clear-cut Spotify match{decision?.deferred === "escalation_budget" ? " (search limit reached)" : ""}. Pick one below or paste a link if you know it.
+        <p className="text-sm text-gray-400">
+          No clear Spotify match, so this artist will be saved without a link unless you pick one below.
         </p>
       )}
-      {decision?.alternatives.map((a) => (
-        <label key={a.external_id} className="flex items-center gap-2 cursor-pointer text-xs">
-          <input type="radio" name={name} checked={radio(`alt:${a.external_id}`)} onChange={() => set(`alt:${a.external_id}`)} />
-          <span className="text-gray-400">other:</span>
-          {isHttp(a.url) ? <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:underline truncate">{a.display_name}</a> : <span>{a.display_name}</span>}
-        </label>
-      ))}
-      <label className="flex items-center gap-2 cursor-pointer text-xs">
-        <input type="radio" name={name} checked={radio("none")} onChange={() => set("none")} />
-        <span className="text-gray-400">no Spotify link</span>
-      </label>
-      <label className="flex items-center gap-2 text-xs">
-        <input type="radio" name={name} checked={radio("manual")} onChange={() => set("manual")} />
-        <input
-          type="text"
-          placeholder={`paste Spotify link for ${name.split("|")[1] ?? "artist"}`}
-          value={current.action === "manual" ? current.value : ""}
-          onChange={(e) => onChange(e.target.value.trim() ? { action: "manual", value: e.target.value } : proposed ? { action: "proposed" } : { action: "none" })}
-          className="flex-1 min-w-0 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-gray-200"
-        />
-      </label>
+
+      {showOthers && (
+        <div className="rounded-lg border border-gray-700 bg-gray-950/40 p-3 space-y-2">
+          <p className="text-xs text-gray-400">
+            {alternatives.length > 0 ? "Pick the right one, or paste a link. If you do neither, the artist is saved with no Spotify link." : "Paste the right link, or leave it empty to save the artist with no Spotify link."}
+          </p>
+          {alternatives.map((a) => {
+            const selected = current.action === "alternative" && current.external_id === a.external_id;
+            return (
+              <div key={a.external_id} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <button type="button" className={btn(selected)} onClick={() => onChange({ action: "alternative", external_id: a.external_id })}>
+                    {selected ? "Using " : "Use "}{a.display_name}
+                  </button>
+                  <button type="button" className="text-xs text-gray-400 hover:text-white underline" onClick={() => setPreview(preview === a.external_id ? null : a.external_id)}>
+                    {preview === a.external_id ? "Hide preview" : "Preview"}
+                  </button>
+                </div>
+                {preview === a.external_id && <SpotifyPlayer id={a.external_id} title={a.display_name} />}
+              </div>
+            );
+          })}
+          <label className="block text-xs text-gray-400 pt-1">
+            Or paste the right Spotify artist link
+            <input
+              type="text"
+              placeholder="https://open.spotify.com/artist/…"
+              value={current.action === "manual" ? current.value : ""}
+              onChange={(e) => onChange(e.target.value.trim() ? { action: "manual", value: e.target.value } : proposed ? { action: "proposed" } : { action: "none" })}
+              className="mt-1 w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200"
+            />
+          </label>
+          {current.action === "manual" && SPOTIFY_ID.test(current.value.match(/artist\/([A-Za-z0-9]{22})/)?.[1] ?? current.value.trim()) && (
+            <SpotifyPlayer id={current.value.match(/artist\/([A-Za-z0-9]{22})/)?.[1] ?? current.value.trim()} title="Pasted artist" />
+          )}
+          {current.action !== "none" && (
+            <button type="button" className="text-xs text-gray-400 hover:text-white underline" onClick={() => onChange({ action: "none" })}>
+              Clear, save with no Spotify link
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-export function ArtistProposalReview({ proposal, busy, onApprove, onReject }: {
+export function ArtistProposalReview({ proposal, listing, busy, onApprove, onReject }: {
   proposal: ProposalV2;
+  listing: ListingInfo;
   busy: boolean;
   onApprove: (decisions: AcceptDecision[], category: EventCategory) => void;
   onReject: () => void;
@@ -99,76 +178,115 @@ export function ArtistProposalReview({ proposal, busy, onApprove, onReject }: {
     onApprove(decisions, category);
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3 text-sm">
-        <span className="text-gray-400">All correct:</span>
-        <span className={`px-2 py-0.5 rounded border font-medium ${tone(proposal.overall_confidence)}`}>{pct(proposal.overall_confidence)}</span>
-        <span className="text-gray-400">Category:</span>
-        <select value={category} onChange={(e) => setCategory(e.target.value as EventCategory)} className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-gray-200">
-          {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-        </select>
-        {proposal.event?.event_genres?.length ? <span className="text-xs text-gray-500">genres: {proposal.event.event_genres.join(", ")}</span> : null}
-      </div>
-      {proposal.event?.reason && <p className="text-xs text-gray-500">{proposal.event.reason}</p>}
+  const billed = [listing.title, ...(listing.supportingArtists ?? [])];
+  const acts = proposal.artists.filter((a) => a.kind !== "not_an_artist").length;
+  const dropped = proposal.artists.filter((a) => a.kind === "not_an_artist");
 
-      <ol className="space-y-3">
+  return (
+    <div className="space-y-5">
+      {/* The listing, as the venue published it */}
+      <section className="flex gap-4">
+        {isHttp(listing.imageUrl) ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={listing.imageUrl} alt="" className="w-28 h-28 sm:w-36 sm:h-36 rounded-lg object-cover flex-shrink-0 bg-gray-800" />
+        ) : (
+          <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-lg bg-gray-800 flex-shrink-0" />
+        )}
+        <div className="min-w-0 space-y-1.5">
+          <h3 className="text-xl font-semibold text-white leading-snug">{listing.title}</h3>
+          <p className="text-sm text-gray-300">{formatWhen(listing.date, listing.time)}</p>
+          <p className="text-sm" style={{ color: listing.venueColor ?? "#d1d5db" }}>{listing.venue}</p>
+          {(listing.price || listing.ageRestriction) && (
+            <p className="text-sm text-gray-400">{[listing.price, listing.ageRestriction].filter(Boolean).join(", ")}</p>
+          )}
+          <div className="flex flex-wrap gap-3 pt-1 text-sm">
+            {isHttp(listing.eventUrl) && <a href={listing.eventUrl} target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:underline">Venue listing</a>}
+            {isHttp(listing.ticketUrl) && listing.ticketUrl !== listing.eventUrl && <a href={listing.ticketUrl} target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:underline">Tickets</a>}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-lg bg-gray-800/60 px-4 py-3 text-sm space-y-2">
+        <p className="text-gray-300"><span className="text-gray-500">Billed as:</span> {billed.join(", ")}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-gray-500">Category</span>
+          <select value={category} onChange={(e) => setCategory(e.target.value as EventCategory)} className="px-2 py-1 bg-gray-900 border border-gray-700 rounded text-gray-200">
+            {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+          </select>
+          {proposal.event?.event_genres?.length ? <span className="text-gray-400">{proposal.event.event_genres.join(", ")}</span> : null}
+        </div>
+      </section>
+
+      {/* Each artist found, with Spotify's player so you can hear it's them */}
+      <section className="space-y-4">
+        <h4 className="text-sm font-medium text-gray-300">
+          {acts === 0 ? "No artists found" : acts === 1 ? "1 artist to check" : `${acts} artists to check`}
+        </h4>
         {proposal.artists.map((a, i) => {
+          if (a.kind === "not_an_artist") return null;
           const c = choices[i] ?? {};
-          const key = `sp-${proposal.id}-${i}|${a.kind === "new" ? a.clean_name : a.billed_as}`;
-          if (a.kind === "not_an_artist") {
-            return (
-              <li key={i} className="bg-gray-800/50 rounded-lg p-3">
-                <div className="flex items-center gap-2">
-                  <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded ${a.unsure ? "bg-amber-900/40 text-amber-300" : "bg-red-900/40 text-red-300"}`}>
-                    {a.unsure ? "unsure" : "not an artist"} · {a.category}
-                  </span>
-                  <span className={c.realArtist ? "text-white" : "text-gray-400 line-through"}>{a.billed_as}</span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">{a.reason}</p>
-                <label className="flex items-center gap-2 mt-2 text-xs text-gray-300 cursor-pointer">
-                  <input type="checkbox" checked={!!c.realArtist} onChange={(e) => update(i, { realArtist: e.target.checked })} />
-                  This is a real artist, include them
-                </label>
-                {c.realArtist && (
-                  <SpotifyPicker decision={undefined} choice={c.spotify ?? { action: "none" }} onChange={(s) => update(i, { spotify: s })} name={key} />
-                )}
-              </li>
-            );
-          }
+          const name = a.kind === "new" ? a.clean_name : a.billed_as;
           const excluded = !!c.exclude;
           return (
-            <li key={i} className={`bg-gray-800 rounded-lg p-3 ${excluded ? "opacity-50" : ""}`}>
-              <div className="flex items-center justify-between gap-2">
+            <article key={i} className={`rounded-xl border border-gray-700 bg-gray-900 p-4 ${excluded ? "opacity-50" : ""}`}>
+              <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded mr-2 ${a.kind === "existing" ? "bg-blue-900/40 text-blue-300" : "bg-green-900/40 text-green-300"}`}>
-                    {a.kind === "existing" ? "returning" : "new"}
-                  </span>
-                  <span className="text-white font-medium">{a.kind === "new" ? a.clean_name : a.billed_as}</span>
-                  <span className="ml-2 text-xs text-gray-500">{a.role}</span>
-                  {a.kind === "new" && a.genres.length > 0 && <span className="ml-2 text-xs text-purple-300">{a.genres.join(", ")}</span>}
+                  <p className="text-lg font-medium text-white">{name}</p>
+                  <p className="text-xs text-gray-400">
+                    {a.role === "headliner" ? "Headliner" : a.role === "co-headliner" ? "Co-headliner" : "Opener"}
+                    {a.kind === "existing" ? ", already in your artists" : ", new artist"}
+                    {a.kind === "new" && a.genres.length ? `, ${a.genres.join(", ")}` : ""}
+                  </p>
                 </div>
-                <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer flex-shrink-0">
-                  <input type="checkbox" checked={excluded} onChange={(e) => update(i, { exclude: e.target.checked })} /> not in lineup
+                <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer flex-shrink-0">
+                  <input type="checkbox" checked={excluded} onChange={(e) => update(i, { exclude: e.target.checked })} />
+                  Not playing this show
                 </label>
               </div>
               {!excluded && a.kind === "new" && (
-                <SpotifyPicker decision={a.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} name={key} />
+                <ArtistCheck name={name} decision={a.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} />
               )}
               {!excluded && a.kind === "existing" && a.new_links?.spotify && (
-                <SpotifyPicker decision={a.new_links.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} name={key} />
+                <ArtistCheck name={name} decision={a.new_links.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} />
               )}
               {!excluded && a.kind === "existing" && !a.new_links?.spotify && (
-                <p className="text-xs text-gray-500 mt-1">Already in your artist list with its links.</p>
+                <p className="mt-2 text-sm text-gray-400">Already linked. Approving adds this show to their history.</p>
               )}
-            </li>
+            </article>
           );
         })}
-      </ol>
+      </section>
 
-      <div className="flex gap-3 pt-2">
-        <button onClick={onReject} disabled={busy} className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50">Reject</button>
-        <button onClick={approve} disabled={busy} className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50">
+      {dropped.length > 0 && (
+        <section className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-300">Left out as not an artist</h4>
+          {proposal.artists.map((a, i) => {
+            if (a.kind !== "not_an_artist") return null;
+            const c = choices[i] ?? {};
+            return (
+              <div key={i} className="rounded-lg border border-gray-800 px-3 py-2">
+                <label className="flex items-start gap-2 text-sm cursor-pointer">
+                  <input type="checkbox" className="mt-1" checked={!!c.realArtist} onChange={(e) => update(i, { realArtist: e.target.checked })} />
+                  <span>
+                    <span className="text-gray-200">{a.billed_as}</span>
+                    <span className="text-gray-500"> ({a.unsure ? "unsure" : a.category}): {a.reason}</span>
+                    <span className="block text-xs text-gray-400">Tick to add them as an artist</span>
+                  </span>
+                </label>
+                {c.realArtist && (
+                  <ArtistCheck name={a.billed_as} decision={undefined} choice={c.spotify ?? { action: "none" }} onChange={(s) => update(i, { spotify: s })} />
+                )}
+              </div>
+            );
+          })}
+        </section>
+      )}
+
+      <div className="flex gap-3 pt-1 sticky bottom-0 bg-gray-900 pb-1">
+        <button onClick={onReject} disabled={busy} className="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50">
+          Reject
+        </button>
+        <button onClick={approve} disabled={busy} className="flex-[2] px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50">
           {busy ? "Saving..." : "Approve"}
         </button>
       </div>
