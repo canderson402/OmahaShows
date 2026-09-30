@@ -168,7 +168,7 @@ describe("escalation", () => {
     expect(a.youtube.chosen).toBeNull();
     // YouTube is on in this fixture and found nothing, so the act is as strong as that no-match (0.5)
     expect(a.confidence).toBeCloseTo(Math.min(spConf, 0.5), 10);
-    expect(p.overall_confidence).toBeCloseTo(Math.min(...p.artists.map((x) => x.confidence)), 10);
+    expect(p.overall_confidence).toBeCloseTo(p.artists[0].confidence, 10); // the headliner's confidence
   });
 
   test("QuotaExceededError never escapes raw", async () => {
@@ -311,5 +311,21 @@ describe("needsReview", () => {
     const { needsReview } = await import("./pipeline");
     expect(needsReview({ ...base, artists: [{ kind: "not_an_artist", billed_as: "Loud Pack Ent", category: "other", reason: "unsure", confidence: 0.5, unsure: true }] })).toBe(true);
     expect(needsReview({ ...base, artists: [{ kind: "existing", billed_as: "X", artist_id: "a", role: "headliner", billing_order: 1, confidence: 1 }] })).toBe(true);
+  });
+});
+
+
+describe("headlinerConfidence", () => {
+  const act = (role: "headliner" | "co-headliner" | "supporting", confidence: number) =>
+    ({ kind: "existing", billed_as: role, artist_id: role, role, billing_order: 1, confidence }) as const;
+  test("openers don't lower the show", async () => {
+    const { headlinerConfidence } = await import("./confidence");
+    expect(headlinerConfidence([act("headliner", 0.8), act("supporting", 0.5), act("supporting", 0.5)])).toBe(0.8);
+  });
+  test("the lowest headliner/co-headliner counts; with none marked, the first act", async () => {
+    const { headlinerConfidence } = await import("./confidence");
+    expect(headlinerConfidence([act("headliner", 0.8), act("co-headliner", 0.5)])).toBe(0.5);
+    expect(headlinerConfidence([act("supporting", 0.6), act("supporting", 0.9)])).toBe(0.6);
+    expect(headlinerConfidence([])).toBeNull();
   });
 });

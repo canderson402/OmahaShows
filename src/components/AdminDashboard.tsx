@@ -12,6 +12,7 @@ import { ArtistProposalReview, type ProposalV2 } from "./ArtistProposalReview";
 import { adminFetch } from "../lib/admin-fetch";
 import type { EventCategory, EventClassification } from "../lib/artist-pipeline/types";
 import type { AcceptDecision } from "../lib/artist-pipeline/accept";
+import { headlinerConfidence } from "../lib/artist-pipeline/confidence";
 
 function normalizeUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -722,17 +723,12 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const isV2 = (a: PendingArtistAnalysis) => a.schema_version === 2;
   const toProposal = (a: PendingArtistAnalysis): ProposalV2 => ({
     id: a.id, artists: a.artists as unknown as ProposalV2["artists"], event: a.event ?? null,
-    overall_confidence: (a.artists as unknown as ProposalV2["artists"]).length
-      ? Math.min(...(a.artists as unknown as ProposalV2["artists"]).map((x) => x.confidence))
-      : a.overall_confidence ?? null,
+    overall_confidence: headlinerConfidence(a.artists as unknown as ProposalV2["artists"]) ?? a.overall_confidence ?? null,
   });
 
-  // A show's confidence is its weakest act's confidence; 80%+ goes in the High confidence tab.
+  // A show's confidence is its headliner's confidence (openers don't lower it); 80%+ goes in the High tab.
   const HIGH_CONFIDENCE_TAB = 0.8;
-  const showConfidence = (a: PendingArtistAnalysis) => {
-    const acts = toProposal(a).artists;
-    return acts.length ? Math.min(...acts.map((x) => x.confidence)) : (a.overall_confidence ?? 0);
-  };
+  const showConfidence = (a: PendingArtistAnalysis) => headlinerConfidence(toProposal(a).artists) ?? (a.overall_confidence ?? 0);
   const isHighConfidence = (a: PendingArtistAnalysis) => isV2(a) && showConfidence(a) >= HIGH_CONFIDENCE_TAB;
   const [artistTab, setArtistTab] = useState<"high" | "review">("high");
   const [approvingAll, setApprovingAll] = useState(false);

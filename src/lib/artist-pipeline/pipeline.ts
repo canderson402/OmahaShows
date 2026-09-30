@@ -7,10 +7,13 @@ import { resolveAct, type ArtistRepo } from "./stages/resolve";
 import { gatherSpotifyCandidates, gatherYouTubeCandidates } from "./stages/candidates";
 import { judgeAct, type GuardedPick, type JudgeContext, type JudgeResult } from "./stages/judge";
 import { escalateAct, type MessagesClient } from "./stages/escalate";
+import { headlinerConfidence } from "./confidence";
+export { headlinerConfidence };
 import { finalLinkConfidence, product, rawLinkScore, rawRatingScore, type CalibrationSet } from "./scoring";
 import type { Candidate, ExtractedAct, LinkFeatures, LineupEntry, LinkDecision, LinkProposal, Platform, PipelineEvent, Proposal } from "./types";
 
 export const HIGH_CONFIDENCE = 0.9;
+
 export const NO_MATCH_CONFIDENCE = 0.5;
 /** Confidence shown for Spotify's top exact-name result when the judge didn't single it out. */
 export const TOP_EXACT_CONFIDENCE = 0.8;
@@ -176,8 +179,7 @@ export async function analyzeEvent(event: PipelineEvent, deps: PipelineDeps): Pr
       event: { category: ex.category, category_confidence, event_genres: ex.event_genres, reason: ex.reason },
       artists,
       lineup_confidence,
-      // The show is as strong as its least certain act (category is shown separately).
-      overall_confidence: artists.length ? Math.min(...artists.map((a) => a.confidence)) : lineup_confidence,
+      overall_confidence: headlinerConfidence(artists) ?? lineup_confidence,
     };
   } catch (e) {
     if (e instanceof QuotaExceededError || e instanceof SpotifyError || e instanceof YouTubeError || e instanceof LLMError || isRetryableApiError(e)) {
