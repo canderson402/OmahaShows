@@ -15,7 +15,6 @@ from scrapers.opa import OPAScraper
 from scrapers.omahaunderground import OtherVenuesScraper
 from scrapers.ohmyomaha import OhMyOmahaScraper
 from scrapers.ticketmaster import TicketmasterClient
-from scrapers.ticketweb import TicketWebScraper
 from scrapers.thesydney import TheSydneyScraper
 
 
@@ -63,10 +62,9 @@ def get_scrapers(supabase_client=None, venue_matcher=None, api_keys=None, includ
         OtherVenuesScraper(supabase_client=supabase_client, venue_matcher=venue_matcher),
     ]
 
-    # Venues that sell through TicketWeb: read their TicketWeb venue page (structured data)
-    scrapers.append(TicketWebScraper("Barnato", "barnato", "https://www.ticketweb.com/venue/barnato-omaha-ne/482015"))
-
-    # Ticketmaster, but only for venues with no scraper of their own (e.g. Pinewood Bowl, Whiskey Roadhouse).
+    # Ticketmaster, but only for venues with no scraper of their own (e.g. Barnato, Pinewood Bowl, Whiskey Roadhouse).
+    # Its Discovery API includes TicketWeb-sold shows, which is how Barnato is covered: TicketWeb's website
+    # blocks requests from GitHub Actions (HTTP 530), the official API does not.
     # Limiting it to those venues avoids the duplicates the full metro sweep caused at venues we already scrape.
     ticketmaster_key = api_keys.get("ticketmaster") or os.environ.get("TICKETMASTER_API_KEY")
     if not include_on_demand and ticketmaster_key and supabase_client is not None:

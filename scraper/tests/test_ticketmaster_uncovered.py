@@ -57,15 +57,15 @@ def test_full_sweep_mode_is_unchanged():
     assert tm._parse_event(tm_event("Show B", "The Slowdown")) is not None
 
 
-def test_daily_scrapers_include_barnato_and_limited_ticketmaster(monkeypatch):
+def test_daily_ticketmaster_covers_barnato_and_other_unscraped_venues(monkeypatch):
     monkeypatch.setenv("TICKETMASTER_API_KEY", "k")
     sb = FakeSupabase(["theslowdown", "barnato", "pinewood-bowl", "whiskey-roadhouse"])
     scrapers = get_scrapers(supabase_client=sb, venue_matcher=FakeMatcher())
     ids = [s.id for s in scrapers]
-    assert "barnato" in ids
+    assert "barnato" not in ids  # TicketWeb's site blocks CI; its shows come through the Ticketmaster API
     assert ids.count("ticketmaster-uncovered") == 1 and "ticketmaster" not in ids
     tm = next(s for s in scrapers if s.id == "ticketmaster-uncovered")
-    assert tm.only_venue_ids == {"pinewood-bowl", "whiskey-roadhouse"}
+    assert tm.only_venue_ids == {"barnato", "pinewood-bowl", "whiskey-roadhouse"}
 
 
 def test_no_key_means_no_ticketmaster(monkeypatch):
