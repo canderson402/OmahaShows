@@ -73,7 +73,7 @@ function guard(
     judge_rating: p.rating,
     name_similarity: candidate.name_similarity,
     corroborated,
-    location_evidence: hasLocationEvidence([candidate.description, ...candidate.details, ...webCitations]),
+    location_evidence: hasLocationEvidence([candidate.description, ...candidate.details]),
     web_citation: webCitations.length > 0,
     same_name_count: sameName,
     official_channel: candidate.official,
