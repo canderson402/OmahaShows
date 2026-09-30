@@ -73,7 +73,7 @@ export interface LinkProposal {
 export interface LinkDecision {
   chosen: LinkProposal | null;
   alternatives: LinkProposal[];
-  deferred?: "youtube_quota" | "escalation_budget";
+  deferred?: "youtube_quota" | "escalation_budget" | "youtube_disabled";
 }
 
 export type LineupEntry =

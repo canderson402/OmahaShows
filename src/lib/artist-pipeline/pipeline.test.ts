@@ -244,3 +244,23 @@ describe("escalation", () => {
     expect(seenRejected.sort()).toEqual(["spotify", "youtube"]);
   });
 });
+
+describe("YouTube disabled (youtube: null)", () => {
+  test("youtube is never searched or scored; decision marked youtube_disabled; confidence uses spotify only", async () => {
+    const p = await analyzeEvent(event, deps({ youtube: null }));
+    const joby = p.artists[1] as Extract<typeof p.artists[number], { kind: "new" }>;
+    expect(joby.youtube).toEqual({ chosen: null, alternatives: [], deferred: "youtube_disabled" });
+    expect(joby.spotify.chosen?.external_id).toBe("s-joby");
+    expect(joby.confidence).toBeCloseTo(joby.spotify.chosen!.confidence, 10); // no 0.5 no-match factor for youtube
+  });
+
+  test("returning artist with spotify linked but no youtube counts as fully linked", async () => {
+    const noYt: StoredArtist = { ...surfer, youtube_channel_id: null };
+    const p = await analyzeEvent(event, deps({
+      youtube: null,
+      repo: { async findByAlias(n) { return n === "surfer girl" ? noYt : null; }, async rejectedExternalIds() { return new Set(); } },
+    }));
+    expect(p.artists[0]).toMatchObject({ kind: "existing", artist_id: "a1", confidence: 1 });
+    expect((p.artists[0] as any).new_links).toBeUndefined();
+  });
+});

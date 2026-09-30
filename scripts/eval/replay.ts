@@ -21,7 +21,7 @@ function env(name: string): string {
 const fit = process.argv.includes("--fit");
 const labels: Labels = JSON.parse(readFileSync("scripts/eval/labels.json", "utf8"));
 const sbRepo = createSupabaseRepo(serviceClient());
-const youtube = createYouTubeClient({ apiKey: env("YOUTUBE_API_KEY") });
+const youtube = process.env.YOUTUBE_API_KEY ? createYouTubeClient({ apiKey: process.env.YOUTUBE_API_KEY }) : null; // optional: no key = Spotify only
 const meter = createUsageMeter();
 const anthropic = withUsageMeter(new Anthropic(), meter);
 
@@ -46,7 +46,7 @@ for (const ev of events) {
   try { proposals.set(ev.id, await analyzeEvent(ev, deps)); process.stdout.write("."); }
   catch (e) { if (e instanceof RetryableError) process.stdout.write("x"); else throw e; }
 }
-console.log(`\n${proposals.size}/${events.length} events analyzed in ${Math.round((Date.now() - t0) / 1000)}s, YouTube units ${youtube.unitsUsed()}, cost $${meter.totals().costUsd.toFixed(2)} (${meter.totals().webSearches} web searches)`);
+console.log(`\n${proposals.size}/${events.length} events analyzed in ${Math.round((Date.now() - t0) / 1000)}s, YouTube ${youtube ? `${youtube.unitsUsed()} units` : "off"}, cost $${meter.totals().costUsd.toFixed(2)} (${meter.totals().webSearches} web searches)`);
 
 // Link outcomes carry the uncalibrated raw score; confidence is recomputed below exactly as production does.
 const outcomes: (LinkOutcome & { key: string; nameSimilarity: number })[] = [];
@@ -55,7 +55,7 @@ for (const a of labels.artists) {
   const p = proposals.get(a.event_id);
   const entry = p?.artists.find((x): x is Extract<LineupEntry, { kind: "new" }> =>
     x.kind === "new" && normalizeArtistName(x.clean_name) === normalizeArtistName(a.name));
-  for (const [platform, gold] of [["spotify", a.spotify_id], ["youtube", a.youtube_channel_id]] as const) {
+  for (const [platform, gold] of ([["spotify", a.spotify_id], ["youtube", a.youtube_channel_id]] as const).filter(([p]) => p === "spotify" || youtube)) {
     if (gold) withProfile++;
     const chosen = entry?.[platform].chosen;
     if (!chosen) continue;

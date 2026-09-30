@@ -16,7 +16,7 @@ function env(name: string): string {
 const sb = serviceClient();
 const repo = createSupabaseRepo(sb);
 const spotify = createSpotifyClient({ clientId: env("SPOTIFY_CLIENT_ID"), clientSecret: env("SPOTIFY_CLIENT_SECRET") });
-const youtube = createYouTubeClient({ apiKey: env("YOUTUBE_API_KEY"), dailyBudgetUnits: 9000 });
+const youtube = process.env.YOUTUBE_API_KEY ? createYouTubeClient({ apiKey: process.env.YOUTUBE_API_KEY, dailyBudgetUnits: 9000 }) : null; // optional
 
 interface Row {
   event_id: string;
@@ -41,7 +41,7 @@ for (const r of chosen) {
   const name = r.artists.name;
   const sp: SpotifyArtist[] = (await spotify.searchArtists(name)).slice(0, 5);
   let yt: YouTubeChannel[] = [];
-  try { yt = (await youtube.searchChannels(name)).slice(0, 3); } catch { /* quota: label Spotify only */ }
+  try { if (youtube) yt = (await youtube.searchChannels(name)).slice(0, 3); } catch { /* quota: label Spotify only */ }
   const venue = Array.isArray(r.events?.venues) ? r.events?.venues[0]?.name : r.events?.venues?.name;
   artistItems.push({ name, event_id: r.event_id, event: `${r.events?.title ?? ""} @ ${venue ?? ""} ${r.events?.date ?? ""}`, sp, yt });
 }
@@ -84,4 +84,4 @@ document.getElementById('dl').onclick=()=>{const v=n=>(document.querySelector('[
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(labels,null,2)],{type:'application/json'}));a.download='labels.json';a.click();};
 </script>`;
 writeFileSync("scripts/eval/label-sheet.html", html);
-console.log(`Wrote scripts/eval/label-sheet.html (${artistItems.length} artists, ${evs.length} events, YouTube units ${youtube.unitsUsed()})`);
+console.log(`Wrote scripts/eval/label-sheet.html (${artistItems.length} artists, ${evs.length} events, YouTube ${youtube ? `${youtube.unitsUsed()} units` : "off"})`);

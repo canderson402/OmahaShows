@@ -119,3 +119,15 @@ test("unknown tool gets an is_error result; submit in a mixed turn runs other ca
   expect(client.calls[1].messages.at(-1).content[0]).toMatchObject({ is_error: true, content: "unknown tool" });
   expect(r?.spotify.candidate?.external_id).toBe("sp9");
 });
+
+test("youtube disabled: youtube_search tool is not offered, and a stray call gets is_error", async () => {
+  const client = scripted([
+    msg([{ type: "tool_use", id: "t1", name: "youtube_search", input: { query: "x" } }], "tool_use"),
+    msg([{ type: "text", text: "done" }], "end_turn"),
+  ]);
+  await escalateAct(ctx(), { client, spotify, youtube: null, model: "claude-sonnet-5-5" });
+  expect(client.calls[0].tools.map((t: any) => t.name)).toEqual(["web_search", "spotify_search", "submit_decision"]);
+  expect(client.calls[0].system).toContain("YouTube lookup is disabled");
+  const toolResult = client.calls[1].messages.at(-1).content[0];
+  expect(toolResult).toMatchObject({ is_error: true, content: "YouTube is disabled for this run" });
+});

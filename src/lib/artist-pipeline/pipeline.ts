@@ -14,7 +14,9 @@ export const HIGH_CONFIDENCE = 0.9;
 export const NO_MATCH_CONFIDENCE = 0.5;
 
 export interface PipelineDeps {
-  llm: StructuredLLM; messages: MessagesClient; spotify: SpotifyClient; youtube: YouTubeClient;
+  llm: StructuredLLM; messages: MessagesClient; spotify: SpotifyClient;
+  /** null = YouTube lookup turned off: not searched, not scored, marked deferred "youtube_disabled". */
+  youtube: YouTubeClient | null;
   fetchPage: (url: string | null) => Promise<string | null>; repo: ArtistRepo;
   models: { extract: string; judge: string; escalate: string };
   calibration: CalibrationSet; escalationBudget: { remaining: number };
@@ -50,7 +52,7 @@ async function gather(act: ExtractedAct, want: Platform[], rejected: { spotify: 
   const spotify = want.includes("spotify") ? await gatherSpotifyCandidates(act, deps.spotify, rejected.spotify) : [];
   let youtube: Candidate[] = [];
   let ytDeferred = false;
-  if (want.includes("youtube")) {
+  if (want.includes("youtube") && deps.youtube) {
     try { youtube = await gatherYouTubeCandidates(act, deps.youtube, rejected.youtube); }
     catch (e) { if (e instanceof QuotaExceededError) ytDeferred = true; else throw e; }
   }
@@ -71,11 +73,11 @@ export async function analyzeAct(
   }
 
   const { artist, missing } = await resolveAct(act.clean_name, deps.repo);
-  if (artist && missing.length === 0) {
+  const want = deps.youtube ? missing : missing.filter((p) => p !== "youtube");
+  if (artist && want.length === 0) {
     return { kind: "existing", billed_as: act.billed_as, artist_id: artist.id, role: act.role, billing_order: act.billing_order, confidence: 1 };
   }
 
-  const want = missing;
   const rejected = {
     spotify: artist ? await deps.repo.rejectedExternalIds(artist.id, "spotify") : new Set<string>(),
     youtube: artist ? await deps.repo.rejectedExternalIds(artist.id, "youtube") : new Set<string>(),
@@ -108,6 +110,7 @@ export async function analyzeAct(
   const build = (p: Platform, pool: Candidate[]): LinkDecision => {
     const fromEsc = !!escalated && !!escalated[p].candidate;
     const d = decision(fromEsc ? escalated![p] : result[p], pool, deps.calibration, fromEsc ? citations : []);
+    if (p === "youtube" && !deps.youtube) return { chosen: null, alternatives: [], deferred: "youtube_disabled" };
     if (!want.includes(p) || d.chosen) return d;
     if (p === "youtube" && ytQuota) return { chosen: null, alternatives: [], deferred: "youtube_quota" };
     if (budgetDeferred) return { ...d, deferred: "escalation_budget" };

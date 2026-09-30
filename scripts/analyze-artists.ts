@@ -46,7 +46,7 @@ async function main() {
     events = await repo.loadEvents(ids);
   }
 
-  const youtube = createYouTubeClient({ apiKey: env("YOUTUBE_API_KEY") });
+  const youtube = process.env.YOUTUBE_API_KEY ? createYouTubeClient({ apiKey: process.env.YOUTUBE_API_KEY }) : null; // optional: no key = Spotify only
   const meter = createUsageMeter();
   const anthropic = withUsageMeter(new Anthropic(), meter);
   const calPath = "scripts/eval/calibration.json";
@@ -89,12 +89,12 @@ async function main() {
   mkdirSync("reports", { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const path = `reports/artist-run-${stamp}.json`;
-  writeFileSync(path, JSON.stringify({ models: MODELS, youtubeUnits: youtube.unitsUsed(), usage, costByEvent, proposals, failures }, null, 2));
+  writeFileSync(path, JSON.stringify({ models: MODELS, youtubeUnits: youtube?.unitsUsed() ?? null, usage, costByEvent, proposals, failures }, null, 2));
 
   const counts = countFailures(failures);
   const lines = [
     `## Artist analysis (dry run)`,
-    `Events: ${events.length} · proposals: ${proposals.length} · retry: ${counts.retry} · unexpected failures: ${counts.unexpected} · YouTube units: ${youtube.unitsUsed()} · escalations left: ${deps.escalationBudget.remaining}`,
+    `Events: ${events.length} · proposals: ${proposals.length} · retry: ${counts.retry} · unexpected failures: ${counts.unexpected} · YouTube: ${youtube ? `${youtube.unitsUsed()} units` : "off"} · escalations left: ${deps.escalationBudget.remaining}`,
     `Cost: ${usd(usage.costUsd)} (${usd(usage.costUsd / Math.max(1, events.length))}/event) · Claude calls: ${usage.calls} · tokens in/out: ${usage.inputTokens}/${usage.outputTokens} · web searches: ${usage.webSearches} · models: ${MODELS.extract} / ${MODELS.judge} / ${MODELS.escalate}${usage.unpricedModels.length ? ` · UNPRICED: ${usage.unpricedModels.join(", ")}` : ""}`,
     ``,
     `| Event | All correct | Cost | Lineup |`,

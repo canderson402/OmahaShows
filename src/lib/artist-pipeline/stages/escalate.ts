@@ -21,11 +21,11 @@ const pickJson = {
   },
 } as const;
 
-function tools(model: string): Anthropic.ToolUnion[] {
+function tools(model: string, youtubeEnabled: boolean): Anthropic.ToolUnion[] {
   const webSearch = model.startsWith("claude-haiku")
     ? { type: "web_search_20250305", name: "web_search", max_uses: 5 }
     : { type: "web_search_20260209", name: "web_search", max_uses: 5 };
-  return [
+  const all = [
     webSearch as Anthropic.ToolUnion,
     { name: "spotify_search", description: "Search Spotify artists. Returns ids, names, genres.", strict: true,
       input_schema: { type: "object", additionalProperties: false, required: ["query"], properties: { query: { type: "string" } } } },
@@ -42,6 +42,7 @@ function tools(model: string): Anthropic.ToolUnion[] {
         },
       } },
   ] as Anthropic.ToolUnion[];
+  return youtubeEnabled ? all : all.filter((t) => (t as { name?: string }).name !== "youtube_search");
 }
 
 const SYSTEM = `You are resolving an ambiguous band for an Omaha, NE show calendar.
@@ -70,7 +71,7 @@ function searchUrls(content: Anthropic.ContentBlock[]): string[] {
 export async function escalateAct(
   ctx: JudgeContext,
   deps: {
-    client: MessagesClient; spotify: SpotifyClient; youtube: YouTubeClient; model: string; maxTurns?: number;
+    client: MessagesClient; spotify: SpotifyClient; youtube: YouTubeClient | null; model: string; maxTurns?: number;
     rejected?: { spotify: Set<string>; youtube: Set<string> };
     /** Called as soon as a YouTube quota hit happens, so it survives a null (no decision) result. */
     onYoutubeDeferred?: () => void;
@@ -87,7 +88,7 @@ export async function escalateAct(
 
   for (let turn = 0; turn < maxTurns; turn++) {
     const res = await deps.client.messages.create({
-      model: deps.model, max_tokens: 16000, system: SYSTEM, tools: tools(deps.model), messages,
+      model: deps.model, max_tokens: 16000, system: deps.youtube ? SYSTEM : `${SYSTEM}\nYouTube lookup is disabled for this run: decide Spotify only and submit null for youtube.`, tools: tools(deps.model, !!deps.youtube), messages,
       ...(effortParams(deps.model).effort ? { output_config: effortParams(deps.model) } : {}),
     });
     messages.push({ role: "assistant", content: res.content });
@@ -109,7 +110,9 @@ export async function escalateAct(
             working.spotify.push(toSpotifyCandidate(ctx.act.clean_name, a));
           }
           results.push({ type: "tool_result", tool_use_id: block.id, content: JSON.stringify(found) });
-        } else if (block.name === "youtube_search") {
+        } else if (block.name === "youtube_search" && !deps.youtube) {
+          results.push({ type: "tool_result", tool_use_id: block.id, content: "YouTube is disabled for this run", is_error: true });
+        } else if (block.name === "youtube_search" && deps.youtube) {
           const found = await deps.youtube.searchChannels(String(input.query));
           for (const ch of found) {
             if (deps.rejected?.youtube.has(ch.id) || working.youtube.some((c) => c.external_id === ch.id)) continue;
