@@ -9,7 +9,16 @@ export const MODELS = {
 };
 
 export class LLMError extends Error {
-  constructor(public reason: "refusal" | "max_tokens" | "unparseable" | "api_error") { super(`LLM ${reason}`); }
+  constructor(public reason: "refusal" | "max_tokens" | "unparseable" | "api_error", detail?: string, cause?: unknown) {
+    super(detail ? `LLM ${reason}: ${detail}` : `LLM ${reason}`, cause === undefined ? undefined : { cause });
+  }
+}
+
+/** Transient API failures worth retrying next run: connection/timeout (no status), 408, 409, 429, >= 500. */
+export function isRetryableApiError(e: unknown): e is InstanceType<typeof Anthropic.APIError> {
+  if (!(e instanceof Anthropic.APIError)) return false;
+  const s = e.status;
+  return s === undefined || s === 408 || s === 409 || s === 429 || s >= 500;
 }
 
 export interface StructuredLLM {
@@ -35,7 +44,12 @@ export function createStructuredLLM(client: Anthropic = new Anthropic()): Struct
         });
       } catch (err) {
         // APIError extends AnthropicError, so it must be checked first.
-        if (err instanceof Anthropic.APIError) throw new LLMError("api_error");
+        if (err instanceof Anthropic.APIError) {
+          if (!isRetryableApiError(err)) throw err;
+          const body = err.error as { error?: { message?: string }; message?: string } | undefined;
+          const msg = body?.error?.message ?? body?.message ?? err.message.replace(/^\d+\s+/, "");
+          throw new LLMError("api_error", `${err.status ?? "no status"} ${msg}`, err);
+        }
         // Non-API AnthropicError: the SDK's structured-output parse failure.
         if (err instanceof Anthropic.AnthropicError) throw new LLMError("unparseable");
         throw err;

@@ -6,7 +6,7 @@ import type { PipelineEvent, Platform, StoredArtist } from "./types";
 export function serviceClient(): SupabaseClient {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_KEY are required");
+  if (!url || !key) throw new Error("Supabase env missing: set SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL) and SUPABASE_SERVICE_KEY (or SUPABASE_SERVICE_ROLE_KEY)");
   return createClient(url, key, { auth: { persistSession: false } });
 }
 

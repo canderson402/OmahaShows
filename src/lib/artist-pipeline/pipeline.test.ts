@@ -184,6 +184,39 @@ describe("escalation", () => {
     await expect(analyzeEvent(event, d)).rejects.toBeInstanceOf(RetryableError);
   });
 
+  test("non-retryable Anthropic.APIError (400) from escalation is rethrown raw", async () => {
+    const err = new Anthropic.APIError(400, undefined, "bad request", undefined);
+    const d = deps({
+      llm: llmFor(oneAct("JOBY!"), noPick),
+      messages: { messages: { async create() { throw err; } } },
+      escalationBudget: { remaining: 1 },
+    });
+    const e = await analyzeEvent(event, d).catch((x) => x);
+    expect(e).toBe(err);
+    expect(e).not.toBeInstanceOf(RetryableError);
+  });
+
+  test("YouTube quota hit during escalation is kept when escalation yields no decision", async () => {
+    let calls = 0;
+    const responses = [msg([{ type: "tool_use", id: "y", name: "youtube_search", input: { query: "q" } }]), msg([{ type: "text", text: "give up" }], "end_turn")];
+    const d = deps({
+      llm: llmFor(oneAct("JOBY!"), noPick),
+      youtube: { unitsUsed: () => 0, async searchChannels() { if (calls++ === 0) return []; throw new QuotaExceededError("q"); } },
+      messages: { messages: { async create() { return responses.shift(); } } },
+      escalationBudget: { remaining: 1 },
+    });
+    const a = (await analyzeEvent(event, d)).artists[0] as any;
+    expect(a.youtube).toMatchObject({ chosen: null, deferred: "youtube_quota" });
+  });
+
+  test("unknown act becomes an explicit unsure not_an_artist entry", async () => {
+    const ex = { ...extraction, acts: [{ ...extraction.acts[1], kind: "unknown", reason: "cannot tell" }] };
+    const p = await analyzeEvent(event, deps({ llm: llmFor(ex, judge) }));
+    expect(p.artists[0]).toMatchObject({ kind: "not_an_artist", unsure: true });
+    const dj = await analyzeEvent(event, deps());
+    expect((dj.artists[2] as any).unsure).toBeUndefined();
+  });
+
   test("rejected ids for an existing artist reach escalation and are not chosen", async () => {
     const partial: StoredArtist = { ...surfer, spotify_id: null };
     const seenRejected: string[] = [];

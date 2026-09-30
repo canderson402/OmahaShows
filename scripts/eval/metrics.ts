@@ -16,23 +16,24 @@ export function highConfidencePrecision(o: LinkOutcome[], threshold = 0.9): { pr
   return { precision: hi.length ? hi.filter((x) => x.correct).length / hi.length : null, n: hi.length };
 }
 
-export interface PredEntry { kind: string; billed_as: string; clean_name?: string }
+export interface PredEntry { kind: string; billed_as: string; clean_name?: string; unsure?: boolean }
 
 /**
  * Score labeled non-artist acts against pipeline entries. An act is matched by normalized
- * billed_as or clean_name. Unmatched acts are reported separately and excluded from the
- * rejection denominator.
+ * billed_as or clean_name. Unmatched and unsure acts are reported separately and excluded from
+ * the rejection denominator (an unsure prediction is not a correct rejection).
  */
-export function nonArtistRejection(goldNames: string[], entries: PredEntry[]): { correct: number; matched: number; unmatched: number } {
-  let correct = 0, matched = 0, unmatched = 0;
+export function nonArtistRejection(goldNames: string[], entries: PredEntry[]): { correct: number; matched: number; unmatched: number; unsure: number } {
+  let correct = 0, matched = 0, unmatched = 0, unsure = 0;
   for (const name of goldNames) {
     const n = normalizeArtistName(name);
     const m = entries.find((e) => normalizeArtistName(e.billed_as) === n || (e.clean_name !== undefined && normalizeArtistName(e.clean_name) === n));
     if (!m) { unmatched++; continue; }
+    if (m.unsure) { unsure++; continue; }
     matched++;
     if (m.kind === "not_an_artist") correct++;
   }
-  return { correct, matched, unmatched };
+  return { correct, matched, unmatched, unsure };
 }
 
 /** Reduce a pasted Spotify/YouTube profile URL to its bare id; other text is returned unchanged. */
@@ -59,9 +60,10 @@ export function calibrationTable(o: { confidence: number; correct: boolean }[], 
   return out;
 }
 
-export function lineupCorrect(pred: { name: string; role: Role; kind: string }[], gold: Labels["events"][number]["acts"]): boolean {
+export function lineupCorrect(pred: { name: string; role: Role; kind: string; unsure?: boolean }[], gold: Labels["events"][number]["acts"]): boolean {
   if (pred.length !== gold.length) return false;
   return gold.every((g, i) =>
+    !pred[i].unsure &&
     normalizeArtistName(g.name) === normalizeArtistName(pred[i].name) &&
     (g.kind === "not_an_artist" ? pred[i].kind !== "original_artist" : pred[i].kind === "original_artist" && g.role === pred[i].role));
 }

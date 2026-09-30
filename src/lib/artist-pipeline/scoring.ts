@@ -12,7 +12,7 @@ export function rawLinkScore(f: LinkFeatures): number {
   if (f.official_channel) s += 0.03;
   if (f.same_name_count >= 3) s -= 0.15;
   else if (f.same_name_count === 2) s -= 0.07;
-  return Math.max(0, Math.min(1, s));
+  return Math.round(Math.max(0, Math.min(1, s)) * 1000) / 1000;
 }
 
 export function rawRatingScore(r: Rating): number {
@@ -76,5 +76,13 @@ export interface CalibrationSet { link: Calibrator; lineup: Calibrator; category
 
 export function loadCalibration(json: unknown | null): CalibrationSet {
   const j = (json ?? {}) as Partial<Record<keyof CalibrationSet, CalibrationPoint[]>>;
-  return { link: new Calibrator(j.link ?? []), lineup: new Calibrator(j.lineup ?? []), category: new Calibrator(j.category ?? []) };
+  // Hand-edited files may be unsorted or non-monotone: clamp y to [0,1] and enforce non-decreasing y.
+  const clean = (pts: CalibrationPoint[] = []): Calibrator => {
+    let max = 0;
+    return new Calibrator([...pts].sort((a, b) => a.x - b.x).map((p) => {
+      max = Math.max(max, Math.min(1, Math.max(0, p.y)));
+      return { x: p.x, y: max };
+    }));
+  };
+  return { link: clean(j.link), lineup: clean(j.lineup), category: clean(j.category) };
 }

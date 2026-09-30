@@ -15,7 +15,7 @@ test("non-artist rejection matches on billed_as or clean_name and reports unmatc
     { kind: "new", billed_as: "Joby", clean_name: "Joby" },
   ];
   expect(nonArtistRejection(["trivia night", "Bad Dudes", "Joby", "Ghost Act"], entries))
-    .toEqual({ correct: 1, matched: 3, unmatched: 1 });
+    .toEqual({ correct: 1, matched: 3, unmatched: 1, unsure: 0 });
 });
 
 test("extractProfileId reduces profile URLs to ids and keeps other text", () => {
@@ -46,4 +46,18 @@ test("twoFold is deterministic and complete", () => {
   const [x, y] = twoFold(items, (s) => s);
   expect([...x, ...y].sort()).toEqual(items);
   expect(twoFold(items, (s) => s)).toEqual([x, y]);
+});
+
+test("unsure entries are not correct rejections and leave the denominator", () => {
+  const entries = [
+    { kind: "not_an_artist", billed_as: "Trivia Night" },
+    { kind: "not_an_artist", billed_as: "Mystery Act", unsure: true },
+  ];
+  expect(nonArtistRejection(["Trivia Night", "Mystery Act"], entries)).toEqual({ correct: 1, matched: 1, unmatched: 0, unsure: 1 });
+});
+
+test("an unsure prediction never makes a lineup correct", () => {
+  const gold = [{ name: "Trivia", role: "headliner" as const, kind: "not_an_artist" as const }];
+  expect(lineupCorrect([{ name: "Trivia", role: "supporting", kind: "not_an_artist" }], gold)).toBe(true);
+  expect(lineupCorrect([{ name: "Trivia", role: "supporting", kind: "not_an_artist", unsure: true }], gold)).toBe(false);
 });

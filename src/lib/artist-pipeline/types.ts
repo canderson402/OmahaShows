@@ -82,7 +82,7 @@ export type LineupEntry =
   | { kind: "new"; billed_as: string; clean_name: string; role: Role; billing_order: number;
       hometown: string | null; genres: Genre[]; confidence: number;
       spotify: LinkDecision; youtube: LinkDecision }
-  | { kind: "not_an_artist"; billed_as: string; category: NonArtistCategory; reason: string; confidence: number };
+  | { kind: "not_an_artist"; billed_as: string; category: NonArtistCategory; reason: string; confidence: number; unsure?: true };
 
 export interface EventClassification {
   category: EventCategory;

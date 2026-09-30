@@ -16,6 +16,19 @@ describe("rawLinkScore", () => {
   });
 });
 
+describe("rawLinkScore rounding", () => {
+  test("exact + high + corroborated is exactly 0.9", () => {
+    expect(rawLinkScore(f({ corroborated: true }))).toBe(0.9);
+  });
+});
+
+describe("loadCalibration sanitizing", () => {
+  test("sorts by x, clamps y to [0,1] and enforces non-decreasing y", () => {
+    const cal = loadCalibration({ link: [{ x: 0.9, y: 0.6 }, { x: 0.1, y: -0.2 }, { x: 0.5, y: 0.8 }, { x: 1, y: 1.5 }] });
+    expect(cal.link.toJSON()).toEqual([{ x: 0.1, y: 0 }, { x: 0.5, y: 0.8 }, { x: 0.9, y: 0.8 }, { x: 1, y: 1 }]);
+  });
+});
+
 describe("finalLinkConfidence", () => {
   test("low similarity can never reach the high band, even if calibration says so", () => {
     const generous = new Calibrator([{ x: 0, y: 0.99 }, { x: 1, y: 0.99 }]);

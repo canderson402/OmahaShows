@@ -37,3 +37,4 @@ reports/
 # Claude Code
 .claude/
 .vercel
+scripts/eval/label-sheet.html

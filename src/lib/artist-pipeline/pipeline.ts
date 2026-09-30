@@ -1,6 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { Genre } from "../genres";
-import { LLMError, type StructuredLLM } from "./clients/llm";
+import { isRetryableApiError, LLMError, type StructuredLLM } from "./clients/llm";
 import { SpotifyError, type SpotifyClient } from "./clients/spotify";
 import { QuotaExceededError, YouTubeError, type YouTubeClient } from "./clients/youtube";
 import { extractLineup } from "./stages/extract";
@@ -67,6 +66,7 @@ export async function analyzeAct(
       category: act.kind === "unknown" ? "other" : (act.non_artist_category ?? "other"),
       reason: act.kind === "unknown" ? `unsure: ${act.reason}` : act.reason,
       confidence: act.kind === "unknown" ? 0.5 : 0.95,
+      ...(act.kind === "unknown" ? { unsure: true as const } : {}),
     };
   }
 
@@ -93,7 +93,7 @@ export async function analyzeAct(
     if (deps.escalationBudget.remaining > 0) {
       deps.escalationBudget.remaining--;
       try {
-        escalated = await escalateAct(ctx, { client: deps.messages, spotify: deps.spotify, youtube: deps.youtube, model: deps.models.escalate, rejected });
+        escalated = await escalateAct(ctx, { client: deps.messages, spotify: deps.spotify, youtube: deps.youtube, model: deps.models.escalate, rejected, onYoutubeDeferred: () => { ytQuota = true; } });
         if (escalated?.youtubeDeferred) ytQuota = true;
       } catch (e) {
         if (e instanceof QuotaExceededError) ytQuota = true; else throw e;
@@ -152,7 +152,7 @@ export async function analyzeEvent(event: PipelineEvent, deps: PipelineDeps): Pr
       overall_confidence: product([lineup_confidence, category_confidence, ...artists.map((a) => a.confidence)]),
     };
   } catch (e) {
-    if (e instanceof QuotaExceededError || e instanceof SpotifyError || e instanceof YouTubeError || e instanceof LLMError || e instanceof Anthropic.APIError) {
+    if (e instanceof QuotaExceededError || e instanceof SpotifyError || e instanceof YouTubeError || e instanceof LLMError || isRetryableApiError(e)) {
       throw new RetryableError(`${event.id}: ${(e as Error).message}`, e);
     }
     throw e;

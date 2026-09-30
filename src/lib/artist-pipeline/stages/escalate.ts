@@ -72,6 +72,8 @@ export async function escalateAct(
   deps: {
     client: MessagesClient; spotify: SpotifyClient; youtube: YouTubeClient; model: string; maxTurns?: number;
     rejected?: { spotify: Set<string>; youtube: Set<string> };
+    /** Called as soon as a YouTube quota hit happens, so it survives a null (no decision) result. */
+    onYoutubeDeferred?: () => void;
   },
 ): Promise<EscalationResult | null> {
   const working: JudgeContext = { ...ctx, spotify: [...ctx.spotify], youtube: [...ctx.youtube] };
@@ -120,6 +122,7 @@ export async function escalateAct(
       } catch (err) {
         if (err instanceof QuotaExceededError) {
           youtubeDeferred = true;
+          deps.onYoutubeDeferred?.();
           results.push({ type: "tool_result", tool_use_id: block.id, content: "YouTube quota exhausted; decide Spotify only", is_error: true });
         } else if (err instanceof SpotifyError || err instanceof YouTubeError) {
           throw err;

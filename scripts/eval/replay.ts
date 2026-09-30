@@ -68,7 +68,7 @@ const prod = (cal: typeof cal1, o: (typeof outcomes)[number]) => ({ ...o, confid
 const calibrated = [...f1.map((o) => prod(cal2, o)), ...f2.map((o) => prod(cal1, o))];
 
 // Event-level metrics
-let lineupOk = 0, catOk = 0, genreOk = 0, genreN = 0, nonArtistOk = 0, nonArtistN = 0, nonArtistUnmatched = 0;
+let lineupOk = 0, catOk = 0, genreOk = 0, genreN = 0, nonArtistOk = 0, nonArtistN = 0, nonArtistUnmatched = 0, unsureN = 0;
 const lineupSamples: { score: number; correct: boolean }[] = [];
 const catSamples: { score: number; correct: boolean }[] = [];
 for (const g of labels.events) {
@@ -78,6 +78,7 @@ for (const g of labels.events) {
     name: x.kind === "new" ? x.clean_name : x.billed_as,
     role: x.kind === "not_an_artist" ? "supporting" as const : x.role,
     kind: x.kind === "not_an_artist" ? "not_an_artist" : "original_artist",
+    unsure: x.kind === "not_an_artist" && x.unsure === true,
   }));
   const ok = lineupCorrect(pred, g.acts);
   lineupOk += ok ? 1 : 0;
@@ -87,9 +88,9 @@ for (const g of labels.events) {
   catSamples.push({ score: p.event.category_confidence, correct: cOk });
   const r = nonArtistRejection(
     g.acts.filter((a) => a.kind === "not_an_artist").map((a) => a.name),
-    p.artists.map((x) => ({ kind: x.kind, billed_as: x.billed_as, clean_name: x.kind === "new" ? x.clean_name : undefined })),
+    p.artists.map((x) => ({ kind: x.kind, billed_as: x.billed_as, clean_name: x.kind === "new" ? x.clean_name : undefined, unsure: x.kind === "not_an_artist" && x.unsure === true })),
   );
-  nonArtistOk += r.correct; nonArtistN += r.matched; nonArtistUnmatched += r.unmatched;
+  nonArtistOk += r.correct; nonArtistN += r.matched; nonArtistUnmatched += r.unmatched; unsureN += r.unsure;
 }
 for (const a of labels.artists.filter((a) => a.genres.length)) {
   const e = proposals.get(a.event_id)?.artists.find((x) => x.kind === "new" && normalizeArtistName(x.clean_name) === normalizeArtistName(a.name));
@@ -106,6 +107,7 @@ high-confidence link precision: ${hp.precision === null ? "no evidence (n=0)" : 
 coverage (correct high-conf / labeled profiles): ${pct(coverage(calibrated, withProfile))}
 non-artist rejection: ${pctN(nonArtistOk / (nonArtistN || 1), nonArtistN)}   target >= 95%
 unmatched labeled acts: ${nonArtistUnmatched}
+unsure acts: ${unsureN}
 lineup fully correct: ${pct(lineupOk / labels.events.length)}   target >= 95%
 category: ${pct(catOk / labels.events.length)}   target >= 97%
 genre top-1: ${pctN(genreOk / (genreN || 1), genreN)}   target >= 85% (not a blocker)
