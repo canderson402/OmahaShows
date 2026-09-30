@@ -20,7 +20,7 @@ test("spotify: dedupes, drops rejected, sorts by similarity, adds album evidence
   expect(c.map((x) => x.external_id)).toEqual(["s1", "s2"]);
   expect(c[0].name_similarity).toBe(1);
   expect(c[0].url).toBe("https://open.spotify.com/artist/s1");
-  expect(c[0].details).toContain("albums: Tape One (2024)");
+  expect(c[0].details).toContain('albums found for name "Joby" (may include same-name artists): Tape One (2024)');
 });
 
 const youtube: YouTubeClient = {

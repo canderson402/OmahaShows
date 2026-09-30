@@ -19,9 +19,11 @@ export async function gatherSpotifyCandidates(
     }
   }
   const top = [...seen.values()].sort((x, y) => y.name_similarity - x.name_similarity).slice(0, 8);
+  const albumsByName = new Map<string, string[]>();
   for (const c of top.slice(0, 3)) {
-    const albums = await spotify.albumTitles(c.display_name);
-    if (albums.length) c.details.push(`albums: ${albums.join("; ")}`);
+    if (!albumsByName.has(c.display_name)) albumsByName.set(c.display_name, await spotify.albumTitles(c.display_name));
+    const albums = albumsByName.get(c.display_name)!;
+    if (albums.length) c.details.push(`albums found for name "${c.display_name}" (may include same-name artists): ${albums.join("; ")}`);
   }
   return top;
 }
