@@ -56,6 +56,9 @@ jobs:
           pip install supabase
           playwright install chromium
 
+      - name: Record scrape start time
+        run: echo "SCRAPE_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
       - name: Run scrapers
         id: scrape
         continue-on-error: true
@@ -74,6 +77,26 @@ jobs:
           exit_code=$?
           echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
           exit $exit_code
+
+      # Artist matching for the shows this run found (new or lineup changed).
+      # Results go to the admin Pending queue; nothing is approved automatically.
+      - name: Setup Node
+        if: always() && steps.scrape.outcome != 'skipped'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Match artists for new shows
+        if: always() && steps.scrape.outcome != 'skipped'
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+        run: |
+          npm ci --no-audit --no-fund
+          npx tsx scripts/analyze-new-shows.ts
 
       - name: Create job summary
         if: always()
