@@ -116,9 +116,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const onlyNew = searchParams.get("onlyNew") === "true";
 
-    // Get today's date for filtering
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const todayStr = todayChicago();
 
     // Get events that already have pending artist analyses
     const { data: pendingAnalyses } = await supabase
