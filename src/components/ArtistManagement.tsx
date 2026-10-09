@@ -75,8 +75,8 @@ export function ArtistManagement() {
 
   const filteredArtists = artists.filter((artist) => {
     const matchesSearch = !search.trim() ||
-      artist.name.toLowerCase().includes(search.toLowerCase()) ||
-      artist.normalized_name.includes(search.toLowerCase());
+      artist.name.toLowerCase().includes(search.trim().toLowerCase()) ||
+      artist.normalized_name.includes(search.trim().toLowerCase());
 
     const matchesGenre = !genreFilter || artist.genres?.includes(genreFilter);
 

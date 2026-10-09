@@ -104,7 +104,7 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
 
     // Apply search filter
     if (filter?.searchQuery?.trim()) {
-      const query = filter.searchQuery.toLowerCase();
+      const query = filter.searchQuery.trim().toLowerCase();
       result = result.filter((e) =>
         e.title.toLowerCase().includes(query) ||
         e.venue.toLowerCase().includes(query) ||

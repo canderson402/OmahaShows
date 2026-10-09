@@ -79,7 +79,7 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
 
     // Filter by search query
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+      const query = searchQuery.trim().toLowerCase();
       result = result.filter((show) =>
         show.title.toLowerCase().includes(query) ||
         show.venue.toLowerCase().includes(query)
