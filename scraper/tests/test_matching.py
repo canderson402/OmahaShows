@@ -120,3 +120,63 @@ def test_find_existing_empty_db():
     new_event = MockEvent("e1", "Some Event", "2026-03-10", "admiral")
     match = find_existing_event(new_event, db_events)
     assert match is None
+
+
+# --- Rescheduled events (same show, new date) ---
+
+from matching import stable_event_key, find_rescheduled_event
+
+TM_OLD = "https://www.ticketmaster.com/chris-stapletons-allamerican-road-show-lincoln-nebraska-10-07-2026/event/06006425DA7EA5F4"
+TM_NEW = "https://www.ticketmaster.com/chris-stapletons-allamerican-road-show-lincoln-nebraska-10-26-2026/event/06006425DA7EA5F4"
+
+
+class ScrapedEvent:
+    def __init__(self, title, date, eventUrl):
+        self.title = title
+        self.date = date
+        self.eventUrl = eventUrl
+
+
+def test_stable_key_ticketmaster_ignores_date_in_slug():
+    assert stable_event_key(TM_OLD) == stable_event_key(TM_NEW)
+
+
+def test_stable_key_normalizes_plain_urls():
+    assert stable_event_key("https://www.venue.com/events/band-x/?ref=1#top") == stable_event_key("http://venue.com/events/band-x")
+
+
+def test_stable_key_none_for_missing_or_homepage_urls():
+    assert stable_event_key(None) is None
+    assert stable_event_key("") is None
+    assert stable_event_key("https://venue.com/") is None
+
+
+def test_rescheduled_event_found_by_ticketmaster_id():
+    old = {"id": "tm-old", "title": "Chris Stapleton's All-American Road Show", "date": "2026-10-07", "event_url": TM_OLD}
+    new = ScrapedEvent("Chris Stapleton's All-American Road Show", "2026-10-26", TM_NEW)
+    assert find_rescheduled_event(new, [old], scraped_dates={"2026-10-26"}) == old
+
+
+def test_rescheduled_ignores_different_url():
+    old = {"id": "a", "title": "Band X", "date": "2026-10-07", "event_url": "https://venue.com/events/band-x-1"}
+    new = ScrapedEvent("Band X", "2026-10-26", "https://venue.com/events/band-x-2")
+    assert find_rescheduled_event(new, [old], scraped_dates={"2026-10-26"}) is None
+
+
+def test_rescheduled_ignores_unrelated_title_sharing_url():
+    old = {"id": "a", "title": "Totally Different Act", "date": "2026-10-07", "event_url": "https://venue.com/events/shared"}
+    new = ScrapedEvent("Band X", "2026-10-26", "https://venue.com/events/shared")
+    assert find_rescheduled_event(new, [old], scraped_dates={"2026-10-26"}) is None
+
+
+def test_multi_night_run_is_not_merged():
+    # Same URL for both nights; night 1 is still in the scrape, so it hasn't moved
+    night1 = {"id": "n1", "title": "Band X", "date": "2026-10-07", "event_url": "https://venue.com/events/band-x"}
+    night2 = ScrapedEvent("Band X", "2026-10-08", "https://venue.com/events/band-x")
+    assert find_rescheduled_event(night2, [night1], scraped_dates={"2026-10-07", "2026-10-08"}) is None
+
+
+def test_rescheduled_requires_url():
+    old = {"id": "a", "title": "Band X", "date": "2026-10-07", "event_url": None}
+    new = ScrapedEvent("Band X", "2026-10-26", None)
+    assert find_rescheduled_event(new, [old], scraped_dates={"2026-10-26"}) is None

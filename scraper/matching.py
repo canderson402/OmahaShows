@@ -60,3 +60,51 @@ def find_existing_event(new_event, db_events: list[dict]) -> dict | None:
                 return existing
 
     return None
+
+
+def stable_event_key(url: str | None) -> str | None:
+    """
+    Key that identifies a show across date changes, derived from its URL.
+
+    Ticketmaster puts the date in the slug but keeps the event ID, so use the ID.
+    Other URLs are compared without scheme, www, query, fragment or trailing slash.
+    Bare homepages are too generic to identify a show.
+    """
+    if not url:
+        return None
+    tm = re.search(r'ticketmaster\.com/.*/event/([A-Za-z0-9]+)', url)
+    if tm:
+        return f"tm:{tm.group(1).upper()}"
+    stripped = re.sub(r'^[a-z]+://', '', url.strip().lower())
+    stripped = re.sub(r'^www\.', '', stripped)
+    stripped = re.split(r'[?#]', stripped)[0].rstrip('/')
+    if '/' not in stripped:
+        return None
+    return stripped
+
+
+def find_rescheduled_event(new_event, db_events: list[dict], scraped_dates: set[str]) -> dict | None:
+    """
+    Find an existing event that is the same show moved to a new date.
+
+    Args:
+        new_event: Event object with title, date, eventUrl attributes
+        db_events: Upcoming events from the database at the same venue
+        scraped_dates: Dates in this scrape whose URL has the same stable key
+
+    A candidate must share the URL key, have a matching title, and its own date
+    must no longer appear in the scrape (otherwise it's another night of a run).
+    """
+    key = stable_event_key(getattr(new_event, "eventUrl", None))
+    if not key:
+        return None
+
+    for existing in db_events:
+        if existing.get("date") == new_event.date or existing.get("date") in scraped_dates:
+            continue
+        if stable_event_key(existing.get("event_url")) != key:
+            continue
+        if find_existing_event(new_event, [existing]):
+            return existing
+
+    return None

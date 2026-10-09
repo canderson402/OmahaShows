@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from supabase import create_client, Client
 from config import get_scrapers
 from models import Event
-from matching import find_existing_event
+from matching import find_existing_event, find_rescheduled_event, stable_event_key
 from venue_matcher import VenueMatcher
 
 # Get Supabase credentials from environment
@@ -54,6 +54,13 @@ def normalize_value(val, field_name=None):
 def get_events_by_venue_date(venue_id: str, event_date: str) -> list[dict]:
     """Fetch all events for a venue on a specific date."""
     result = supabase.table("events").select("*").eq("venue_id", venue_id).eq("date", event_date).execute()
+    return result.data or []
+
+
+def get_upcoming_events_by_venue(venue_id: str) -> list[dict]:
+    """Fetch all upcoming events for a venue (for spotting rescheduled shows)."""
+    today = date.today().isoformat()
+    result = supabase.table("events").select("*").eq("venue_id", venue_id).gte("date", today).execute()
     return result.data or []
 
 
@@ -103,6 +110,19 @@ def upsert_events(events: list[Event], scraper_id: str, auto_approve: bool = Fal
         "image_url", "price", "age_restriction", "supporting_artists"
     ]
 
+    def venue_of(event: Event) -> str:
+        return event.source if event.source and event.source != scraper_id else scraper_id
+
+    # Dates each show (venue + URL key) appears on in this scrape, so a multi-night
+    # run sharing one URL isn't mistaken for a reschedule
+    scraped_dates_by_key: dict[tuple[str, str], set[str]] = {}
+    for event in events:
+        key = stable_event_key(event.eventUrl)
+        if key:
+            scraped_dates_by_key.setdefault((venue_of(event), key), set()).add(event.date)
+
+    upcoming_by_venue: dict[str, list[dict]] = {}
+
     for event in events:
         # Get the actual venue_id for this event
         # For discovery scrapers (ohmyomaha), event.source contains the matched venue_id
@@ -113,6 +133,20 @@ def upsert_events(events: list[Event], scraper_id: str, auto_approve: bool = Fal
 
         # Try fuzzy match first
         existing = find_existing_event(event, db_events)
+
+        # Same show moved to a new date: update the existing row instead of adding a duplicate
+        if not existing:
+            key = stable_event_key(event.eventUrl)
+            if key:
+                if event_venue_id not in upcoming_by_venue:
+                    upcoming_by_venue[event_venue_id] = get_upcoming_events_by_venue(event_venue_id)
+                existing = find_rescheduled_event(
+                    event,
+                    upcoming_by_venue[event_venue_id],
+                    scraped_dates_by_key.get((event_venue_id, key), set()),
+                )
+                if existing:
+                    print(f"  Rescheduled: {event.title} {existing['date']} -> {event.date}")
 
         # Build event data
         # For discovery scrapers (ohmyomaha), use event.source as venue_id
