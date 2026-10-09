@@ -28,3 +28,6 @@ export function hexToRgba(hex: string, alpha: number): string {
   const b = parseInt(hex.slice(5, 7), 16)
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
+
+// Site description - used for the meta description and shown on the homepage
+export const SITE_DESCRIPTION = 'Discover upcoming concerts and live music events in Omaha, Nebraska. Find shows at The Slowdown, Waiting Room, Reverb Lounge, Bourbon Theatre, and more local venues.'

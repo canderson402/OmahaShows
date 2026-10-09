@@ -15,7 +15,7 @@ import { useDebounce } from "../src/hooks/useDebounce"
 import { useSavedShows } from "../src/hooks/useSavedShows"
 import { trackViewChange } from "../src/analytics"
 import { getEvents, getHistory, getSources, getEventById, getFullEventsByIds, getTotalEventCount, type HistoryFilter } from "../src/lib/supabase"
-import { DEFAULT_VENUE_COLORS, type VenueColors } from "../src/lib/constants"
+import { DEFAULT_VENUE_COLORS, SITE_DESCRIPTION, type VenueColors } from "../src/lib/constants"
 
 type View = "events" | "history" | "calendar" | "submit" | "myshows"
 type Layout = "compact" | "full"
@@ -621,6 +621,10 @@ export default function HomePage() {
           <SeoStructuredData events={events} />
         </main>
       )}
+
+      <footer className="max-w-2xl mx-auto px-6 pt-4 pb-24 text-center text-xs text-gray-600">
+        {SITE_DESCRIPTION}
+      </footer>
 
       <div className="fixed bottom-4 left-4 z-40">
         <button onClick={() => setShowContact(true)} className="flex items-center justify-center w-12 h-12 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-all shadow-lg">

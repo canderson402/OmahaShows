@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import './globals.css'
+import { SITE_DESCRIPTION } from '../src/lib/constants'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
     default: 'Omaha Shows | Live Music in Omaha, NE',
     template: '%s | Omaha Shows',
   },
-  description: 'Discover upcoming concerts and live music events in Omaha, Nebraska. Find shows at The Slowdown, Waiting Room, Reverb Lounge, Bourbon Theatre, and more local venues.',
+  description: SITE_DESCRIPTION,
   keywords: ['Omaha concerts', 'Omaha live music', 'Nebraska shows', 'The Slowdown', 'Waiting Room', 'Reverb Lounge', 'Bourbon Theatre', 'live music Omaha'],
   authors: [{ name: 'Omaha Shows' }],
   creator: 'Omaha Shows',
