@@ -251,17 +251,14 @@ export const EventCardCompact = memo(function EventCardCompact({
             </span>
           ) : (
             <>
-              {event.eventUrl && (
-                <a
-                  href={event.eventUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  {...outboundClickProps(event.venue, event.title, "info", event.eventUrl!)}
-                  className="flex-1 text-center px-4 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  Info
-                </a>
-              )}
+              <Link
+                href={showPageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-center px-4 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Info
+              </Link>
               {event.ticketUrl && event.ticketUrl !== event.eventUrl && (
                 <a
                   href={event.ticketUrl}
@@ -307,17 +304,14 @@ export const EventCardCompact = memo(function EventCardCompact({
             </span>
           ) : (
             <>
-              {event.eventUrl && (
-                <a
-                  href={event.eventUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  {...outboundClickProps(event.venue, event.title, "info", event.eventUrl!)}
-                  className="px-5 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  Info
-                </a>
-              )}
+              <Link
+                href={showPageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Info
+              </Link>
               {event.ticketUrl && event.ticketUrl !== event.eventUrl && (
                 <a
                   href={event.ticketUrl}
