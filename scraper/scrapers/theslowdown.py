@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from curl_cffi import requests as cffi_requests
+import requests
 from scrapers.base import BaseScraper
 from models import Event
 
@@ -13,11 +13,18 @@ class SlowdownScraper(BaseScraper):
     id = "theslowdown"
     url = "https://theslowdown.com/events/"
 
+    # Cloudflare blocks the events page for non-browser traffic, but WordPress's
+    # REST API serves the same rendered page content
+    api_url = "https://theslowdown.com/wp-json/wp/v2/pages?slug=events&_fields=content"
+
     def fetch_html(self) -> str:
-        """Cloudflare rejects plain requests by TLS fingerprint, so present as Chrome."""
-        response = cffi_requests.get(self.url, impersonate="chrome", timeout=self.timeout)
+        """Fetch the events page's rendered HTML via the WordPress REST API."""
+        response = requests.get(self.api_url, headers=self.headers, timeout=self.timeout)
         response.raise_for_status()
-        return response.text
+        pages = response.json()
+        if not pages:
+            raise ValueError("Slowdown events page not found in WordPress API")
+        return pages[0]["content"]["rendered"]
 
     def parse_events(self, html: str) -> list[Event]:
         soup = self.get_soup(html)
