@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from curl_cffi import requests as cffi_requests
 from scrapers.base import BaseScraper
 from models import Event
 
@@ -11,6 +12,12 @@ class SlowdownScraper(BaseScraper):
     name = "Slowdown"
     id = "theslowdown"
     url = "https://theslowdown.com/events/"
+
+    def fetch_html(self) -> str:
+        """Cloudflare rejects plain requests by TLS fingerprint, so present as Chrome."""
+        response = cffi_requests.get(self.url, impersonate="chrome", timeout=self.timeout)
+        response.raise_for_status()
+        return response.text
 
     def parse_events(self, html: str) -> list[Event]:
         soup = self.get_soup(html)
