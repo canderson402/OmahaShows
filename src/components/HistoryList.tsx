@@ -65,29 +65,8 @@ export function HistoryList({ shows, enabledVenues, searchQuery, venueColors, ve
     setVisibleCount(SHOWS_PER_PAGE);
   }, [enabledVenues.size, searchQuery, timeFilter]);
 
-  // Filter shows (time filtering done by database, only venue/search here)
-  const filtered = useMemo(() => {
-    let result = shows;
-
-    // Filter by venue
-    if (enabledVenues.size > 0) {
-      result = result.filter((show) => {
-        const venueId = venueNameToId[show.venue] || "other";
-        return enabledVenues.has(venueId);
-      });
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.trim().toLowerCase();
-      result = result.filter((show) =>
-        show.title.toLowerCase().includes(query) ||
-        show.venue.toLowerCase().includes(query)
-      );
-    }
-
-    return result;
-  }, [shows, enabledVenues, searchQuery]);
+  // Time, venue and search filtering all happen in the database
+  const filtered = shows;
 
   // Infinite scroll with IntersectionObserver
   const loadMore = useCallback(() => {

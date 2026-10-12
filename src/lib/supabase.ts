@@ -144,6 +144,19 @@ function getLocalDateString(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 }
 
+// PostgREST filter matching a search against title, venue and supporting artists
+function searchClause(search: string, venues: DbVenue[]): string {
+  // Check if search matches a known venue name
+  const matchingVenue = venues.find(v =>
+    v.name.toLowerCase().includes(search.toLowerCase())
+  )
+  if (matchingVenue) {
+    // Search by title OR venue_id OR venue_name (for "other" venues)
+    return `title.ilike.%${search}%,venue_id.eq.${matchingVenue.id},venue_name.ilike.%${search}%,supporting_artists_text.ilike.%${search}%`
+  }
+  return `title.ilike.%${search}%,venue_name.ilike.%${search}%,supporting_artists_text.ilike.%${search}%`
+}
+
 // Time filter type
 export type TimeFilter = 'all' | 'today' | 'week' | 'just-added'
 
@@ -208,16 +221,7 @@ export async function getEvents(options?: { limit?: number; offset?: number; sea
 
   // Add search filter if provided - search both title and venue_name
   if (search) {
-    // Check if search matches a known venue name
-    const matchingVenue = venues.find(v =>
-      v.name.toLowerCase().includes(search.toLowerCase())
-    )
-    if (matchingVenue) {
-      // Search by title OR venue_id OR venue_name (for "other" venues)
-      query = query.or(`title.ilike.%${search}%,venue_id.eq.${matchingVenue.id},venue_name.ilike.%${search}%,supporting_artists_text.ilike.%${search}%`)
-    } else {
-      query = query.or(`title.ilike.%${search}%,venue_name.ilike.%${search}%,supporting_artists_text.ilike.%${search}%`)
-    }
+    query = query.or(searchClause(search, venues))
   }
 
   query = query.range(offset, offset + limit - 1)
@@ -290,26 +294,20 @@ export async function getTotalEventCount(): Promise<number> {
 }
 
 // Get history (past events) with filter-based loading
-export type HistoryFilter = '30days' | '90days' | 'year' | 'all'
+export type HistoryFilter = '30days' | '90days' | 'this-year' | 'year' | 'all'
 
-export async function getHistory(options?: {
+type HistoryOptions = {
   filter?: HistoryFilter
-  limit?: number
-  offset?: number
-}): Promise<{ shows: HistoricalShow[]; hasMore: boolean; totalCount: number }> {
+  search?: string
+  venueIds?: string[]
+}
+
+// Past approved shows matching the History filters (date range, search, venues)
+function historyQuery(options: HistoryOptions, venues: DbVenue[]) {
   const today = new Date()
   const todayStr = getLocalDateString()
-
-  const filter = options?.filter || '30days'
-  const limit = options?.limit || 50
-  const offset = options?.offset || 0
-
-  // Check cache first (history is cached for 5 minutes)
-  const cacheKey = getCacheKey('history', { todayStr, filter, limit, offset })
-  const cached = historyCache.get<{ shows: HistoricalShow[]; hasMore: boolean; totalCount: number }>(cacheKey)
-  if (cached) return cached
-
-  const venues = await getVenues()
+  const filter = options.filter || '30days'
+  const search = options.search?.trim() || ''
 
   // Calculate date range based on filter
   let startDate: string | null = null
@@ -321,6 +319,8 @@ export async function getHistory(options?: {
     const d = new Date(today)
     d.setDate(d.getDate() - 90)
     startDate = d.toISOString().split('T')[0]
+  } else if (filter === 'this-year') {
+    startDate = `${today.getFullYear()}-01-01`
   } else if (filter === 'year') {
     const d = new Date(today)
     d.setFullYear(d.getFullYear() - 1)
@@ -334,14 +334,44 @@ export async function getHistory(options?: {
     .lt('date', todayStr)
     .eq('status', 'approved')
     .order('date', { ascending: false })
+    .order('id', { ascending: true })
 
   // Apply date filter if not "all"
   if (startDate) {
     query = query.gte('date', startDate)
   }
 
+  if (options.venueIds && options.venueIds.length > 0) {
+    query = query.in('venue_id', options.venueIds)
+  }
+
+  if (search) {
+    query = query.or(searchClause(search, venues))
+  }
+
+  return query
+}
+
+export async function getHistory(options?: HistoryOptions & {
+  limit?: number
+  offset?: number
+}): Promise<{ shows: HistoricalShow[]; hasMore: boolean; totalCount: number }> {
+  const todayStr = getLocalDateString()
+  const filter = options?.filter || '30days'
+  const limit = options?.limit || 50
+  const offset = options?.offset || 0
+  const search = options?.search?.trim() || ''
+  const venueIds = options?.venueIds ? [...options.venueIds].sort().join(',') : ''
+
+  // Check cache first (history is cached for 5 minutes)
+  const cacheKey = getCacheKey('history', { todayStr, filter, limit, offset, search, venueIds })
+  const cached = historyCache.get<{ shows: HistoricalShow[]; hasMore: boolean; totalCount: number }>(cacheKey)
+  if (cached) return cached
+
+  const venues = await getVenues()
+
   // Apply pagination
-  query = query.range(offset, offset + limit - 1)
+  const query = historyQuery({ ...options, filter }, venues).range(offset, offset + limit - 1)
 
   const { data, error, count } = await query
 
@@ -356,6 +386,23 @@ export async function getHistory(options?: {
   historyCache.set(cacheKey, result)
 
   return result
+}
+
+// Every past show matching the History filters, for export.
+// Supabase returns at most 1000 rows per request, so page through them.
+export async function getAllHistory(options: HistoryOptions): Promise<HistoricalShow[]> {
+  const venues = await getVenues()
+  const pageSize = 1000
+  const shows: HistoricalShow[] = []
+
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await historyQuery(options, venues).range(offset, offset + pageSize - 1)
+    if (error) throw error
+    shows.push(...(data || []).map(e => toHistoricalShow(e, venues)))
+    if (!data || data.length < pageSize) break
+  }
+
+  return shows
 }
 
 // Get sources (venues as SourceStatus for compatibility)

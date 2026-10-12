@@ -13,8 +13,9 @@ import { SeoStructuredData } from "../src/components/SeoStructuredData"
 import { SubmitShowForm } from "../src/components/SubmitShowForm"
 import { useDebounce } from "../src/hooks/useDebounce"
 import { useSavedShows } from "../src/hooks/useSavedShows"
+import { useAuth } from "../src/hooks/useAuth"
 import { trackViewChange } from "../src/analytics"
-import { getEvents, getHistory, getSources, getEventById, getFullEventsByIds, getTotalEventCount, type HistoryFilter } from "../src/lib/supabase"
+import { getEvents, getHistory, getAllHistory, getSources, getEventById, getFullEventsByIds, getTotalEventCount, type HistoryFilter } from "../src/lib/supabase"
 import { DEFAULT_VENUE_COLORS, SITE_DESCRIPTION, type VenueColors } from "../src/lib/constants"
 
 type View = "events" | "history" | "calendar" | "submit" | "myshows"
@@ -174,6 +175,8 @@ export default function HomePage() {
   const [hasMoreHistory, setHasMoreHistory] = useState(true)
   const [loadingMoreHistory, setLoadingMoreHistory] = useState(false)
   const [sources, setSources] = useState<SourceStatus[]>([])
+  // Only admins have accounts, so being logged in means admin
+  const { isAuthenticated: isAdmin } = useAuth()
   const [view, setView] = useState<View>("events")
   const [layout] = useState<Layout>("compact")
   const [enabledVenues, setEnabledVenues] = useState<Set<string>>(new Set())
@@ -327,6 +330,8 @@ export default function HomePage() {
     try {
       const result = await getHistory({
         filter: historyTimeFilter as HistoryFilter,
+        search: debouncedHistorySearch || undefined,
+        venueIds: enabledVenueIds.length > 0 ? enabledVenueIds : undefined,
         limit: 50,
         offset: historyShows.length
       })
@@ -338,21 +343,26 @@ export default function HomePage() {
     } finally {
       setLoadingMoreHistory(false)
     }
-  }, [loadingMoreHistory, hasMoreHistory, historyShows.length, historyTimeFilter])
+  }, [loadingMoreHistory, hasMoreHistory, historyShows.length, historyTimeFilter, debouncedHistorySearch, enabledVenueIds])
 
   // Lazy load history when on history view
   useEffect(() => {
     if (!dataLoaded) return
     if (view !== 'history') return
 
+    // Ignore responses for filters that have since changed
+    let cancelled = false
     const loadHistory = async () => {
       setLoadingHistory(true)
       try {
         const result = await getHistory({
           filter: historyTimeFilter as HistoryFilter,
+          search: debouncedHistorySearch || undefined,
+          venueIds: enabledVenueIds.length > 0 ? enabledVenueIds : undefined,
           limit: 10000,
           offset: 0
         })
+        if (cancelled) return
         setHistoryShows(result.shows)
         setHasMoreHistory(result.hasMore)
         setHistoryTotalCount(result.totalCount)
@@ -364,7 +374,35 @@ export default function HomePage() {
       }
     }
     loadHistory()
-  }, [historyTimeFilter, dataLoaded, view])
+    return () => { cancelled = true }
+  }, [historyTimeFilter, debouncedHistorySearch, enabledVenueIds, dataLoaded, view])
+
+  // Download every past show matching the current History filters as JSON
+  const [exportingHistory, setExportingHistory] = useState(false)
+  const exportHistory = useCallback(async () => {
+    setExportingHistory(true)
+    try {
+      const shows = await getAllHistory({
+        filter: historyTimeFilter as HistoryFilter,
+        search: debouncedHistorySearch || undefined,
+        venueIds: enabledVenueIds.length > 0 ? enabledVenueIds : undefined,
+      })
+      const venuePart = enabledVenueIds.length === 1 ? enabledVenueIds[0]
+        : enabledVenueIds.length === 0 || enabledVenueIds.length === sources.length ? "all-venues"
+        : `${enabledVenueIds.length}-venues`
+      const blob = new Blob([JSON.stringify(shows, null, 2)], { type: "application/json" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `omahashows-history-${historyTimeFilter}-${venuePart}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error("Failed to export history:", err)
+    } finally {
+      setExportingHistory(false)
+    }
+  }, [historyTimeFilter, debouncedHistorySearch, enabledVenueIds, sources.length])
 
   useEffect(() => {
     fetchData()
@@ -546,6 +584,17 @@ export default function HomePage() {
                             >
                               {historyFilterLabels[historyTimeFilter]}
                             </button>
+                            {isAdmin && (<>
+                            <span className="text-gray-500"> · </span>
+                            <button
+                              onClick={exportHistory}
+                              disabled={exportingHistory || historyTotalCount === 0}
+                              className="underline decoration-dotted underline-offset-4 hover:text-white transition-colors disabled:opacity-50 disabled:no-underline"
+                              title="Download these shows as JSON"
+                            >
+                              {exportingHistory ? "Exporting…" : "Export"}
+                            </button>
+                            </>)}
                           </span>
                         )
                       })()}
