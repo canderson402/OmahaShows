@@ -184,6 +184,9 @@ export const EventCardCompact = memo(function EventCardCompact({
   // Shared links use our show page; everything else goes to the venue's own listing
   const showPageUrl = `/show/${event.id}`;
   const originalUrl = event.eventUrl || event.ticketUrl;
+  // Always show both buttons; each falls back to the other link when the venue has only one
+  const infoUrl = originalUrl;
+  const ticketsUrl = event.ticketUrl || event.eventUrl;
 
   return (
     <div
@@ -292,23 +295,23 @@ export const EventCardCompact = memo(function EventCardCompact({
             </span>
           ) : (
             <>
-              {event.eventUrl && (
+              {infoUrl && (
                 <a
-                  href={event.eventUrl}
+                  href={infoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  {...outboundClickProps(event.venue, event.title, "info", event.eventUrl!)}
+                  {...outboundClickProps(event.venue, event.title, "info", infoUrl)}
                   className="flex-1 text-center px-4 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
                 >
                   Info
                 </a>
               )}
-              {event.ticketUrl && event.ticketUrl !== event.eventUrl && (
+              {ticketsUrl && (
                 <a
-                  href={event.ticketUrl}
+                  href={ticketsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  {...outboundClickProps(event.venue, event.title, "tickets", event.ticketUrl!)}
+                  {...outboundClickProps(event.venue, event.title, "tickets", ticketsUrl)}
                   className="flex-1 text-center px-4 py-2.5 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-medium rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
                 >
                   Tickets
@@ -348,23 +351,23 @@ export const EventCardCompact = memo(function EventCardCompact({
             </span>
           ) : (
             <>
-              {event.eventUrl && (
+              {infoUrl && (
                 <a
-                  href={event.eventUrl}
+                  href={infoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  {...outboundClickProps(event.venue, event.title, "info", event.eventUrl!)}
+                  {...outboundClickProps(event.venue, event.title, "info", infoUrl)}
                   className="px-5 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
                 >
                   Info
                 </a>
               )}
-              {event.ticketUrl && event.ticketUrl !== event.eventUrl && (
+              {ticketsUrl && (
                 <a
-                  href={event.ticketUrl}
+                  href={ticketsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  {...outboundClickProps(event.venue, event.title, "tickets", event.ticketUrl!)}
+                  {...outboundClickProps(event.venue, event.title, "tickets", ticketsUrl)}
                   className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-medium rounded-lg hover:from-amber-400 hover:to-rose-400 transition-all"
                 >
                   Tickets

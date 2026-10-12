@@ -374,7 +374,7 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
               </div>
               {excluded && (
                 <p className="mt-2 text-sm text-gray-400">
-                  Denied: won&apos;t be added to this show{a.kind === "new" ? " or saved as an artist" : ""}. Tap Denied to undo.
+                  Not saved as an artist.
                 </p>
               )}
               {open && a.kind === "new" && (
