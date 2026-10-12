@@ -303,7 +303,7 @@ type HistoryOptions = {
 }
 
 // Past approved shows matching the History filters (date range, search, venues)
-function historyQuery(options: HistoryOptions, venues: DbVenue[]) {
+function historyQuery(options: HistoryOptions, venues: DbVenue[], select = '*') {
   const today = new Date()
   const todayStr = getLocalDateString()
   const filter = options.filter || '30days'
@@ -330,7 +330,7 @@ function historyQuery(options: HistoryOptions, venues: DbVenue[]) {
 
   let query = supabase
     .from('events')
-    .select('*', { count: 'exact' })
+    .select(select, { count: 'exact' })
     .lt('date', todayStr)
     .eq('status', 'approved')
     .order('date', { ascending: false })
@@ -377,7 +377,8 @@ export async function getHistory(options?: HistoryOptions & {
 
   if (error) throw error
 
-  const shows = (data || []).map(e => toHistoricalShow(e, venues))
+  // The select string is dynamic, so the client can't infer the row type
+  const shows = ((data || []) as unknown as DbEvent[]).map(e => toHistoricalShow(e, venues))
   const totalCount = count || 0
   const hasMore = totalCount > offset + shows.length
   const result = { shows, hasMore, totalCount }
@@ -388,18 +389,53 @@ export async function getHistory(options?: HistoryOptions & {
   return result
 }
 
-// Every past show matching the History filters, for export.
+export type LineupRole = 'headliner' | 'co-headliner' | 'supporting'
+
+export type HistoryExportShow = {
+  date: string
+  time: string | null
+  title: string
+  venue: string
+  price: string | null
+  genres: string[] | null
+  // Acts in billing order; null when the show's artists haven't been matched yet
+  lineup: { name: string; role: LineupRole }[] | null
+}
+
+type ExportRow = DbEvent & {
+  genres: string[] | null
+  event_artists: { role: LineupRole; billing_order: number | null; artists: { name: string } | null }[] | null
+}
+
+// Every past show matching the History filters, for export, with its matched lineup.
 // Supabase returns at most 1000 rows per request, so page through them.
-export async function getAllHistory(options: HistoryOptions): Promise<HistoricalShow[]> {
+export async function getAllHistory(options: HistoryOptions): Promise<HistoryExportShow[]> {
   const venues = await getVenues()
   const pageSize = 1000
-  const shows: HistoricalShow[] = []
+  const shows: HistoryExportShow[] = []
+  const select = '*, event_artists(role, billing_order, artists(name))'
 
   for (let offset = 0; ; offset += pageSize) {
-    const { data, error } = await historyQuery(options, venues).range(offset, offset + pageSize - 1)
+    const { data, error } = await historyQuery(options, venues, select).range(offset, offset + pageSize - 1)
     if (error) throw error
-    shows.push(...(data || []).map(e => toHistoricalShow(e, venues)))
-    if (!data || data.length < pageSize) break
+    const rows = (data || []) as unknown as ExportRow[]
+    for (const row of rows) {
+      const lineup = (row.event_artists || [])
+        .filter(a => a.artists?.name)
+        .sort((a, b) => (a.billing_order ?? 0) - (b.billing_order ?? 0))
+        .map(a => ({ name: a.artists!.name, role: a.role }))
+      const { date, title, venue } = toHistoricalShow(row, venues)
+      shows.push({
+        date,
+        time: row.time ? row.time.slice(0, 5) : null,  // "20:00:00" -> "20:00"
+        title,
+        venue,
+        price: row.price || null,
+        genres: row.genres?.length ? row.genres : null,
+        lineup: lineup.length ? lineup : null,
+      })
+    }
+    if (rows.length < pageSize) break
   }
 
   return shows

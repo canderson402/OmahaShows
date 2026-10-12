@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { supabase, approveEvent, rejectEvent, getVenues } from "../lib/supabase";
 import { VENUE_COLORS } from "../lib/constants";
@@ -83,6 +83,15 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [eventSearch, setEventSearch] = useState("");
   const [venueFilter, setVenueFilter] = useState<string>("");
+  // Events tab date range (YYYY-MM-DD, "" = open-ended); read through a ref so every
+  // fetchCurrentEvents call applies it
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const dateRangeRef = useRef({ from: "", to: "" });
+  useEffect(() => {
+    dateRangeRef.current = { from: dateFrom, to: dateTo };
+  }, [dateFrom, dateTo]);
+  const [eventsTotal, setEventsTotal] = useState(0);
   const [statusFilter, setStatusFilter] = useState<"approved" | "rejected" | "removed">("approved");
   const [editingEvent, setEditingEvent] = useState<DbEvent | null>(null);
   const [editForm, setEditForm] = useState<Partial<DbEvent>>({});
@@ -263,10 +272,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       .eq("status", status)
       .order("date", { ascending: status === "approved" });
 
-    // Only filter by future date for approved and removed events
-    if (status === "approved" || status === "removed") {
+    const { from, to } = dateRangeRef.current;
+    if (from) {
+      query = query.gte("date", from);
+    } else if (status === "approved" || status === "removed") {
+      // Without a start date, approved and removed events default to upcoming
       const today = new Date().toISOString().split("T")[0];
       query = query.gte("date", today);
+    }
+    if (to) {
+      query = query.lte("date", to);
     }
 
     if (search && search.trim()) {
@@ -288,6 +303,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
         setCurrentEvents(prev => [...prev, ...data]);
       }
       setHasMoreEvents(count ? offset + data.length < count : false);
+      setEventsTotal(count ?? 0);
     }
   }, []);
 
@@ -355,7 +371,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
       fetchCurrentEvents(eventSearch, venueFilter, statusFilter, 0);
     }, 300);
     return () => clearTimeout(timer);
-  }, [eventSearch, venueFilter, statusFilter, fetchCurrentEvents]);
+  }, [eventSearch, venueFilter, statusFilter, dateFrom, dateTo, fetchCurrentEvents]);
 
   // Refresh pending when tab changes to pending
   useEffect(() => {
@@ -1619,10 +1635,38 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     <option key={v.id} value={v.id}>{v.name}</option>
                   ))}
                 </select>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    max={dateTo || undefined}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    aria-label="From date"
+                    className="flex-1 sm:flex-none px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500 [color-scheme:dark]"
+                  />
+                  <span className="text-gray-500 text-sm">to</span>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    min={dateFrom || undefined}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    aria-label="To date"
+                    className="flex-1 sm:flex-none px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500 [color-scheme:dark]"
+                  />
+                  {(dateFrom || dateTo) && (
+                    <button
+                      onClick={() => { setDateFrom(""); setDateTo(""); }}
+                      className="px-2 py-2 text-sm text-gray-400 hover:text-white"
+                      title="Clear dates"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
               </div>
 
               <p className="text-gray-500 text-xs sm:text-sm mb-4">
-                Showing {currentEvents.length} {statusFilter === "approved" ? "upcoming" : statusFilter === "removed" ? "upcoming removed" : "rejected"} events.
+                Showing {currentEvents.length} of {eventsTotal} {dateFrom ? "" : statusFilter === "approved" ? "upcoming " : statusFilter === "removed" ? "upcoming removed " : ""}{statusFilter === "rejected" ? "rejected " : statusFilter === "removed" && dateFrom ? "removed " : ""}events.
                 {statusFilter === "approved" ? " Tap to edit." : ""}
                 {statusFilter === "removed" ? " No longer on the venue's site. Restored shows are removed again on the next scrape unless the venue lists them." : ""}
               </p>
@@ -1717,7 +1761,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
 
               {currentEvents.length === 0 && !loading && (
                 <div className="text-center py-8 text-gray-500">
-                  {eventSearch ? "No events match your search." : "No upcoming events."}
+                  {eventSearch || venueFilter || dateFrom || dateTo ? "No events match your filters." : "No upcoming events."}
                 </div>
               )}
             </div>
