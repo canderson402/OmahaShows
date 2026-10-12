@@ -51,9 +51,10 @@ interface EventListProps {
   isSaved?: (id: string) => boolean;  // check if event is saved
   onToggleSave?: (id: string) => void;  // toggle save state
   initialVisibleCount?: number;  // initial number of visible events (for scroll restoration)
+  onEdit?: (id: string) => void;  // admin only: open the show editor
 }
 
-export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId, isSaved, onToggleSave, initialVisibleCount }: EventListProps) {
+export function EventList({ events, layout, filter, venueColors, isJustAdded, hasMore: hasMoreFromDb, loadingMore, onLoadMore, highlightedEventId, isSaved, onToggleSave, initialVisibleCount, onEdit }: EventListProps) {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount || EVENTS_PER_PAGE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const { today, tomorrow } = useMemo(() => {
@@ -219,6 +220,7 @@ export function EventList({ events, layout, filter, venueColors, isJustAdded, ha
                   isHighlighted={event.id === highlightedEventId}
                   isSaved={isSaved?.(event.id)}
                   onToggleSave={onToggleSave}
+                  onEdit={onEdit}
                 />
               </div>
             );

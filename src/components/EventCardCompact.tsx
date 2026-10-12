@@ -14,6 +14,8 @@ interface EventCardCompactProps {
   isSaved?: boolean;
   onToggleSave?: (id: string) => void;
   isExpired?: boolean;
+  /** Admin only: opens the show editor */
+  onEdit?: (id: string) => void;
 }
 
 // Image component with error fallback
@@ -160,6 +162,7 @@ export const EventCardCompact = memo(function EventCardCompact({
   isSaved = false,
   onToggleSave,
   isExpired = false,
+  onEdit,
 }: EventCardCompactProps) {
   const formatDateOverlay = (dateStr: string) => {
     const date = new Date(dateStr + "T00:00:00");
@@ -214,8 +217,21 @@ export const EventCardCompact = memo(function EventCardCompact({
                 <div className="w-full h-full bg-gray-800" />
               )}
             </OriginalLink>
-            <div className="absolute bottom-2 left-2 z-10">
+            <div className="absolute bottom-2 left-2 z-10 flex items-center">
               <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />
+              {onEdit && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(event.id); }}
+                  className="ml-2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                  aria-label="Edit show"
+                  title="Edit show"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.232-6.232a2.5 2.5 0 113.536 3.536L12.536 16.5 8 17.5l1-4.5z" />
+                  </svg>
+                </button>
+              )}
             </div>
             {onToggleSave && (
               <div className="absolute bottom-2 right-2 z-10">
@@ -372,8 +388,21 @@ export const EventCardCompact = memo(function EventCardCompact({
               ) : (
                 <div className="w-full h-full bg-gray-800" />
               )}
-              <div className="absolute bottom-2 left-2 z-10">
+              <div className="absolute bottom-2 left-2 z-10 flex items-center">
                 <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />
+              {onEdit && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(event.id); }}
+                  className="ml-2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                  aria-label="Edit show"
+                  title="Edit show"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.232-6.232a2.5 2.5 0 113.536 3.536L12.536 16.5 8 17.5l1-4.5z" />
+                  </svg>
+                </button>
+              )}
               </div>
               {onToggleSave && (
                 <div className="absolute bottom-2 right-2 z-10">
@@ -401,8 +430,21 @@ export const EventCardCompact = memo(function EventCardCompact({
               ) : (
                 <div className="w-full h-full bg-gray-800" />
               )}
-              <div className="absolute bottom-2 left-2 z-10">
+              <div className="absolute bottom-2 left-2 z-10 flex items-center">
                 <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />
+              {onEdit && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(event.id); }}
+                  className="ml-2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                  aria-label="Edit show"
+                  title="Edit show"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.232-6.232a2.5 2.5 0 113.536 3.536L12.536 16.5 8 17.5l1-4.5z" />
+                  </svg>
+                </button>
+              )}
               </div>
               {onToggleSave && (
                 <div className="absolute bottom-2 right-2 z-10">

@@ -11,6 +11,7 @@ import { ContactModal } from "../src/components/ContactModal"
 import { CalendarView } from "../src/components/CalendarView"
 import { SeoStructuredData } from "../src/components/SeoStructuredData"
 import { SubmitShowForm } from "../src/components/SubmitShowForm"
+import { AdminShowEditor } from "../src/components/AdminShowEditor"
 import { useDebounce } from "../src/hooks/useDebounce"
 import { useSavedShows } from "../src/hooks/useSavedShows"
 import { useAuth } from "../src/hooks/useAuth"
@@ -177,6 +178,9 @@ export default function HomePage() {
   const [sources, setSources] = useState<SourceStatus[]>([])
   // Only admins have accounts, so being logged in means admin
   const { isAuthenticated: isAdmin } = useAuth()
+  // Admin show editor: the show being edited, and a bump to refetch the list after saving
+  const [editingEventId, setEditingEventId] = useState<string | null>(null)
+  const [eventsRefresh, setEventsRefresh] = useState(0)
   const [view, setView] = useState<View>("events")
   const [layout] = useState<Layout>("compact")
   const [enabledVenues, setEnabledVenues] = useState<Set<string>>(new Set())
@@ -322,7 +326,7 @@ export default function HomePage() {
       }
     }
     searchEvents()
-  }, [debouncedEventSearch, timeFilter, enabledVenueIds, dataLoaded])
+  }, [debouncedEventSearch, timeFilter, enabledVenueIds, dataLoaded, eventsRefresh])
 
   const loadMoreHistory = useCallback(async () => {
     if (loadingMoreHistory || !hasMoreHistory) return
@@ -646,7 +650,7 @@ export default function HomePage() {
                   </div>
 
                   {view === "events" ? (
-                    <EventList events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={venueColors} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} isSaved={isSaved} onToggleSave={handleToggleSave} />
+                    <EventList onEdit={isAdmin ? setEditingEventId : undefined} events={events} layout={layout} filter={{ enabledVenues, showPast: false, timeFilter, searchQuery: debouncedEventSearch }} venueColors={venueColors} isJustAdded={isJustAdded} hasMore={hasMoreEvents} loadingMore={loadingMore} onLoadMore={loadMoreEvents} isSaved={isSaved} onToggleSave={handleToggleSave} />
                   ) : view === "myshows" ? (
                     <MyShowsList savedIds={savedIds} venueColors={venueColors} onToggleSave={handleToggleSave} />
                   ) : view === "history" ? (
@@ -667,7 +671,14 @@ export default function HomePage() {
               <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
             </div>
           </div>
-          <SeoStructuredData events={events} />
+          {isAdmin && editingEventId && (
+        <AdminShowEditor
+          eventId={editingEventId}
+          onClose={() => setEditingEventId(null)}
+          onSaved={() => { setEditingEventId(null); setEventsRefresh((n) => n + 1) }}
+        />
+      )}
+      <SeoStructuredData events={events} />
         </main>
       )}
 
