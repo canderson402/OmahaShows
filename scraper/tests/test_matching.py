@@ -180,3 +180,40 @@ def test_rescheduled_requires_url():
     old = {"id": "a", "title": "Band X", "date": "2026-10-07", "event_url": None}
     new = ScrapedEvent("Band X", "2026-10-26", None)
     assert find_rescheduled_event(new, [old], scraped_dates={"2026-10-26"}) is None
+
+
+from matching import pair_renames, removal_looks_safe
+
+
+def test_pair_renames_pairs_single_swap_on_a_date():
+    # Slowdown 10/16: headliner changed from Joyer to Amphibaphobia
+    old = {"id": "theslowdown-2026-10-16-joyer", "date": "2026-10-16", "title": "Joyer"}
+    new = MockEvent("theslowdown-2026-10-16-amphibaphobia", "Amphibaphobia", "2026-10-16", "theslowdown")
+    assert pair_renames([old], [new]) == [(old, new)]
+
+
+def test_pair_renames_skips_ambiguous_dates():
+    # Two rooms, two shows swapped out the same night: can't tell which is which
+    olds = [
+        {"id": "a", "date": "2026-10-16", "title": "Band A"},
+        {"id": "b", "date": "2026-10-16", "title": "Band B"},
+    ]
+    news = [
+        MockEvent("c", "Band C", "2026-10-16", "theslowdown"),
+        MockEvent("d", "Band D", "2026-10-16", "theslowdown"),
+    ]
+    assert pair_renames(olds, news) == []
+
+
+def test_pair_renames_needs_same_date():
+    old = {"id": "a", "date": "2026-10-16", "title": "Band A"}
+    new = MockEvent("b", "Band B", "2026-10-17", "theslowdown")
+    assert pair_renames([old], [new]) == []
+
+
+def test_removal_looks_safe():
+    assert removal_looks_safe(1, 40)
+    assert removal_looks_safe(3, 4)
+    assert removal_looks_safe(20, 40)
+    assert not removal_looks_safe(21, 40)
+    assert not removal_looks_safe(30, 30)

@@ -108,3 +108,36 @@ def find_rescheduled_event(new_event, db_events: list[dict], scraped_dates: set[
             return existing
 
     return None
+
+
+def pair_renames(vanished: list[dict], unmatched: list) -> list[tuple[dict, object]]:
+    """
+    Pair shows that vanished from a venue's site with newly scraped ones on the same date.
+
+    Only pairs when a date has exactly one vanished show and exactly one new show,
+    which is a rename (e.g. the headliner changed). Anything less clear-cut is left
+    unpaired so the old show gets removed and the new one inserted.
+    """
+    vanished_by_date: dict[str, list[dict]] = {}
+    for row in vanished:
+        vanished_by_date.setdefault(row.get("date"), []).append(row)
+    unmatched_by_date: dict[str, list] = {}
+    for event in unmatched:
+        unmatched_by_date.setdefault(event.date, []).append(event)
+
+    pairs = []
+    for event_date, rows in vanished_by_date.items():
+        events = unmatched_by_date.get(event_date, [])
+        if len(rows) == 1 and len(events) == 1:
+            pairs.append((rows[0], events[0]))
+    return pairs
+
+
+def removal_looks_safe(vanished_count: int, upcoming_count: int) -> bool:
+    """
+    Guard against a half-broken scrape wiping a venue's calendar.
+
+    Removes freely when only a few shows vanished, otherwise only when it's at most
+    half of the venue's upcoming shows.
+    """
+    return vanished_count <= max(3, upcoming_count // 2)

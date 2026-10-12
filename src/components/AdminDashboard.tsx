@@ -57,7 +57,7 @@ interface EventChange {
   proposed_data: Partial<DbEvent>;
   original_data: Partial<DbEvent> | null;
   changed_fields: string[] | null;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'removed';
   created_at: string;
   resolved_at: string | null;
   resolved_by: string | null;
@@ -83,7 +83,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [eventSearch, setEventSearch] = useState("");
   const [venueFilter, setVenueFilter] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<"approved" | "rejected">("approved");
+  const [statusFilter, setStatusFilter] = useState<"approved" | "rejected" | "removed">("approved");
   const [editingEvent, setEditingEvent] = useState<DbEvent | null>(null);
   const [editForm, setEditForm] = useState<Partial<DbEvent>>({});
   const [saving, setSaving] = useState(false);
@@ -256,15 +256,15 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
     }
   }, []);
 
-  const fetchCurrentEvents = useCallback(async (search?: string, venueId?: string, status: "approved" | "rejected" = "approved", offset = 0) => {
+  const fetchCurrentEvents = useCallback(async (search?: string, venueId?: string, status: "approved" | "rejected" | "removed" = "approved", offset = 0) => {
     let query = supabase
       .from("events")
       .select("*", { count: "exact" })
       .eq("status", status)
       .order("date", { ascending: status === "approved" });
 
-    // Only filter by future date for approved events
-    if (status === "approved") {
+    // Only filter by future date for approved and removed events
+    if (status === "approved" || status === "removed") {
       const today = new Date().toISOString().split("T")[0];
       query = query.gte("date", today);
     }
@@ -1531,6 +1531,16 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                   >
                     Rejected
                   </button>
+                  <button
+                    onClick={() => setStatusFilter("removed")}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      statusFilter === "removed"
+                        ? "bg-amber-600 text-white"
+                        : "bg-gray-800 text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Removed
+                  </button>
                 </div>
 
                 {statusFilter === "approved" && (
@@ -1612,8 +1622,9 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
               </div>
 
               <p className="text-gray-500 text-xs sm:text-sm mb-4">
-                Showing {currentEvents.length} {statusFilter === "approved" ? "upcoming" : "rejected"} events.
+                Showing {currentEvents.length} {statusFilter === "approved" ? "upcoming" : statusFilter === "removed" ? "upcoming removed" : "rejected"} events.
                 {statusFilter === "approved" ? " Tap to edit." : ""}
+                {statusFilter === "removed" ? " No longer on the venue's site. Restored shows are removed again on the next scrape unless the venue lists them." : ""}
               </p>
 
               <div className="divide-y divide-gray-800">
@@ -1639,7 +1650,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                       <span className="text-xs sm:text-sm flex-shrink-0" style={{ color: venueHex }}>
                         {venueName}
                       </span>
-                      {statusFilter === "rejected" ? (
+                      {statusFilter === "rejected" || statusFilter === "removed" ? (
                         <div className="flex gap-2 flex-shrink-0">
                           <button
                             onClick={(e) => { e.stopPropagation(); handleRestoreEvent(event.id); }}
@@ -1804,6 +1815,7 @@ export function AdminDashboard({ onLogout, tab, setTab }: AdminDashboardProps) {
                     <option value="approved">Approved</option>
                     <option value="pending">Pending</option>
                     <option value="rejected">Rejected</option>
+                    <option value="removed">Removed</option>
                   </select>
                 </div>
                 <div>

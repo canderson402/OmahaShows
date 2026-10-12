@@ -68,7 +68,7 @@ export interface Database {
           age_restriction: string | null
           supporting_artists: string[] | null
           source: string
-          status: 'pending' | 'approved' | 'rejected'
+          status: 'pending' | 'approved' | 'rejected' | 'removed'
           added_at: string
           created_at: string
           updated_at: string
@@ -86,7 +86,7 @@ export interface Database {
           age_restriction?: string | null
           supporting_artists?: string[] | null
           source?: string
-          status?: 'pending' | 'approved' | 'rejected'
+          status?: 'pending' | 'approved' | 'rejected' | 'removed'
           added_at?: string
           created_at?: string
           updated_at?: string
@@ -104,7 +104,7 @@ export interface Database {
           age_restriction?: string | null
           supporting_artists?: string[] | null
           source?: string
-          status?: 'pending' | 'approved' | 'rejected'
+          status?: 'pending' | 'approved' | 'rejected' | 'removed'
           added_at?: string
           created_at?: string
           updated_at?: string

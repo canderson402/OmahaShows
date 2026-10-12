@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from supabase import create_client, Client
 from config import get_scrapers
 from models import Event
-from matching import find_existing_event, find_rescheduled_event, stable_event_key
+from matching import find_existing_event, find_rescheduled_event, stable_event_key, pair_renames, removal_looks_safe
 from venue_matcher import VenueMatcher
 
 # Get Supabase credentials from environment
@@ -87,22 +87,26 @@ def get_auto_approve_events() -> bool:
     return False
 
 
-def upsert_events(events: list[Event], scraper_id: str, auto_approve: bool = False) -> tuple[list[str], list[str]]:
-    """Upsert events to Supabase using fuzzy matching.
+def upsert_events(events: list[Event], scraper_id: str, auto_approve: bool = False) -> tuple[list[str], list[str], list[str]]:
+    """Sync a scraper's events to Supabase using fuzzy matching.
 
     - New events: inserted with status='approved' when auto_approve is True, else 'pending'
     - Changed events: updated directly (scraper updates are trusted)
     - Unchanged events: skipped
+    - Upcoming shows the venue no longer lists: renamed in place when they pair up
+      one-to-one with a new show that night, otherwise marked 'removed'
 
-    Returns tuple of (new_event_ids, changed_event_ids).
+    Returns tuple of (new_event_ids, changed_event_ids, removed_event_ids).
     """
     if not events:
-        return [], []
+        return [], [], []
 
     now = datetime.now(timezone.utc).isoformat()
+    today = date.today().isoformat()
     new_status = "approved" if auto_approve else "pending"
     new_ids: list[str] = []
     changed_ids: list[str] = []
+    removed_ids: list[str] = []
 
     # Fields to compare for changes (excluding metadata fields)
     compare_fields = [
@@ -122,11 +126,33 @@ def upsert_events(events: list[Event], scraper_id: str, auto_approve: bool = Fal
             scraped_dates_by_key.setdefault((venue_of(event), key), set()).add(event.date)
 
     upcoming_by_venue: dict[str, list[dict]] = {}
+    # DB rows this scrape still lists, so the rest can be taken down afterwards
+    seen_ids: set[str] = set()
+    # New shows, inserted after the loop so renames can update the old row instead
+    unmatched: list[tuple[Event, dict]] = []
+
+    def apply_changes(existing: dict, event_data: dict):
+        changed_fields = []
+        for field in compare_fields:
+            old_val = normalize_value(existing.get(field), field)
+            new_val = normalize_value(event_data.get(field), field)
+            if old_val != new_val:
+                changed_fields.append(field)
+
+        update_data = {f: event_data[f] for f in changed_fields if f in event_data}
+        # Back on the venue's site after being taken down
+        if existing.get("status") == "removed":
+            update_data["status"] = new_status
+        if update_data:
+            # Auto-apply the update directly — scraper updates are trusted
+            update_data["updated_at"] = now
+            supabase.table("events").update(update_data).eq("id", existing["id"]).execute()
+            changed_ids.append(existing["id"])
 
     for event in events:
         # Get the actual venue_id for this event
         # For discovery scrapers (ohmyomaha), event.source contains the matched venue_id
-        event_venue_id = event.source if event.source and event.source != scraper_id else scraper_id
+        event_venue_id = venue_of(event)
 
         # Get all events for this venue + date for fuzzy matching
         db_events = get_events_by_venue_date(event_venue_id, event.date)
@@ -151,7 +177,7 @@ def upsert_events(events: list[Event], scraper_id: str, auto_approve: bool = Fal
         # Build event data
         # For discovery scrapers (ohmyomaha), use event.source as venue_id
         # For venue-specific scrapers, use scraper_id
-        venue_id = event.source if event.source and event.source != scraper_id else scraper_id
+        venue_id = event_venue_id
         event_data = {
             "id": event.id,
             "title": event.title,
@@ -169,44 +195,77 @@ def upsert_events(events: list[Event], scraper_id: str, auto_approve: bool = Fal
         }
 
         if existing:
-            # Found a match - check if anything actually changed
-            changed_fields = []
-            for field in compare_fields:
-                old_val = normalize_value(existing.get(field), field)
-                new_val = normalize_value(event_data.get(field), field)
-                if old_val != new_val:
-                    changed_fields.append(field)
+            seen_ids.add(existing["id"])
+            apply_changes(existing, event_data)
+            continue
 
-            if changed_fields:
-                # Auto-apply the update directly — scraper updates are trusted
-                update_data = {f: event_data[f] for f in changed_fields if f in event_data}
-                update_data["updated_at"] = now
-                supabase.table("events").update(update_data).eq("id", existing["id"]).execute()
-                changed_ids.append(existing["id"])
+        # No match found - check if event ID already exists (safety check)
+        existing_by_id = supabase.table("events").select("id").eq("id", event.id).execute()
+        if existing_by_id.data:
+            # Event already exists by ID, skip
+            seen_ids.add(event.id)
+            continue
+
+        # Listed twice in this scrape
+        same_night = [e for e, _ in unmatched if e.date == event.date and venue_of(e) == venue_id]
+        if any(e.id == event.id for e in same_night) or find_existing_event(
+            event, [{"title": e.title} for e in same_night]
+        ):
+            continue
+
+        unmatched.append((event, event_data))
+
+    # Upcoming shows this venue's scraper added that its site no longer lists.
+    # Today's shows are left alone: venues often drop them from the site during the day.
+    upcoming = (
+        supabase.table("events").select("*")
+        .eq("venue_id", scraper_id).eq("source", scraper_id)
+        .in_("status", ["approved", "pending"]).gt("date", today)
+        .execute().data or []
+    )
+    vanished = [row for row in upcoming if row["id"] not in seen_ids]
+
+    # Renamed shows (e.g. new headliner): update the old row so its ID and links survive
+    venue_unmatched = [e for e, data in unmatched if data["venue_id"] == scraper_id]
+    renamed_event_ids: set[str] = set()
+    for row, event in pair_renames(vanished, venue_unmatched):
+        data = next(d for e, d in unmatched if e is event)
+        print(f"  Renamed: {row['title']} -> {event.title} ({event.date})")
+        apply_changes(row, data)
+        seen_ids.add(row["id"])
+        renamed_event_ids.add(event.id)
+    vanished = [row for row in vanished if row["id"] not in seen_ids]
+
+    for event, event_data in unmatched:
+        if event.id in renamed_event_ids:
+            continue
+
+        # New event - insert with status based on auto_approve setting
+        event_data["status"] = new_status
+        event_data["added_at"] = now
+        event_data["updated_at"] = now
+        supabase.table("events").insert(event_data).execute()
+
+        # Log new event for tracking
+        log_event_change(
+            event_id=event.id,
+            change_type="new",
+            proposed_data=event_data,
+            original_data=None,
+            changed_fields=None,
+        )
+        new_ids.append(event.id)
+
+    if vanished:
+        if removal_looks_safe(len(vanished), len(upcoming)):
+            for row in vanished:
+                print(f"  Removed: {row['title']} ({row['date']})")
+                supabase.table("events").update({"status": "removed", "updated_at": now}).eq("id", row["id"]).execute()
+                removed_ids.append(row["id"])
         else:
-            # No match found - check if event ID already exists (safety check)
-            existing_by_id = supabase.table("events").select("id").eq("id", event.id).execute()
-            if existing_by_id.data:
-                # Event already exists by ID, skip
-                continue
+            print(f"  WARNING: {len(vanished)} of {len(upcoming)} upcoming shows missing from the site, skipping removal")
 
-            # New event - insert with status based on auto_approve setting
-            event_data["status"] = new_status
-            event_data["added_at"] = now
-            event_data["updated_at"] = now
-            supabase.table("events").insert(event_data).execute()
-
-            # Log new event for tracking
-            log_event_change(
-                event_id=event.id,
-                change_type="new",
-                proposed_data=event_data,
-                original_data=None,
-                changed_fields=None,
-            )
-            new_ids.append(event.id)
-
-    return new_ids, changed_ids
+    return new_ids, changed_ids, removed_ids
 
 
 def log_scraper_run(
@@ -309,11 +368,11 @@ def run(only_ids: set[str] | None = None):
             # Filter to future events only
             future_events = [e for e in events if e.date >= today]
             try:
-                new_ids, changed_ids = upsert_events(future_events, scraper.id, auto_approve=auto_approve)
+                new_ids, changed_ids, removed_ids = upsert_events(future_events, scraper.id, auto_approve=auto_approve)
                 total_events += len(future_events)
                 total_new += len(new_ids)
                 total_changed += len(changed_ids)
-                print(f"OK - {len(future_events)} events ({len(new_ids)} new, {len(changed_ids)} changed)")
+                print(f"OK - {len(future_events)} events ({len(new_ids)} new, {len(changed_ids)} changed, {len(removed_ids)} removed)")
                 successful_scrapers.append(scraper.name)
                 log_scraper_run(
                     scraper.id,

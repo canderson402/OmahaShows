@@ -43,7 +43,7 @@ CREATE TABLE events (
   age_restriction TEXT,
   supporting_artists TEXT[],
   source TEXT NOT NULL DEFAULT 'manual',
-  status TEXT NOT NULL DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected')),
+  status TEXT NOT NULL DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected', 'removed')),
   category TEXT CHECK (category IN ('music', 'sports', 'theater', 'comedy')),
   added_at TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
