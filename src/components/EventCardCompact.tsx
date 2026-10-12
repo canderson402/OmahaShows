@@ -1,6 +1,5 @@
 // web/src/components/EventCardCompact.tsx
 import { memo, useState } from "react";
-import Link from "next/link";
 import type { Event } from "../types";
 import { outboundClickProps } from "../analytics";
 
@@ -130,6 +129,29 @@ function SaveButton({ isSaved, onClick }: { isSaved: boolean; onClick: () => voi
 }
 
 // Memoized to prevent unnecessary re-renders
+/** Link to the venue's own listing, or plain content when the show has no link */
+function OriginalLink({ url, venue, title, linkType, className, children }: {
+  url?: string;
+  venue: string;
+  title: string;
+  linkType: "info" | "image";
+  className?: string;
+  children: React.ReactNode;
+}) {
+  if (!url) return <div className={className}>{children}</div>;
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      {...outboundClickProps(venue, title, linkType, url)}
+      className={className}
+    >
+      {children}
+    </a>
+  );
+}
+
 export const EventCardCompact = memo(function EventCardCompact({
   event,
   venueColors,
@@ -156,7 +178,9 @@ export const EventCardCompact = memo(function EventCardCompact({
     return `${hour12}:${minutes} ${ampm}`;
   };
 
+  // Shared links use our show page; everything else goes to the venue's own listing
   const showPageUrl = `/show/${event.id}`;
+  const originalUrl = event.eventUrl || event.ticketUrl;
 
   return (
     <div
@@ -183,13 +207,13 @@ export const EventCardCompact = memo(function EventCardCompact({
             </p>
           </div>
           <div className="relative bg-gray-900 rounded-b-xl overflow-hidden aspect-square">
-            <Link href={showPageUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+            <OriginalLink url={originalUrl} venue={event.venue} title={event.title} linkType="image" className="block w-full h-full">
               {event.imageUrl ? (
                 <EventImage src={event.imageUrl} alt={event.title} />
               ) : (
                 <div className="w-full h-full bg-gray-800" />
               )}
-            </Link>
+            </OriginalLink>
             <div className="absolute bottom-2 left-2 z-10">
               <ShareButton url={`${window.location.origin}${showPageUrl}`} title={event.title} />
             </div>
@@ -204,14 +228,15 @@ export const EventCardCompact = memo(function EventCardCompact({
         {/* Content */}
         <div>
           {!isExpired ? (
-            <Link
-              href={showPageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <OriginalLink
+              url={originalUrl}
+              venue={event.venue}
+              title={event.title}
+              linkType="info"
               className="text-xl font-bold text-white hover:text-blue-400 transition-colors"
             >
               {event.title}
-            </Link>
+            </OriginalLink>
           ) : (
             <h3 className="text-xl font-bold text-white">{event.title}</h3>
           )}
@@ -251,14 +276,17 @@ export const EventCardCompact = memo(function EventCardCompact({
             </span>
           ) : (
             <>
-              <Link
-                href={showPageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 text-center px-4 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Info
-              </Link>
+              {event.eventUrl && (
+                <a
+                  href={event.eventUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  {...outboundClickProps(event.venue, event.title, "info", event.eventUrl!)}
+                  className="flex-1 text-center px-4 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  Info
+                </a>
+              )}
               {event.ticketUrl && event.ticketUrl !== event.eventUrl && (
                 <a
                   href={event.ticketUrl}
@@ -304,14 +332,17 @@ export const EventCardCompact = memo(function EventCardCompact({
             </span>
           ) : (
             <>
-              <Link
-                href={showPageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-5 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Info
-              </Link>
+              {event.eventUrl && (
+                <a
+                  href={event.eventUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  {...outboundClickProps(event.venue, event.title, "info", event.eventUrl!)}
+                  className="px-5 py-2.5 bg-gray-700 text-gray-200 font-medium rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  Info
+                </a>
+              )}
               {event.ticketUrl && event.ticketUrl !== event.eventUrl && (
                 <a
                   href={event.ticketUrl}
@@ -352,10 +383,11 @@ export const EventCardCompact = memo(function EventCardCompact({
             </div>
           </div>
         ) : (
-          <Link
-            href={showPageUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <OriginalLink
+            url={originalUrl}
+            venue={event.venue}
+            title={event.title}
+            linkType="image"
             className="w-[220px] flex-shrink-0 overflow-hidden block hover:opacity-90 transition-opacity"
           >
             <div className="bg-slate-900 py-2 px-3 rounded-t-xl">
@@ -378,20 +410,21 @@ export const EventCardCompact = memo(function EventCardCompact({
                 </div>
               )}
             </div>
-          </Link>
+          </OriginalLink>
         )}
 
         {/* Content */}
         <div className="flex-1 pt-1 pr-52">
           {!isExpired ? (
-            <Link
-              href={showPageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <OriginalLink
+              url={originalUrl}
+              venue={event.venue}
+              title={event.title}
+              linkType="info"
               className="text-xl font-bold text-white hover:text-blue-400 transition-colors"
             >
               {event.title}
-            </Link>
+            </OriginalLink>
           ) : (
             <h3 className="text-xl font-bold text-white">{event.title}</h3>
           )}
