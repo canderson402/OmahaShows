@@ -10,7 +10,10 @@ export class SpotifyError extends Error {
 
 export const spotifyArtistUrl = (id: string) => `https://open.spotify.com/artist/${id}`;
 
-export function createSpotifyClient(opts: { clientId: string; clientSecret: string; fetch?: typeof fetch }): SpotifyClient {
+export function createSpotifyClient(opts: { clientId: string; clientSecret: string; fetch?: typeof fetch }): SpotifyClient & {
+  /** Spotify's genre tags for an artist ([] when Spotify has none). */
+  artistGenres(id: string): Promise<string[]>;
+} {
   const f = opts.fetch ?? fetch;
   let cached: { token: string; expiresAt: number } | null = null;
 
@@ -60,6 +63,10 @@ export function createSpotifyClient(opts: { clientId: string; clientSecret: stri
         id: a.id, name: a.name, genres: a.genres ?? [], imageUrl: a.images?.[0]?.url ?? null,
       }));
     },
+    async artistGenres(id) {
+      const data = await get<{ genres?: unknown }>(`artists/${encodeURIComponent(id)}`);
+      return Array.isArray(data?.genres) ? data.genres.filter((g): g is string => typeof g === "string") : [];
+    },
     async albumTitles(artistName) {
       type R = { albums: { items: { name: string; release_date?: string }[] } };
       const q = encodeURIComponent(`artist:"${artistName}"`);
@@ -90,4 +97,17 @@ export async function lookupSpotifyArtistName(id: string, f: typeof fetch = fetc
   } catch {
     throw new SpotifyError("Spotify lookup returned unparseable JSON", 0);
   }
+}
+
+let envClient: ReturnType<typeof createSpotifyClient> | null = null;
+
+/** Spotify genre tags for an artist, using the server's SPOTIFY_CLIENT_ID/SECRET. */
+export async function spotifyGenresFromEnv(id: string): Promise<string[]> {
+  if (!envClient) {
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    if (!clientId || !clientSecret) throw new SpotifyError("SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET are required", 0);
+    envClient = createSpotifyClient({ clientId, clientSecret });
+  }
+  return envClient.artistGenres(id);
 }

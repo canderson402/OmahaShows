@@ -13,22 +13,29 @@ const link = (id: string, conf = 0.85): LinkProposal => ({
 });
 
 function memStore() {
-  const artists = new Map<string, { id: string; name: string; genres: string[]; spotify_id: string | null; spotify_url: string | null }>();
+  const artists = new Map<string, { id: string; name: string; genres: string[]; spotify_id: string | null; spotify_url: string | null; extra?: Record<string, unknown> }>();
   const aliases = new Map<string, string>();
   const links: { artist_id: string; external_id: string; status: string; source?: string }[] = [];
   const writes: string[] = [];
   let n = 0;
+  const spotifyTags: Record<string, string[]> = {};
   artists.set("old1", { id: "old1", name: "Surfer Girl", genres: ["indie"], spotify_id: null, spotify_url: null });
   aliases.set("surfer girl", "old1");
   const store: AcceptStore = {
     async findArtistByAlias(a) { const id = aliases.get(a); return id ? { id, genres: artists.get(id)!.genres } : null; },
     async findArtistByName(name) { const a = [...artists.values()].find((x) => x.name.toLowerCase() === name.toLowerCase()); return a ? { id: a.id, genres: a.genres } : null; },
     async artistExists(id) { return artists.has(id); },
-    async createArtist(a) { writes.push("createArtist"); const id = `new${++n}`; artists.set(id, { id, name: a.name, genres: a.genres, spotify_id: null, spotify_url: null }); return { id, genres: a.genres }; },
+    async createArtist(a) {
+      writes.push("createArtist"); const id = `new${++n}`;
+      const { name, genres, normalized_name: _n, ...extra } = a;
+      artists.set(id, { id, name, genres, spotify_id: null, spotify_url: null, extra });
+      return { id, genres };
+    },
     async addAlias(alias, id) { writes.push("addAlias"); if (!aliases.has(alias)) aliases.set(alias, id); },
     async getArtistGenres(id) { return artists.get(id)?.genres ?? []; },
     async artistIdBySpotifyId(sid) { return [...artists.values()].find((a) => a.spotify_id === sid || a.spotify_url?.includes(sid))?.id ?? null; },
     async lookupSpotifyArtist(sid) { return sid === ID_FAKE ? null : "Some Artist"; },
+    async spotifyGenres(sid) { return spotifyTags[sid] ?? []; },
     async setVerifiedSpotify(id, l) {
       writes.push("setVerified");
       for (const x of links) if (x.artist_id === id && x.status === "verified") x.status = "rejected";
@@ -47,7 +54,7 @@ function memStore() {
     async updateEvent(ev, p) { writes.push(`event ${ev}: ${p.category} [${p.genres.join(",")}]`); },
     async markAnalysis(id, s) { writes.push(`analysis ${id}: ${s}`); },
   };
-  return { store, artists, aliases, links, writes };
+  return { store, artists, aliases, links, writes, spotifyTags };
 }
 
 const analysis = (): PendingAnalysisV2 => ({
@@ -163,6 +170,100 @@ describe("acceptAnalysis", () => {
     const r2 = await acceptAnalysis({ analysis: analysis(), decisions: [] }, m.store);
     expect(r2.artistsCreated).toBe(0);
     expect(m.links.filter((l) => l.status === "verified")).toHaveLength(1);
+  });
+});
+
+describe("queue edits", () => {
+  test("edits a new artist before it is created and keeps the proposed name as an alias", async () => {
+    const m = memStore();
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, role: "co-headliner", edits: {
+      name: "Joby", genres: ["punk", "emo"], hometown: " Lincoln, NE ", instagram_url: "https://instagram.com/joby",
+      website_url: "", youtube_url: null, notes: "Local favorite",
+    } }] }, m.store, () => "T");
+    const created = m.artists.get("new1")!;
+    expect(created.name).toBe("Joby");
+    expect(created.genres).toEqual(["punk", "emo"]);
+    expect(created.extra).toEqual({
+      hometown: "Lincoln, NE", instagram_url: "https://instagram.com/joby", website_url: null, youtube_url: null, notes: "Local favorite",
+    });
+    expect(m.aliases.get("joby")).toBe("new1");
+    expect(m.writes).toContain("lineup ev1: old1/headliner/1, new1/co-headliner/2");
+    // Show genres follow the edited artist genres
+    expect(m.writes).toContain("event ev1: music [indie,punk,emo]");
+  });
+
+  test("unedited fields keep the proposal", async () => {
+    const m = memStore();
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, edits: { notes: "n" } }] }, m.store);
+    const created = m.artists.get("new1")!;
+    expect(created.name).toBe("JOBY!");
+    expect(created.genres).toEqual(["punk"]);
+    expect(created.extra?.hometown).toBe("Omaha, NE");
+  });
+
+  test("role can change for an existing artist on this show", async () => {
+    const m = memStore();
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 0, role: "supporting" }, { index: 1, role: "headliner" }] }, m.store);
+    expect(m.writes).toContain("lineup ev1: old1/supporting/1, new1/headliner/2");
+  });
+
+  test("a non-artist marked real can be edited", async () => {
+    const m = memStore();
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 2, realArtist: true, role: "headliner", edits: { genres: ["metal"] } }] }, m.store);
+    const created = [...m.artists.values()].find((a) => a.name === "Catsclaw")!;
+    expect(created.genres).toEqual(["metal"]);
+    expect(m.writes.some((w) => w.includes(`${created.id}/headliner`))).toBe(true);
+  });
+
+  test("refuses edits to existing artists, bad genres, links and roles before writing", async () => {
+    for (const d of [
+      { index: 0, edits: { name: "Renamed" } },
+      { index: 1, edits: { genres: ["polka"] } },
+      { index: 1, edits: { name: "  " } },
+      { index: 1, edits: { instagram_url: "instagram.com/joby" } },
+      { index: 1, role: "drummer" },
+    ]) {
+      const m = memStore();
+      await expect(acceptAnalysis({ analysis: analysis(), decisions: [d] }, m.store)).rejects.toBeInstanceOf(AcceptError);
+      expect(m.writes).toEqual([]);
+    }
+  });
+});
+
+describe("Spotify genres", () => {
+  test("a new artist takes its genres from the chosen Spotify profile", async () => {
+    const m = memStore();
+    m.spotifyTags[ID_A] = ["nebraska indie", "pop punk", "midwest emo"];
+    await acceptAnalysis({ analysis: analysis(), decisions: [] }, m.store);
+    expect(m.artists.get("new1")!.genres).toEqual(["indie", "punk", "emo"]);
+  });
+
+  test("keeps the proposed genres when Spotify has none", async () => {
+    const m = memStore();
+    await acceptAnalysis({ analysis: analysis(), decisions: [] }, m.store);
+    expect(m.artists.get("new1")!.genres).toEqual(["punk"]);
+  });
+
+  test("genres the admin picked win over Spotify's", async () => {
+    const m = memStore();
+    m.spotifyTags[ID_A] = ["indie rock"];
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, edits: { genres: ["metal"] } }] }, m.store);
+    expect(m.artists.get("new1")!.genres).toEqual(["metal"]);
+  });
+
+  test("uses the profile the admin picked, not the proposal", async () => {
+    const m = memStore();
+    m.spotifyTags[ID_A] = ["country"];
+    m.spotifyTags[ID_B] = ["hip hop"];
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, spotify: { action: "alternative", external_id: ID_B } }] }, m.store);
+    expect(m.artists.get("new1")!.genres).toEqual(["hip-hop"]);
+  });
+
+  test("no Spotify profile, no lookup", async () => {
+    const m = memStore();
+    m.spotifyTags[ID_A] = ["country"];
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, spotify: { action: "none" } }] }, m.store);
+    expect(m.artists.get("new1")!.genres).toEqual(["punk"]);
   });
 });
 

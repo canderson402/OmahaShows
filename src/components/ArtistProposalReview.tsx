@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { EventCategory, EventClassification, LineupEntry, LinkDecision, LinkProposal } from "../lib/artist-pipeline/types";
-import type { AcceptDecision } from "../lib/artist-pipeline/accept";
+import type { EventCategory, EventClassification, LineupEntry, LinkDecision, LinkProposal, Role } from "../lib/artist-pipeline/types";
+import type { AcceptDecision, ArtistEdits } from "../lib/artist-pipeline/accept";
+import { ArtistFieldsEditor, type ArtistFields } from "./ArtistFieldsEditor";
+import { mapToGenres } from "../lib/artist-pipeline/genre-map";
+import { parseSpotifyArtistId } from "../lib/artist-pipeline/accept";
 
 export interface ProposalV2 {
   id: string;
@@ -27,7 +30,9 @@ export interface ListingInfo {
 }
 
 type SpotifyChoice = NonNullable<AcceptDecision["spotify"]>;
-type Choice = { spotify?: SpotifyChoice; realArtist?: boolean; exclude?: boolean };
+type Choice = { spotify?: SpotifyChoice; realArtist?: boolean; exclude?: boolean; role?: Role; edits?: ArtistEdits };
+
+const ROLE_LABELS: Record<Role, string> = { "headliner": "Headliner", "co-headliner": "Co-headliner", "supporting": "Opener" };
 
 const CATEGORIES: EventCategory[] = ["music", "comedy", "theater", "sports", "other"];
 const SPOTIFY_ID = /^[A-Za-z0-9]{22}$/;
@@ -205,6 +210,53 @@ function ArtistCheck({ name, decision, choice, onChange }: {
   );
 }
 
+function RolePicker({ value, onChange }: { value: Role; onChange: (r: Role) => void }) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value as Role)} className="px-2 py-1 bg-gray-950 border border-gray-700 rounded text-xs text-gray-200">
+      {(Object.keys(ROLE_LABELS) as Role[]).map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+    </select>
+  );
+}
+
+/**
+ * The Spotify profile currently selected for an act, and its genres mapped onto our list
+ * (from the candidate's "genres: …" evidence line; a pasted link has none until approved).
+ */
+function selectedSpotify(decision: LinkDecision | undefined, choice: SpotifyChoice | undefined): { id: string | null; genres: string[] } {
+  const action = choice?.action ?? (decision?.chosen ? "proposed" : "none");
+  const pick = action === "proposed" ? decision?.chosen
+    : action === "alternative" ? decision?.alternatives.find((a) => a.external_id === (choice as { external_id: string }).external_id)
+    : null;
+  if (action === "manual") return { id: parseSpotifyArtistId((choice as { value: string }).value), genres: [] };
+  if (!pick) return { id: null, genres: [] };
+  const line = pick.evidence.map((e) => e.match(/^genres: (.+)$/)?.[1]).find(Boolean);
+  return { id: pick.external_id, genres: line ? mapToGenres(line.split(", ")) : [] };
+}
+
+/** Everything saved on a new artist, editable before Approve creates it. */
+function ArtistEditor({ initial, edits, onChange, spotifyArtist }: {
+  initial: { name: string; genres: string[]; hometown: string | null };
+  edits: ArtistEdits | undefined;
+  onChange: (e: ArtistEdits) => void;
+  spotifyArtist: string | null;
+}) {
+  const hometown = edits?.hometown !== undefined ? edits.hometown : initial.hometown;
+  const value: ArtistFields = {
+    name: edits?.name ?? initial.name,
+    genres: edits?.genres ?? initial.genres,
+    hometown,
+    instagram_url: edits?.instagram_url ?? null,
+    website_url: edits?.website_url ?? null,
+    youtube_url: edits?.youtube_url ?? null,
+    notes: edits?.notes ?? null,
+  };
+  return (
+    <div className="mt-3 rounded-lg border border-gray-800 bg-gray-950/40 p-3">
+      <ArtistFieldsEditor value={value} spotifyArtist={spotifyArtist} onChange={(patch) => onChange({ ...edits, ...patch })} />
+    </div>
+  );
+}
+
 export function ArtistProposalReview({ proposal, listing, busy, onApprove, onReject }: {
   proposal: ProposalV2;
   listing: ListingInfo;
@@ -222,6 +274,8 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
       ...(c.realArtist !== undefined ? { realArtist: c.realArtist } : {}),
       ...(c.exclude ? { exclude: true } : {}),
       ...(c.spotify ? { spotify: c.spotify } : {}),
+      ...(c.role ? { role: c.role } : {}),
+      ...(c.edits ? { edits: c.edits } : {}),
     }));
     onApprove(decisions, category);
   };
@@ -273,18 +327,24 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
         {proposal.artists.map((a, i) => {
           if (a.kind === "not_an_artist") return null;
           const c = choices[i] ?? {};
-          const name = a.kind === "new" ? a.clean_name : a.billed_as;
+          const name = a.kind === "new" ? (c.edits?.name?.trim() || a.clean_name) : a.billed_as;
+          // Spotify's genres replace the proposal's on approve when the selected profile has any
+          const spotify = a.kind === "new" ? selectedSpotify(a.spotify, c.spotify) : { id: null, genres: [] };
+          const proposedGenres = spotify.genres.length ? spotify.genres : a.kind === "new" ? a.genres : [];
+          const genres = a.kind === "new" ? (c.edits?.genres ?? proposedGenres) : [];
           const excluded = !!c.exclude;
           return (
             <article key={i} className={`rounded-xl border border-gray-700 bg-gray-900 p-4 ${excluded ? "opacity-50" : ""}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-lg font-medium text-white">{name}</p>
-                  <p className="text-xs text-gray-400">
-                    {a.role === "headliner" ? "Headliner" : a.role === "co-headliner" ? "Co-headliner" : "Opener"}
-                    {a.kind === "existing" ? ", already in your artists" : ", new artist"}
-                    {a.kind === "new" && a.genres.length ? `, ${a.genres.join(", ")}` : ""}
-                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400">
+                    <RolePicker value={c.role ?? a.role} onChange={(r) => update(i, { role: r })} />
+                    <span>
+                      {a.kind === "existing" ? "Already in your artists" : "New artist"}
+                      {genres.length ? `, ${genres.join(", ")}` : ""}
+                    </span>
+                  </div>
                 </div>
                 <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer flex-shrink-0">
                   <input type="checkbox" checked={excluded} onChange={(e) => update(i, { exclude: e.target.checked })} />
@@ -292,7 +352,15 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
                 </label>
               </div>
               {!excluded && a.kind === "new" && (
-                <ArtistCheck name={name} decision={a.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} />
+                <>
+                  <ArtistEditor
+                    initial={{ name: a.clean_name, genres: proposedGenres, hometown: a.hometown }}
+                    edits={c.edits}
+                    onChange={(e) => update(i, { edits: e })}
+                    spotifyArtist={spotify.id}
+                  />
+                  <ArtistCheck name={name} decision={a.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} />
+                </>
               )}
               {!excluded && a.kind === "existing" && a.new_links?.spotify && (
                 <ArtistCheck name={name} decision={a.new_links.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} />
@@ -322,7 +390,18 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
                   </span>
                 </label>
                 {c.realArtist && (
-                  <ArtistCheck name={a.billed_as} decision={undefined} choice={c.spotify ?? { action: "none" }} onChange={(s) => update(i, { spotify: s })} />
+                  <>
+                    <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
+                      <RolePicker value={c.role ?? "supporting"} onChange={(r) => update(i, { role: r })} />
+                    </div>
+                    <ArtistEditor
+                      initial={{ name: a.billed_as, genres: [], hometown: null }}
+                      edits={c.edits}
+                      onChange={(e) => update(i, { edits: e })}
+                      spotifyArtist={selectedSpotify(undefined, c.spotify).id}
+                    />
+                    <ArtistCheck name={c.edits?.name?.trim() || a.billed_as} decision={undefined} choice={c.spotify ?? { action: "none" }} onChange={(s) => update(i, { spotify: s })} />
+                  </>
                 )}
               </div>
             );

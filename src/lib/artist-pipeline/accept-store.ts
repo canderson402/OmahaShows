@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AcceptStore, StoredArtistRef } from "./accept";
-import { lookupSpotifyArtistName } from "./clients/spotify";
+import { lookupSpotifyArtistName, spotifyGenresFromEnv } from "./clients/spotify";
 
 function check<T>(r: { data: T; error: { message: string } | null }): T {
   if (r.error) throw new Error(r.error.message);
@@ -30,7 +30,10 @@ export function createSupabaseAcceptStore(sb: SupabaseClient): AcceptStore {
       return !!row;
     },
     async createArtist(a) {
-      const row = check(await sb.from("artists").insert({ name: a.name, normalized_name: a.normalized_name, genres: a.genres, hometown: a.hometown }).select("id, genres").single());
+      const row = check(await sb.from("artists").insert({
+        name: a.name, normalized_name: a.normalized_name, genres: a.genres, hometown: a.hometown,
+        instagram_url: a.instagram_url, website_url: a.website_url, youtube_url: a.youtube_url, notes: a.notes,
+      }).select("id, genres").single());
       return { id: row.id as string, genres: (row.genres as string[]) ?? [] };
     },
     async addAlias(alias, artistId) {
@@ -48,6 +51,15 @@ export function createSupabaseAcceptStore(sb: SupabaseClient): AcceptStore {
       const byLink = check(await sb.from("artist_links").select("artist_id")
         .eq("platform", "spotify").eq("external_id", spotifyId).eq("status", "verified").limit(1));
       return (byLink?.[0]?.artist_id as string | undefined) ?? null;
+    },
+    async spotifyGenres(spotifyId) {
+      // Genres are a nice-to-have: never block an approval on Spotify being unreachable
+      try {
+        return await spotifyGenresFromEnv(spotifyId);
+      } catch (e) {
+        console.error("Spotify genres lookup failed:", e);
+        return [];
+      }
     },
     async lookupSpotifyArtist(spotifyId) {
       return lookupSpotifyArtistName(spotifyId);
