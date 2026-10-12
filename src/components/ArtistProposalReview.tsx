@@ -30,7 +30,8 @@ export interface ListingInfo {
 }
 
 type SpotifyChoice = NonNullable<AcceptDecision["spotify"]>;
-type Choice = { spotify?: SpotifyChoice; realArtist?: boolean; exclude?: boolean; role?: Role; edits?: ArtistEdits };
+// kept/exclude: the admin approved or denied this act. Every act needs one before the show can be approved.
+type Choice = { spotify?: SpotifyChoice; realArtist?: boolean; exclude?: boolean; kept?: boolean; role?: Role; edits?: ArtistEdits };
 
 const ROLE_LABELS: Record<Role, string> = { "headliner": "Headliner", "co-headliner": "Co-headliner", "supporting": "Opener" };
 
@@ -265,6 +266,13 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
   onReject: () => void;
 }) {
   const [choices, setChoices] = useState<Record<number, Choice>>({});
+  // Artist cards minimized by the admin
+  const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
+  const toggleCollapsed = (i: number) => setCollapsed((s) => {
+    const next = new Set(s);
+    if (next.has(i)) next.delete(i); else next.add(i);
+    return next;
+  });
   const [category, setCategory] = useState<EventCategory>(proposal.event?.category ?? "music");
   const update = (i: number, patch: Choice) => setChoices((c) => ({ ...c, [i]: { ...c[i], ...patch } }));
 
@@ -282,6 +290,7 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
 
   const billed = [listing.title, ...(listing.supportingArtists ?? [])];
   const acts = proposal.artists.filter((a) => a.kind !== "not_an_artist").length;
+  const undecided = proposal.artists.filter((a, i) => a.kind !== "not_an_artist" && !choices[i]?.kept && !choices[i]?.exclude).length;
   const dropped = proposal.artists.filter((a) => a.kind === "not_an_artist");
 
   return (
@@ -333,11 +342,17 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
           const proposedGenres = spotify.genres.length ? spotify.genres : a.kind === "new" ? a.genres : [];
           const genres = a.kind === "new" ? (c.edits?.genres ?? proposedGenres) : [];
           const excluded = !!c.exclude;
+          const kept = !!c.kept;
+          const open = !excluded && !collapsed.has(i);
           return (
-            <article key={i} className={`rounded-xl border border-gray-700 bg-gray-900 p-4 ${excluded ? "opacity-50" : ""}`}>
+            <article key={i} className={`rounded-xl border bg-gray-900 p-4 ${excluded ? "border-gray-700 opacity-60" : kept ? "border-green-700/70" : "border-amber-700/60"}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-lg font-medium text-white">{name}</p>
+                  <button type="button" onClick={() => toggleCollapsed(i)} disabled={excluded}
+                    className="flex items-center gap-2 text-left text-lg font-medium text-white disabled:cursor-default" aria-expanded={open}>
+                    {!excluded && <span className="text-xs text-gray-500 w-3">{open ? "▾" : "▸"}</span>}
+                    <span className={excluded ? "line-through" : ""}>{name}</span>
+                  </button>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400">
                     <RolePicker value={c.role ?? a.role} onChange={(r) => update(i, { role: r })} />
                     <span>
@@ -346,12 +361,23 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
                     </span>
                   </div>
                 </div>
-                <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer flex-shrink-0">
-                  <input type="checkbox" checked={excluded} onChange={(e) => update(i, { exclude: e.target.checked })} />
-                  Not playing this show
-                </label>
+                <div className="flex flex-shrink-0 gap-1.5">
+                  <button type="button" onClick={() => update(i, { kept: !kept, exclude: false })}
+                    className={`px-2.5 py-1 rounded text-xs border transition-colors ${kept ? "bg-green-600 border-green-500 text-white" : "border-green-800/70 text-green-300 hover:bg-green-950/40"}`}>
+                    {kept ? "Approved" : "Approve"}
+                  </button>
+                  <button type="button" onClick={() => update(i, { exclude: !excluded, kept: false })}
+                    className={`px-2.5 py-1 rounded text-xs border transition-colors ${excluded ? "bg-red-700 border-red-600 text-white" : "border-red-800/70 text-red-300 hover:bg-red-950/40"}`}>
+                    {excluded ? "Denied" : "Deny"}
+                  </button>
+                </div>
               </div>
-              {!excluded && a.kind === "new" && (
+              {excluded && (
+                <p className="mt-2 text-sm text-gray-400">
+                  Denied: won&apos;t be added to this show{a.kind === "new" ? " or saved as an artist" : ""}. Tap Denied to undo.
+                </p>
+              )}
+              {open && a.kind === "new" && (
                 <>
                   <ArtistEditor
                     initial={{ name: a.clean_name, genres: proposedGenres, hometown: a.hometown }}
@@ -362,10 +388,10 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
                   <ArtistCheck name={name} decision={a.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} />
                 </>
               )}
-              {!excluded && a.kind === "existing" && a.new_links?.spotify && (
+              {open && a.kind === "existing" && a.new_links?.spotify && (
                 <ArtistCheck name={name} decision={a.new_links.spotify} choice={c.spotify} onChange={(s) => update(i, { spotify: s })} />
               )}
-              {!excluded && a.kind === "existing" && !a.new_links?.spotify && (
+              {open && a.kind === "existing" && !a.new_links?.spotify && (
                 <p className="mt-2 text-sm text-gray-400">Already linked. Approving adds this show to their history.</p>
               )}
             </article>
@@ -413,8 +439,8 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
         <button onClick={onReject} disabled={busy} className="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50">
           Dismiss
         </button>
-        <button onClick={approve} disabled={busy} className="flex-[2] px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50">
-          {busy ? "Saving..." : "Approve"}
+        <button onClick={approve} disabled={busy || undecided > 0} className="flex-[2] px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg disabled:opacity-50">
+          {busy ? "Saving..." : undecided > 0 ? `Approve or deny ${undecided === 1 ? "1 more artist" : `${undecided} more artists`}` : "Approve show"}
         </button>
       </div>
     </div>

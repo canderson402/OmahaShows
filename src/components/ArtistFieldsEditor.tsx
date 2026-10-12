@@ -25,6 +25,7 @@ export function ArtistFieldsEditor({ value, onChange, spotifyArtist }: {
   /** Spotify artist link or id to fill genres from; the button hides without one */
   spotifyArtist?: string | null;
 }) {
+  const [genresOpen, setGenresOpen] = useState(false);
   const [filling, setFilling] = useState(false);
   const [fillNote, setFillNote] = useState<string | null>(null);
   const fillFromSpotify = async () => {
@@ -61,15 +62,20 @@ export function ArtistFieldsEditor({ value, onChange, spotifyArtist }: {
       <div>
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <span className="text-xs text-gray-500">Genres{value.genres.length ? "" : " (none picked)"}</span>
-          {spotifyArtist?.trim() && (
-            <button type="button" onClick={fillFromSpotify} disabled={filling} className="text-xs text-green-300 hover:underline disabled:opacity-50">
-              {filling ? "Asking Spotify…" : "Fill from Spotify"}
+          <div className="flex items-center gap-3">
+            {spotifyArtist?.trim() && (
+              <button type="button" onClick={fillFromSpotify} disabled={filling} className="text-xs text-green-300 hover:underline disabled:opacity-50">
+                {filling ? "Asking Spotify…" : "Fill from Spotify"}
+              </button>
+            )}
+            <button type="button" onClick={() => setGenresOpen((o) => !o)} className="text-xs text-blue-300 hover:underline">
+              {genresOpen ? "Done" : "Edit genres"}
             </button>
-          )}
+          </div>
         </div>
         {fillNote && <p className="text-xs text-amber-300 mb-1.5">{fillNote}</p>}
         <div className="flex flex-wrap gap-1.5">
-          {GENRES.map((g) => {
+          {(genresOpen ? GENRES : GENRES.filter((g) => value.genres.includes(g))).map((g) => {
             const on = value.genres.includes(g);
             return (
               <button key={g} type="button" onClick={() => toggleGenre(g)}

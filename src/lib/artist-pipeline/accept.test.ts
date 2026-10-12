@@ -230,6 +230,25 @@ describe("queue edits", () => {
   });
 });
 
+describe("skipping artists", () => {
+  test("a skipped new artist gets no profile, alias, Spotify link or lineup spot", async () => {
+    const m = memStore();
+    m.spotifyTags[ID_A] = ["indie rock"];
+    const r = await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, exclude: true }] }, m.store);
+    expect(r).toEqual({ artistsCreated: 0, linksVerified: 0, lineup: 1 });
+    expect(m.writes).not.toContain("createArtist");
+    expect(m.aliases.has("joby")).toBe(false);
+    expect(m.writes).toContain("lineup ev1: old1/headliner/1");
+  });
+
+  test("the show can be approved with every artist skipped", async () => {
+    const m = memStore();
+    const r = await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 0, exclude: true }, { index: 1, exclude: true }] }, m.store);
+    expect(r).toEqual({ artistsCreated: 0, linksVerified: 0, lineup: 0 });
+    expect(m.writes).toContain("analysis pa1: approved");
+  });
+});
+
 describe("Spotify genres", () => {
   test("a new artist takes its genres from the chosen Spotify profile", async () => {
     const m = memStore();
