@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { localFromHometown } from "../lib/local";
 import type { EventCategory, EventClassification, LineupEntry, LinkDecision, LinkProposal, Role } from "../lib/artist-pipeline/types";
 import type { AcceptDecision, ArtistEdits } from "../lib/artist-pipeline/accept";
 import { ArtistFieldsEditor, type ArtistFields } from "./ArtistFieldsEditor";
@@ -246,6 +247,7 @@ function ArtistEditor({ initial, edits, onChange, spotifyArtist }: {
     name: edits?.name ?? initial.name,
     genres: edits?.genres ?? initial.genres,
     hometown,
+    is_local: edits?.is_local !== undefined ? edits.is_local : localFromHometown(hometown),
     instagram_url: edits?.instagram_url ?? null,
     website_url: edits?.website_url ?? null,
     youtube_url: edits?.youtube_url ?? null,
@@ -271,6 +273,11 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
   const toggleCollapsed = (i: number) => setCollapsed((s) => {
     const next = new Set(s);
     if (next.has(i)) next.delete(i); else next.add(i);
+    return next;
+  });
+  const setCollapsedTo = (i: number, value: boolean) => setCollapsed((s) => {
+    const next = new Set(s);
+    if (value) next.add(i); else next.delete(i);
     return next;
   });
   const [category, setCategory] = useState<EventCategory>(proposal.event?.category ?? "music");
@@ -362,11 +369,18 @@ export function ArtistProposalReview({ proposal, listing, busy, onApprove, onRej
                   </div>
                 </div>
                 <div className="flex flex-shrink-0 gap-1.5">
-                  <button type="button" onClick={() => update(i, { kept: !kept, exclude: false })}
+                  <button type="button" onClick={() => {
+                    // Approving minimizes the card; un-approving opens it again
+                    update(i, { kept: !kept, exclude: false });
+                    setCollapsedTo(i, !kept);
+                  }}
                     className={`px-2.5 py-1 rounded text-xs border transition-colors ${kept ? "bg-green-600 border-green-500 text-white" : "border-green-800/70 text-green-300 hover:bg-green-950/40"}`}>
                     {kept ? "Approved" : "Approve"}
                   </button>
-                  <button type="button" onClick={() => update(i, { exclude: !excluded, kept: false })}
+                  <button type="button" onClick={() => {
+                    update(i, { exclude: !excluded, kept: false });
+                    setCollapsedTo(i, false);
+                  }}
                     className={`px-2.5 py-1 rounded text-xs border transition-colors ${excluded ? "bg-red-700 border-red-600 text-white" : "border-red-800/70 text-red-300 hover:bg-red-950/40"}`}>
                     {excluded ? "Denied" : "Deny"}
                   </button>

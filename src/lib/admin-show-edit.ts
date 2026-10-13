@@ -4,6 +4,7 @@
 import { supabase, invalidateEventCaches } from "./supabase";
 import { normalizeArtistName } from "./artist-pipeline/normalize";
 import { parseSpotifyArtistId } from "./artist-pipeline/accept";
+import { localFromHometown } from "./local";
 import type { ArtistFields } from "../components/ArtistFieldsEditor";
 import type { Role } from "./artist-pipeline/types";
 
@@ -31,18 +32,20 @@ export interface LineupItem {
   original: ArtistFields | null;
 }
 
-const ARTIST_COLUMNS = "id, name, genres, hometown, spotify_url, instagram_url, website_url, youtube_url, notes";
+const ARTIST_COLUMNS = "id, name, genres, hometown, is_local, spotify_url, instagram_url, website_url, youtube_url, notes";
 
 type ArtistRow = {
-  id: string; name: string; genres: string[] | null; hometown: string | null;
+  id: string; name: string; genres: string[] | null; hometown: string | null; is_local: boolean | null;
   spotify_url: string | null; instagram_url: string | null; website_url: string | null; youtube_url: string | null; notes: string | null;
 };
 
-export function artistFields(row: ArtistRow): ArtistFields {
+/** The artist as stored. */
+export function savedFields(row: ArtistRow): ArtistFields {
   return {
     name: row.name,
     genres: row.genres ?? [],
     hometown: row.hometown,
+    is_local: row.is_local,
     spotify_url: row.spotify_url ?? "",
     instagram_url: row.instagram_url,
     website_url: row.website_url,
@@ -51,8 +54,13 @@ export function artistFields(row: ArtistRow): ArtistFields {
   };
 }
 
+/** The artist as the editor starts it: an untagged artist with a local hometown starts as Local. */
+export function artistFields(row: ArtistRow): ArtistFields {
+  return { ...savedFields(row), is_local: row.is_local ?? localFromHometown(row.hometown) };
+}
+
 export const emptyArtist = (name: string): ArtistFields => ({
-  name, genres: [], hometown: null, spotify_url: "",
+  name, genres: [], hometown: null, is_local: null, spotify_url: "",
   instagram_url: null, website_url: null, youtube_url: null, notes: null,
 });
 
@@ -87,7 +95,7 @@ export async function loadShow(eventId: string): Promise<{ show: ShowFields; lin
     .map((r) => ({ role: r.role as Role, artist: r.artists as unknown as ArtistRow | null }))
     .filter((r): r is { role: Role; artist: ArtistRow } => !!r.artist)
     .map(({ role, artist }) => ({
-      key: artist.id, artistId: artist.id, role, fields: artistFields(artist), original: artistFields(artist),
+      key: artist.id, artistId: artist.id, role, fields: artistFields(artist), original: savedFields(artist),
     }));
 
   return { show, lineup };
@@ -121,6 +129,7 @@ function artistRow(f: ArtistFields) {
     normalized_name: normalizeArtistName(name),
     genres: f.genres,
     hometown: blank(f.hometown),
+    is_local: f.is_local ?? null,
     spotify_id: spotifyId,
     spotify_url: spotifyId ? `https://open.spotify.com/artist/${spotifyId}` : null,
     instagram_url: checkUrl(f.instagram_url, `${name}: Instagram link`),

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getVenues } from "../lib/supabase";
-import { loadShow, saveShow, searchArtists, artistFields, emptyArtist, type LineupItem, type ShowFields } from "../lib/admin-show-edit";
+import { loadShow, saveShow, searchArtists, artistFields, savedFields, emptyArtist, type LineupItem, type ShowFields } from "../lib/admin-show-edit";
 import { ArtistFieldsEditor, inputCls } from "./ArtistFieldsEditor";
 import type { Role } from "../lib/artist-pipeline/types";
 
@@ -65,8 +65,7 @@ export function AdminShowEditor({ eventId, onClose, onSaved }: {
 
   const addExisting = (a: FoundArtist) => {
     if (lineup.some((i) => i.artistId === a.id)) return;
-    const fields = artistFields(a);
-    setLineup((l) => [...l, { key: a.id, artistId: a.id, role: l.length ? "supporting" : "headliner", fields, original: fields }]);
+    setLineup((l) => [...l, { key: a.id, artistId: a.id, role: l.length ? "supporting" : "headliner", fields: artistFields(a), original: savedFields(a) }]);
     setQuery("");
   };
   const addNew = () => {
@@ -166,6 +165,7 @@ export function AdminShowEditor({ eventId, onClose, onSaved }: {
                         <span className="text-sm text-white">{item.fields.name || "New artist"}</span>
                         <span className="text-xs text-gray-500">
                           {!item.artistId ? " · new" : ""}
+                          {item.fields.is_local ? " · local" : ""}
                           {item.fields.genres.length ? ` · ${item.fields.genres.join(", ")}` : ""}
                         </span>
                       </button>

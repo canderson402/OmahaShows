@@ -2,6 +2,7 @@ import { normalizeArtistName } from "./normalize";
 import { spotifyArtistUrl } from "./clients/spotify";
 import { GENRES } from "../genres";
 import { mapToGenres } from "./genre-map";
+import { localFromHometown } from "../local";
 import type { EventCategory, EventClassification, LineupEntry, LinkDecision, Role } from "./types";
 
 /** Admin edits to a new artist before it is created. Existing artists are never edited from the queue. */
@@ -9,6 +10,7 @@ export interface ArtistEdits {
   name?: string;
   genres?: string[];
   hometown?: string | null;
+  is_local?: boolean | null;
   instagram_url?: string | null;
   website_url?: string | null;
   youtube_url?: string | null;
@@ -48,7 +50,7 @@ export interface AcceptStore {
   findArtistByName(name: string): Promise<StoredArtistRef | null>;
   artistExists(artistId: string): Promise<boolean>;
   createArtist(a: {
-    name: string; normalized_name: string; genres: string[]; hometown: string | null;
+    name: string; normalized_name: string; genres: string[]; hometown: string | null; is_local: boolean | null;
     instagram_url: string | null; website_url: string | null; youtube_url: string | null; notes: string | null;
   }): Promise<StoredArtistRef>;
   /** Insert alias → artist; no-op if the alias already exists. */
@@ -151,6 +153,10 @@ function validateEdits(raw: unknown, label: string): ArtistEdits {
     out.genres = [...new Set(o.genres as string[])];
   }
   if (o.hometown !== undefined) out.hometown = optionalText(o.hometown, "hometown", label, 100);
+  if (o.is_local !== undefined) {
+    if (o.is_local !== null && typeof o.is_local !== "boolean") throw new AcceptError(`${label}: is_local must be true, false or null`);
+    out.is_local = o.is_local;
+  }
   if (o.notes !== undefined) out.notes = optionalText(o.notes, "notes", label, 2000);
   for (const f of LINK_FIELDS) {
     if (o[f] === undefined) continue;
@@ -187,7 +193,7 @@ interface PlannedAct {
   name: string;
   /** Name the pipeline proposed, kept as an alias when the admin renamed the artist */
   proposedName: string;
-  links: Pick<ArtistEdits, "instagram_url" | "website_url" | "youtube_url" | "notes">;
+  links: Pick<ArtistEdits, "instagram_url" | "website_url" | "youtube_url" | "notes" | "is_local">;
   artistId: string | null;      // known up front for existing artists, or when an alias already matches
   role: string;
   genres: string[];
@@ -288,6 +294,7 @@ export async function acceptAnalysis(
       if (!artistId) {
         const created = await store.createArtist({
           name: act.name, normalized_name: alias, genres: act.genres, hometown: act.hometown,
+          is_local: act.links.is_local !== undefined ? act.links.is_local : localFromHometown(act.hometown),
           instagram_url: act.links.instagram_url ?? null, website_url: act.links.website_url ?? null,
           youtube_url: act.links.youtube_url ?? null, notes: act.links.notes ?? null,
         });

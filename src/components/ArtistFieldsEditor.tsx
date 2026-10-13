@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { GENRES, GENRE_LABELS } from "../lib/genres";
 import { adminFetch } from "../lib/admin-fetch";
+import { localFromHometown } from "../lib/local";
 
 /** Everything stored on an artist that an admin edits by hand. */
 export interface ArtistFields {
   name: string;
   genres: string[];
   hometown: string | null;
+  /** true = local, false = not local, null = not tagged */
+  is_local?: boolean | null;
   instagram_url: string | null;
   website_url: string | null;
   youtube_url: string | null;
@@ -49,16 +52,39 @@ export function ArtistFieldsEditor({ value, onChange, spotifyArtist }: {
   const field = (label: string, key: "hometown" | "instagram_url" | "website_url" | "youtube_url" | "spotify_url", placeholder: string) => (
     <label className="block">
       <span className="block text-xs text-gray-500 mb-1">{label}</span>
-      <input value={value[key] ?? ""} placeholder={placeholder} onChange={(e) => onChange({ [key]: e.target.value })} className={inputCls} />
+      <input value={value[key] ?? ""} placeholder={placeholder} className={inputCls} onChange={(e) => {
+        const v = e.target.value;
+        // A local hometown fills in an unset Local tag
+        onChange(key === "hometown" && value.is_local == null && localFromHometown(v) ? { hometown: v, is_local: true } : { [key]: v });
+      }} />
     </label>
   );
 
+  const localOptions: { label: string; v: boolean | null }[] = [
+    { label: "Local", v: true }, { label: "Not local", v: false }, { label: "Unset", v: null },
+  ];
+
   return (
     <div className="space-y-3">
-      <label className="block">
-        <span className="block text-xs text-gray-500 mb-1">Name</span>
-        <input value={value.name} onChange={(e) => onChange({ name: e.target.value })} className={inputCls} />
-      </label>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block flex-1 min-w-[12rem]">
+          <span className="block text-xs text-gray-500 mb-1">Name</span>
+          <input value={value.name} onChange={(e) => onChange({ name: e.target.value })} className={inputCls} />
+        </label>
+        <div className="flex rounded overflow-hidden border border-gray-700" role="group" aria-label="Local band">
+          {localOptions.map(({ label, v }) => {
+            const on = (value.is_local ?? null) === v;
+            return (
+              <button key={label} type="button" onClick={() => onChange({ is_local: v })} aria-pressed={on}
+                className={`px-2.5 py-1.5 text-xs transition-colors ${on
+                  ? v === true ? "bg-green-600/40 text-green-100" : v === false ? "bg-gray-600 text-gray-100" : "bg-gray-800 text-gray-300"
+                  : "bg-gray-950 text-gray-500 hover:text-gray-200"}`}>
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
       <div>
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <span className="text-xs text-gray-500">Genres{value.genres.length ? "" : " (none picked)"}</span>

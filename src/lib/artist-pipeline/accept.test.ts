@@ -178,13 +178,13 @@ describe("queue edits", () => {
     const m = memStore();
     await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, role: "co-headliner", edits: {
       name: "Joby", genres: ["punk", "emo"], hometown: " Lincoln, NE ", instagram_url: "https://instagram.com/joby",
-      website_url: "", youtube_url: null, notes: "Local favorite",
+      website_url: "", youtube_url: null, notes: "Local favorite", is_local: true,
     } }] }, m.store, () => "T");
     const created = m.artists.get("new1")!;
     expect(created.name).toBe("Joby");
     expect(created.genres).toEqual(["punk", "emo"]);
     expect(created.extra).toEqual({
-      hometown: "Lincoln, NE", instagram_url: "https://instagram.com/joby", website_url: null, youtube_url: null, notes: "Local favorite",
+      hometown: "Lincoln, NE", is_local: true, instagram_url: "https://instagram.com/joby", website_url: null, youtube_url: null, notes: "Local favorite",
     });
     expect(m.aliases.get("joby")).toBe("new1");
     expect(m.writes).toContain("lineup ev1: old1/headliner/1, new1/co-headliner/2");
@@ -199,6 +199,20 @@ describe("queue edits", () => {
     expect(created.name).toBe("JOBY!");
     expect(created.genres).toEqual(["punk"]);
     expect(created.extra?.hometown).toBe("Omaha, NE");
+  });
+
+  test("a new artist with a local hometown is tagged local unless the admin chose otherwise", async () => {
+    const m = memStore();
+    await acceptAnalysis({ analysis: analysis(), decisions: [] }, m.store);
+    expect(m.artists.get("new1")!.extra?.is_local).toBe(true);
+
+    const unset = memStore();
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, edits: { is_local: null } }] }, unset.store);
+    expect(unset.artists.get("new1")!.extra?.is_local).toBeNull();
+
+    const moved = memStore();
+    await acceptAnalysis({ analysis: analysis(), decisions: [{ index: 1, edits: { hometown: "Denver, CO" } }] }, moved.store);
+    expect(moved.artists.get("new1")!.extra?.is_local).toBeNull();
   });
 
   test("role can change for an existing artist on this show", async () => {
@@ -221,6 +235,7 @@ describe("queue edits", () => {
       { index: 1, edits: { genres: ["polka"] } },
       { index: 1, edits: { name: "  " } },
       { index: 1, edits: { instagram_url: "instagram.com/joby" } },
+      { index: 1, edits: { is_local: "yes" } },
       { index: 1, role: "drummer" },
     ]) {
       const m = memStore();

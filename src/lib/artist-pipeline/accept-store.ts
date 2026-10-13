@@ -31,7 +31,7 @@ export function createSupabaseAcceptStore(sb: SupabaseClient): AcceptStore {
     },
     async createArtist(a) {
       const row = check(await sb.from("artists").insert({
-        name: a.name, normalized_name: a.normalized_name, genres: a.genres, hometown: a.hometown,
+        name: a.name, normalized_name: a.normalized_name, genres: a.genres, hometown: a.hometown, is_local: a.is_local,
         instagram_url: a.instagram_url, website_url: a.website_url, youtube_url: a.youtube_url, notes: a.notes,
       }).select("id, genres").single());
       return { id: row.id as string, genres: (row.genres as string[]) ?? [] };
