@@ -34,7 +34,7 @@ export interface LineupItem {
 
 const ARTIST_COLUMNS = "id, name, genres, hometown, is_local, spotify_url, instagram_url, website_url, youtube_url, notes";
 
-type ArtistRow = {
+export type ArtistRow = {
   id: string; name: string; genres: string[] | null; hometown: string | null; is_local: boolean | null;
   spotify_url: string | null; instagram_url: string | null; website_url: string | null; youtube_url: string | null; notes: string | null;
 };
@@ -111,14 +111,14 @@ export async function searchArtists(query: string): Promise<ArtistRow[]> {
 
 const blank = (v: string | null | undefined) => (v?.trim() ? v.trim() : null);
 
-function checkUrl(v: string | null | undefined, label: string): string | null {
+export function checkUrl(v: string | null | undefined, label: string): string | null {
   const url = blank(v);
   if (url && !/^https?:\/\/\S+$/i.test(url)) throw new Error(`${label} must start with http:// or https://`);
   return url;
 }
 
 /** Artist columns to write, validated. */
-function artistRow(f: ArtistFields) {
+export function artistRow(f: ArtistFields) {
   const name = f.name.trim();
   if (!name) throw new Error("Every artist needs a name");
   const spotify = blank(f.spotify_url);
@@ -141,7 +141,7 @@ function artistRow(f: ArtistFields) {
 
 const sameFields = (a: ArtistFields, b: ArtistFields) => JSON.stringify(a) === JSON.stringify(b);
 
-async function addAlias(name: string, artistId: string) {
+export async function addAlias(name: string, artistId: string) {
   const { error } = await supabase.from("artist_aliases")
     .upsert({ alias_normalized: normalizeArtistName(name), artist_id: artistId }, { onConflict: "alias_normalized", ignoreDuplicates: true });
   if (error) throw error;

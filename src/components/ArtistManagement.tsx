@@ -1,42 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabase";
 import { GENRES, GENRE_LABELS, Genre } from "../lib/genres";
+import { ArtistFieldsEditor, inputCls, type ArtistFields } from "./ArtistFieldsEditor";
+import { addAlias, artistFields, artistRow, checkUrl, emptyArtist, type ArtistRow } from "../lib/admin-show-edit";
 
-interface Artist {
-  id: string;
-  name: string;
+interface Artist extends ArtistRow {
   normalized_name: string;
-  genres: string[];
-  spotify_url: string | null;
-  instagram_url: string | null;
-  website_url: string | null;
   image_url: string | null;
   created_at: string;
-}
-
-interface ArtistForm {
-  name: string;
-  genres: string[];
-  spotify_url: string;
-  instagram_url: string;
-  website_url: string;
-  image_url: string;
-}
-
-const DEFAULT_FORM: ArtistForm = {
-  name: "",
-  genres: [],
-  spotify_url: "",
-  instagram_url: "",
-  website_url: "",
-  image_url: "",
-};
-
-function normalizeArtistName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/^the\s+/i, "")
-    .trim();
 }
 
 export function ArtistManagement() {
@@ -46,7 +17,8 @@ export function ArtistManagement() {
   const [genreFilter, setGenreFilter] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingArtist, setEditingArtist] = useState<Artist | null>(null);
-  const [form, setForm] = useState<ArtistForm>(DEFAULT_FORM);
+  const [form, setForm] = useState<ArtistFields>(emptyArtist(""));
+  const [imageUrl, setImageUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,21 +57,16 @@ export function ArtistManagement() {
 
   const openAddModal = () => {
     setEditingArtist(null);
-    setForm(DEFAULT_FORM);
+    setForm(emptyArtist(search.trim()));
+    setImageUrl("");
     setError(null);
     setModalOpen(true);
   };
 
   const openEditModal = (artist: Artist) => {
     setEditingArtist(artist);
-    setForm({
-      name: artist.name,
-      genres: artist.genres || [],
-      spotify_url: artist.spotify_url || "",
-      instagram_url: artist.instagram_url || "",
-      website_url: artist.website_url || "",
-      image_url: artist.image_url || "",
-    });
+    setForm(artistFields(artist));
+    setImageUrl(artist.image_url || "");
     setError(null);
     setModalOpen(true);
   };
@@ -107,64 +74,27 @@ export function ArtistManagement() {
   const closeModal = () => {
     setModalOpen(false);
     setEditingArtist(null);
-    setForm(DEFAULT_FORM);
+    setForm(emptyArtist(""));
+    setImageUrl("");
     setError(null);
   };
 
-  const updateForm = (field: keyof ArtistForm, value: string | string[]) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const toggleGenre = (genre: string) => {
-    if (form.genres.includes(genre)) {
-      updateForm("genres", form.genres.filter((g) => g !== genre));
-    } else {
-      updateForm("genres", [...form.genres, genre]);
-    }
-  };
-
   const handleSave = async () => {
-    if (!form.name.trim()) {
-      setError("Name is required");
-      return;
-    }
-
     setSaving(true);
     setError(null);
 
     try {
+      // Same validation as the show editor (names, links, Spotify id)
+      const row = { ...artistRow(form), image_url: checkUrl(imageUrl, "Image link") };
       if (editingArtist) {
-        const { error } = await supabase
-          .from("artists")
-          .update({
-            name: form.name.trim(),
-            normalized_name: normalizeArtistName(form.name),
-            genres: form.genres,
-            spotify_url: form.spotify_url.trim() || null,
-            instagram_url: form.instagram_url.trim() || null,
-            website_url: form.website_url.trim() || null,
-            image_url: form.image_url.trim() || null,
-          })
-          .eq("id", editingArtist.id);
-
-        if (error) throw error;
+        const { error } = await supabase.from("artists").update(row).eq("id", editingArtist.id);
+        if (error) throw new Error(error.code === "23505" ? "That name or Spotify link already belongs to another artist" : error.message);
+        // A rename should still find this artist under the new name next time
+        if (editingArtist.name !== row.name) await addAlias(row.name, editingArtist.id);
       } else {
-        const { error } = await supabase.from("artists").insert({
-          name: form.name.trim(),
-          normalized_name: normalizeArtistName(form.name),
-          genres: form.genres,
-          spotify_url: form.spotify_url.trim() || null,
-          instagram_url: form.instagram_url.trim() || null,
-          website_url: form.website_url.trim() || null,
-          image_url: form.image_url.trim() || null,
-        });
-
-        if (error) {
-          if (error.code === "23505") {
-            throw new Error(`An artist with this name already exists`);
-          }
-          throw error;
-        }
+        const { data, error } = await supabase.from("artists").insert(row).select("id").single();
+        if (error) throw new Error(error.code === "23505" ? "An artist with this name or Spotify link already exists" : error.message);
+        await addAlias(row.name, data.id);
       }
 
       await fetchArtists();
@@ -280,6 +210,7 @@ export function ArtistManagement() {
               {/* Name */}
               <span className="text-white font-medium flex-1 truncate">
                 {artist.name}
+                {artist.is_local && <span className="ml-2 text-xs font-normal text-green-300">local</span>}
               </span>
 
               {/* Genres */}
@@ -292,8 +223,8 @@ export function ArtistManagement() {
                     {GENRE_LABELS[genre as Genre] || genre}
                   </span>
                 ))}
-                {artist.genres?.length > 3 && (
-                  <span className="text-xs text-gray-500">+{artist.genres.length - 3}</span>
+                {(artist.genres?.length ?? 0) > 3 && (
+                  <span className="text-xs text-gray-500">+{(artist.genres?.length ?? 0) - 3}</span>
                 )}
               </div>
 
@@ -359,89 +290,22 @@ export function ArtistManagement() {
                 </div>
               )}
 
-              {/* Name */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Name *</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => updateForm("name", e.target.value)}
-                  placeholder="e.g. The Killers"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
-                />
-              </div>
-
-              {/* Genres */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Genres</label>
-                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                  {GENRES.map((genre) => (
-                    <button
-                      key={genre}
-                      type="button"
-                      onClick={() => toggleGenre(genre)}
-                      className={`px-2 py-1 text-xs rounded transition-colors ${
-                        form.genres.includes(genre)
-                          ? "bg-amber-500/30 text-amber-400 border border-amber-500/50"
-                          : "bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500"
-                      }`}
-                    >
-                      {GENRE_LABELS[genre]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Spotify URL */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Spotify URL</label>
-                <input
-                  type="url"
-                  value={form.spotify_url}
-                  onChange={(e) => updateForm("spotify_url", e.target.value)}
-                  placeholder="https://open.spotify.com/artist/..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
-                />
-              </div>
-
-              {/* Instagram URL */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Instagram URL</label>
-                <input
-                  type="url"
-                  value={form.instagram_url}
-                  onChange={(e) => updateForm("instagram_url", e.target.value)}
-                  placeholder="https://instagram.com/..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
-                />
-              </div>
-
-              {/* Website URL */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Website URL</label>
-                <input
-                  type="url"
-                  value={form.website_url}
-                  onChange={(e) => updateForm("website_url", e.target.value)}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
-                />
-              </div>
+              <ArtistFieldsEditor value={form} spotifyArtist={form.spotify_url} onChange={(patch) => setForm((f) => ({ ...f, ...patch }))} />
 
               {/* Image URL */}
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Image URL</label>
+                <label className="block text-xs text-gray-500 mb-1">Image</label>
                 <input
                   type="url"
-                  value={form.image_url}
-                  onChange={(e) => updateForm("image_url", e.target.value)}
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-500"
+                  className={inputCls}
                 />
-                {form.image_url && (
+                {imageUrl && (
                   <div className="mt-2">
                     <img
-                      src={form.image_url}
+                      src={imageUrl}
                       alt="Preview"
                       className="w-16 h-16 object-cover rounded-full bg-gray-800"
                       onError={(e) => (e.currentTarget.style.display = "none")}
