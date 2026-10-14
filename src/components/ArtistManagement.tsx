@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { GENRES, GENRE_LABELS, Genre } from "../lib/genres";
 import { ArtistFieldsEditor, inputCls, type ArtistFields } from "./ArtistFieldsEditor";
@@ -10,11 +10,20 @@ interface Artist extends ArtistRow {
   created_at: string;
 }
 
+const PAGE_SIZE = 50;
+
+type LocalFilter = "" | "local" | "not-local" | "unset";
+
 export function ArtistManagement() {
   const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [genreFilter, setGenreFilter] = useState("");
+  const [localFilter, setLocalFilter] = useState<LocalFilter>("");
+  // Search typed into the box, applied after a short pause
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingArtist, setEditingArtist] = useState<Artist | null>(null);
   const [form, setForm] = useState<ArtistFields>(emptyArtist(""));
@@ -22,19 +31,38 @@ export function ArtistManagement() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchArtists = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("artists")
-      .select("*")
-      .order("name");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // A new search starts back at the first page
+      if (search.trim() !== query) { setQuery(search.trim()); setPage(0); }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search, query]);
 
+  // Only the newest load may update the list
+  const latestLoad = useRef(0);
+
+  // Loads one page; filtering and counting happen in the database
+  const fetchArtists = useCallback(async () => {
+    const id = ++latestLoad.current;
+    let q = supabase.from("artists").select("*", { count: "exact" });
+    // Characters that would break the filter string are dropped
+    const term = query.replace(/[,()*%\\"]/g, " ").trim();
+    if (term) q = q.or(`name.ilike.*${term}*,normalized_name.ilike.*${term.toLowerCase()}*`);
+    if (genreFilter) q = q.contains("genres", [genreFilter]);
+    if (localFilter === "local") q = q.eq("is_local", true);
+    else if (localFilter === "not-local") q = q.eq("is_local", false);
+    else if (localFilter === "unset") q = q.is("is_local", null);
+
+    const { data, error, count } = await q.order("name").range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
+    if (id !== latestLoad.current) return;
     if (error) {
       console.error("Failed to fetch artists:", error);
       return;
     }
-
     setArtists(data || []);
-  }, []);
+    setTotal(count ?? 0);
+  }, [query, genreFilter, localFilter, page]);
 
   useEffect(() => {
     const load = async () => {
@@ -45,15 +73,8 @@ export function ArtistManagement() {
     load();
   }, [fetchArtists]);
 
-  const filteredArtists = artists.filter((artist) => {
-    const matchesSearch = !search.trim() ||
-      artist.name.toLowerCase().includes(search.trim().toLowerCase()) ||
-      artist.normalized_name.includes(search.trim().toLowerCase());
-
-    const matchesGenre = !genreFilter || artist.genres?.includes(genreFilter);
-
-    return matchesSearch && matchesGenre;
-  });
+  const filtering = !!(query || genreFilter || localFilter);
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const openAddModal = () => {
     setEditingArtist(null);
@@ -134,7 +155,7 @@ export function ArtistManagement() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-gray-500 text-sm">
-          {artists.length} artist{artists.length !== 1 ? "s" : ""} total
+          {total} artist{total !== 1 ? "s" : ""}{filtering ? " match" : " total"}
         </p>
         <button
           onClick={openAddModal}
@@ -170,7 +191,7 @@ export function ArtistManagement() {
         </div>
         <select
           value={genreFilter}
-          onChange={(e) => setGenreFilter(e.target.value)}
+          onChange={(e) => { setGenreFilter(e.target.value); setPage(0); }}
           className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
         >
           <option value="">All Genres</option>
@@ -180,19 +201,29 @@ export function ArtistManagement() {
             </option>
           ))}
         </select>
+        <select
+          value={localFilter}
+          onChange={(e) => { setLocalFilter(e.target.value as LocalFilter); setPage(0); }}
+          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-gray-500"
+        >
+          <option value="">Local or not</option>
+          <option value="local">Local</option>
+          <option value="not-local">Not local</option>
+          <option value="unset">Not tagged yet</option>
+        </select>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="w-8 h-8 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin" />
         </div>
-      ) : filteredArtists.length === 0 ? (
+      ) : artists.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          {search || genreFilter ? "No artists match your search." : "No artists found."}
+          {filtering ? "No artists match your search." : "No artists found."}
         </div>
       ) : (
         <div className="divide-y divide-gray-800">
-          {filteredArtists.map((artist) => (
+          {artists.map((artist) => (
             <div
               key={artist.id}
               onClick={() => openEditModal(artist)}
@@ -254,6 +285,23 @@ export function ArtistManagement() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pages */}
+      {!loading && total > PAGE_SIZE && (
+        <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+          <button onClick={() => setPage((p) => p - 1)} disabled={page === 0}
+            className="px-3 py-1.5 border border-gray-700 rounded-lg hover:border-gray-500 disabled:opacity-40 disabled:hover:border-gray-700">
+            ← Prev
+          </button>
+          <span>
+            {page * PAGE_SIZE + 1}–{Math.min(total, (page + 1) * PAGE_SIZE)} of {total} · page {page + 1} of {pages}
+          </span>
+          <button onClick={() => setPage((p) => p + 1)} disabled={page + 1 >= pages}
+            className="px-3 py-1.5 border border-gray-700 rounded-lg hover:border-gray-500 disabled:opacity-40 disabled:hover:border-gray-700">
+            Next →
+          </button>
         </div>
       )}
 
